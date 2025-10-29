@@ -9,9 +9,9 @@
 		"dev": "concurrently \"npm run tailwind\" \"npm run tsc:watch\" \"npm run nodemon\"",
 		"tsc:watch": "tsc -watch",
 		"nodemon": "sleep 2 && nodemon ./dist/index.js",
-		"tailwind": "npx @tailwindcss/cli -o ./dist/public/styles/tailwind.css --watch",
+		"tailwind": "npx tailwindcss -o ./dist/public/styles/tailwind.css --watch",
 		"prod": "npm run build && npm run start",
-		"build": "npx tsc && npx @tailwindcss/cli -o ./dist/public/styles/tailwind.css",
+		"build": "npx tsc && npx tailwindcss -o ./dist/public/styles/tailwind.css",
 		"start": "node ./dist/index.js"
 	},
 	"keywords": [],
