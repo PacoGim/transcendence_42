@@ -1,8 +1,17 @@
 #!/bin/bash
 set -e
 
-avalanchego --network-id=local --http-host=0.0.0.0 &
+# Start Avalanche in background
+avalanchego --http-host=127.0.0.1 --network-id=local &
+AVAL_PID=$!
 
-sleep 5
+# Wait for Avalanche to initialize
+echo "Waiting for Avalanche node to start..."
+sleep 10
 
-bun run index.ts
+# Start Node.js API (this one keeps container alive)
+echo "Starting Node.js API..."
+bun --watch srcs/index.ts
+
+# Optional cleanup on exit
+kill $AVAL_PID

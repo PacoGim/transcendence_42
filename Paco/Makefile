@@ -1,10 +1,10 @@
 up:
 	mkdir -p ~/sgoinfre
-	docker compose build --no-cache
+	docker compose build
 	docker compose up -d
 
 it:
-	docker exec -it backend bash
+	docker exec -it blockchain bash
 
 down:
 	docker compose down

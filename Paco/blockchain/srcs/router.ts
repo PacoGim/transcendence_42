@@ -1,3 +1,4 @@
+import { getNodeID } from './avalanche'
 import { RouteType } from './types/route.type'
 
 const slashRoute = {
@@ -18,7 +19,19 @@ const idRoute = {
 	}
 }
 
+const infoRoute = {
+	'/info': {
+		GET: async () => {
+			const result = await getNodeID()
+			return new Response(JSON.stringify(result), {
+				headers: { 'Content-Type': 'application/json' }
+			})
+		}
+	}
+}
+
 export const routes = {
 	...slashRoute,
-	...idRoute
+	...idRoute,
+	...infoRoute
 }

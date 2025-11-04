@@ -3,5 +3,6 @@ import { BunRequest } from 'bun'
 
 Bun.serve({
 	port: 3001,
-	routes
+	routes,
+	fetch: () => new Response('Page not found', { status: 404 })
 })
