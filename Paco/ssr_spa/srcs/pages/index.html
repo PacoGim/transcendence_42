@@ -1,17 +1,45 @@
 <head>
 	<title>Home</title>
 	<style module>
-		a {
-			color: blue;
+		video {
+			display: inline;
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: -1;
+			height: 100vh;
+			width: auto;
+			object-fit: cover;
+			filter: blur(2px) grayscale(0.25);
+		}
+		page {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+			color: #fff;
+		}
+		page-title {
+			/* font-size: 5rem; */
+			margin-bottom: 2rem;
+		}
+		start-game-button {
+			/* font-size: 3rem; */
+		}
+		.button {
+			/* font-size: 1rem; */
 		}
 	</style>
 </head>
 
 <page type="index">
-	<a data-route="" class="">/index</a>
-	<a data-route="about">About</a>
-	<a data-route="login">Login</a>
-	<p class="bg-blue-400">This the Index</p>
+	<video src="/public/videos/bg.mp4" autoplay muted></video>
+	<page-title class="text-7xl">Pong Pong</page-title>
+	<start-game-button class="button text-5xl">Start Game</start-game-button>
+	<option-button class="button text-3xl">Options</option-button>
+	<login-button class="button text-3xl">Login</login-button>
+	<exit-button class="button text-3xl">Exit</exit-button>
 </page>
 
 <script type="module">
