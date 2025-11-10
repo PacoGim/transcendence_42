@@ -4,11 +4,32 @@
     <meta charset="UTF-8" />
     <title>Pong Multijoueur</title>
     <link rel="stylesheet" href="style.css" />
+    <script defer type="module" src="script.js"></script>
   </head>
   <body>
-    <button id="button1">Connect player 1</button>
-    <button id="button2">Connect player 2</button>
-	  <div id="score"></div>
-    <script defer type="module" src="script.js"></script>
+    <div id="controls">
+      <input type="text" id="pseudoInput" placeholder="John Doe">
+      <button id="PlayerLocal">Play-Local</button>
+      <button id="PlayerOnline">Play-Online</button>
+
+      <label for="colorPickerPlayer1">Color Player1 :</label>
+      <input type="color" id="colorPickerPlayer1" value="#00FF00">
+
+      <label for="colorPickerPlayer2">Color Player2 :</label>
+      <input type="color" id="colorPickerPlayer2" value="#0000FF">
+
+      <label for="colorPickerBall">Color Ball :</label>
+      <input type="color" id="colorPickerBall" value="#FFFF00">
+
+      <label for="messageInput">ChatRoom</label>
+      <div id="messages"></div>
+      <input type="text" id="messageInput" placeholder="Type your message">
+      <button id="messageSend">Send</button>
+    </div>
+	  <div id="game-container">
+    <div id="score"></div>
+    <!-- ton JS appendra le <canvas> ici -->
+    </div>
+
   </body>
 </html>

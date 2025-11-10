@@ -1,146 +1,137 @@
-import { board }  from "../public/board.js"
+import { board, arena } from "../public/board.js"
+import { Player  } from "./Player.js"
+import { Ball } from "./Ball.js"
 import { WebSocketServer, WebSocket } from "ws"
 
-interface Player {
-	id: number;
-	socket: WebSocket;
-	y: number;
-	score: number;
-	ready: boolean;
-	key: string;
-	paddleSize: number;
-}
+const ball: Ball = new Ball(arena.centerX, arena.centerY, 3, 3)
 
-interface Ball {
-	x: number;
-	y: number;
-	vx: number;
-	vy: number;
+const players = {
+	left: new Player(1, Math.PI, 1),
+	right: new Player(2, 0, -1),
 }
-
-const ball: Ball = {
-	x: board.width / 2,
-	y: board.height / 2,
-	vx: 0,
-	vy: 0
-}
-
-const players: Player[] = []
 
 let nbPlayer = 0
-
-let gravity = 0.1
+let gravity = 0.00
 
 export function createGameServer(webSocketServer: WebSocketServer)
 {
 	function broadcast(data: any)
 	{
-		const msg = JSON.stringify(data);
-		for (const p of players) p.socket.send(msg);
-	}
+		const msg = JSON.stringify(data)
+		players.left.socket?.send(msg)
+		players.right.socket?.send(msg)
+	}//broadcast
 
-	function onConnection(webSocket: WebSocket, foo:any)
+	function onConnection(webSocket: WebSocket)
 	{
-		if (players.length >= 2)
+		if (nbPlayer >= 2)
 		{
-			webSocket.send(JSON.stringify({ type: "error", message: "Partie pleine" }));
-			webSocket.close();
-			return;
+			webSocket.send(JSON.stringify({ type: "error", message: "Partie pleine" }))
+			webSocket.close()
+			return
 		}
-		const player: Player = {
-			id: ++nbPlayer,
-			socket: webSocket,
-			y: board.height / 2,
-			score: 0,
-			ready: false,
-			key: "none",
-			paddleSize: 50
-		};
-		players.push(player);
-		console.log("👤 Joueur connecté:", player.id);
-		webSocket.send(JSON.stringify({type:"onopen", id:player.id, message:`Bienvenue joueur ${player.id}`}))
 
-		webSocket.on("message", (msg) => {
-			const data = JSON.parse(msg.toString());
-			if (data.type === "input") {
+		let player: Player
+		if (!players.left.socket) player = players.left
+		else player = players.right
+
+		nbPlayer++
+		player.socket = webSocket
+
+		console.log("👤 Joueur connecté:", player.id)
+		webSocket.send(JSON.stringify({ type: "onopen", id: player.id, message: `Bienvenue joueur ${player.id}` }))
+
+		webSocket.on("message", (msg: any) => {
+			const data = JSON.parse(msg.toString())
+			if (data.type === "input")
+			{
 				player.key = data.key
-				if (data.key === "up" && player.y > player.paddleSize) player.y -= 10
-				if (data.key === "down" && player.y < board.height - player.paddleSize) player.y += 10
-				if (data.key === "space") player.ready = !player.ready;
+				if (data.key === "left" || data.key === "right") player.move(data.key)
+				if (data.key === "space") player.togglePause()
 			}
-		});
+		})
 
 		webSocket.on("close", () => {
-			const i = players.indexOf(player);
-			if (i >= 0) players.splice(i, 1);
-			console.log("🚪 Joueur déconnecté:", player.id);
-		});
+			player.socket = undefined
+			nbPlayer--
+			console.log("🚪 Joueur déconnecté:", player.id)
+		})
 	}
 
-  // Gestion des connexions
-	webSocketServer.on("connection", (webSocket:WebSocket)=> onConnection(webSocket, "sdf"));
+	webSocketServer.on("connection", onConnection)
 
-// Fonction pour initialiser la balle
-function resetBall(ball: Ball, players: Player[]) {
-
-	// Position au centre
-	ball.x = board.width / 2;
-	ball.y = board.height / 2;
-	ball.vx = 0
-	ball.vy = 0
-	gravity = 0;
-	const maxVx = 8;   // vitesse horizontale maximale
-	const baseVx = 4;  // vitesse de base
-	const baseVy = 2;  // vitesse verticale de base
-
-	// Calcul de la différence de score
-	const diff = Math.abs(players[0].score - players[1].score);
-	players[0].y = board.height / 2
-	players[1].y = board.height / 2
-
-	// Direction : vers le joueur qui mène
-	const leader = players[0].score > players[1].score ? 0 : 1;
-	const direction = leader === 0 ? -1 : 1; // 1 = vers joueur 2, -1 = vers joueur 1
-
-	// Vitesse horizontale proportionnelle à l'écart de score (limite max)
-	// ball.vx = 2
-
-	// Composante verticale aléatoire
-	const randomVy = Math.random() * baseVy * 2 - baseVy; // -baseVy ... +baseVy
-	ball.vx = Math.min(baseVx * (1 + diff), maxVx) * direction;
-	ball.vy = randomVy;
-	// setTimeout(() => {
-	// }, 750);
-}
-
-// Boucle du jeu (50 fps)
+	// Boucle du jeu
 	setInterval(() => {
-	if (players.length >= 2 && players[0].ready && players[1].ready) {
-		ball.x += ball.vx;
-		ball.y += ball.vy;
-		ball.vy += gravity;
-		if (ball.vx === 0) { resetBall(ball, players);}
-		if (ball.y > board.height - board.ballSize) {ball.vy = -1 * Math.abs(ball.vy); gravity = 0;}
-		if (ball.y < board.ballSize) {ball.vy = Math.abs(ball.vy); gravity = 0;}
-		const [p1, p2] = players;
-		if (ball.x <= 2 * board.paddleWidth + board.ballSize && Math.abs(ball.y - p1.y) <= p1.paddleSize) {ball.vx = Math.abs(ball.vx); if (p1.key === "up") gravity = -0.05; else if (p1.key === "down") gravity = 0.05; else gravity = 0;}
-		if (ball.x >= board.width - 2 * board.paddleWidth - board.ballSize && Math.abs(ball.y - p2.y) <= p2.paddleSize) {ball.vx = -1 * Math.abs(ball.vx); if (p2.key === "up") gravity = -0.05; else if (p2.key === "down") gravity = 0.05; else gravity = 0}
-		if (ball.x < 2 * board.paddleWidth + board.ballSize && ball.vx < 0)
+		if (nbPlayer < 2 || players.left.pause || players.right.pause) return
+
+		ball.x += ball.vx
+		ball.y += ball.vy
+
+		const dx = ball.x - arena.centerX
+		const dy = ball.y - arena.centerY
+		const dist = Math.sqrt(dx * dx + dy * dy)
+		let changeColor = false
+
+		if (dist >= arena.radius - board.ballSize)
 		{
-			players[1].score += 1
-			resetBall(ball, players)
+			changeColor = true
+			let bounced = false
+			const nx = dx / dist
+			const ny = dy / dist
+			const angleBall = Math.atan2(dy, dx)
+			const dot = ball.vx * nx + ball.vy * ny
+
+		// collision possible avec chaque joueur
+			if (Math.abs(Math.atan2(Math.sin(angleBall - players.left.angle),
+								Math.cos(angleBall - players.left.angle))) < players.left.paddleSize)
+			{
+				ball.vx -= 2.1 * dot * nx
+				ball.vy -= 2.1 * dot * ny
+				bounced = true
+			}
+			else if (Math.abs(Math.atan2(Math.sin(angleBall - players.right.angle),
+										Math.cos(angleBall - players.right.angle))) < players.right.paddleSize)
+			{
+				ball.vx -= 2.1 * dot * nx
+				ball.vy -= 2.1 * dot * ny
+				bounced = true
+			}
+			if (bounced)
+			{
+				const margin = 0.5; // petite marge
+				ball.x = arena.centerX + nx * (arena.radius - board.ballSize - margin)
+				ball.y = arena.centerY + ny * (arena.radius - board.ballSize - margin)
+
+			}
+			else
+			{
+				// sortie complète → but
+				if (ball.x > arena.centerX) players.left.score++
+				else players.right.score++
+				ball.reset(players.left.score, players.right.score)
+				players.left.resetAngle()
+				players.right.resetAngle()
+			}
 		}
-		else if (ball.x > board.width - 2 * board.paddleWidth - board.ballSize && ball.vx > 0)
-		{
-			players[0].score += 1
-			resetBall(ball, players)
-		}
-		// Diffuser l'état
+
 		broadcast({
 			type: "state",
 			ball,
-			players: players.map((p, i) => ({ id: p.id, y: p.y, side: i, score:p.score, paddleSize:p.paddleSize })),
-		});
-	}
-	}, 15);
-}
+			players: [
+				{ id: players.left.id,
+					angle: players.left.angle,
+					side: 0,
+					score: players.left.score,
+					paddleSize: players.left.paddleSize
+				},
+				{ id: players.right.id,
+					angle: players.right.angle,
+					side: 1,
+					score: players.right.score,
+					paddleSize: players.right.paddleSize
+				},
+			],
+			changeColor
+		}) //broadcast()
+	}, 15) //setInterval()
+} //createGameServer()

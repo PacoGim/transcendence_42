@@ -11,6 +11,6 @@ node -v
 cat /etc/ssl/private/server.key
 cat /etc/ssl/certs/server.crt
 cd /usr/src/app
-npm install
-echo 'npm install'
+pnpm install
+echo 'pnpm install'
 exec "$@"

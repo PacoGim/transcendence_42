@@ -2,5 +2,5 @@
   "watch": ["server"],
   "ext": "ts,json",
   "ignore": ["dist"],
-  "exec": "node --loader ts-node/esm ./server/index.ts"
+  "exec": "node --loader ts-node/esm ./server/test_db/test_db.ts"
 }
