@@ -1,7 +1,7 @@
 <head>
 	<title>Home</title>
 	<style module>
-		background-video {
+		background-container {
 			position: fixed;
 			top: 0;
 			left: 0;
@@ -12,23 +12,50 @@
 			grid-column: 1;
 			grid-row: 1;
 		}
+
+		img {
+			z-index: -1;
+			opacity: 1;
+			transition-property: opacity;
+			transition-duration: 300ms;
+			transition-timing-function: linear;
+		}
+
+		video {
+			z-index: -2;
+		}
+
+		img,
 		video {
 			height: 100%;
 			width: auto;
 			object-fit: cover;
-			filter: blur(2px) grayscale(0.25);
 			grid-column: 1 / 2;
 			grid-row: 1 / 2;
 		}
+
 		overlay {
 			display: block;
 			height: 100%;
 			width: 100%;
 			z-index: 1;
-			background-color: rgba(0, 0, 0, 0.33);
+			backdrop-filter: blur(4px) grayscale(0%) brightness(100%) saturate(100%);
+			background-color: rgba(0, 0, 0, 0.2);
 			grid-column: 1 / 2;
 			grid-row: 1 / 2;
+			animation: blurPulse 60s infinite ease-in-out;
 		}
+
+		@keyframes blurPulse {
+			0%,
+			100% {
+				backdrop-filter: blur(4px) grayscale(0%) brightness(100%) saturate(100%);
+			}
+			50% {
+				backdrop-filter: blur(4px) grayscale(20%) brightness(125%) saturate(125%);
+			}
+		}
+
 		page {
 			display: flex;
 			flex-direction: column;
@@ -37,8 +64,9 @@
 			height: 100vh;
 			color: #fff;
 		}
+
 		page-title {
-			margin-bottom: 2rem;
+			margin-bottom: 8rem;
 		}
 
 		main-menu-buttons {
@@ -52,66 +80,30 @@
 			transform: scale(1);
 			transition-property: transform;
 			transition-duration: 300ms;
-			transition-timing-function: ease-in-out;
+			transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 			cursor: pointer;
 		}
 
 		main-menu-buttons *[data-selected='true'] {
 			background-color: rgba(0, 0, 0, 0.75);
-			transform: scale(1.1);
+			transform: scale(1.2);
 		}
 	</style>
 </head>
 
 <page type="index">
-	<background-video>
+	<background-container>
 		<overlay></overlay>
-		<video src="/public/videos/bg.mp4" autoplay muted loop></video>
-	</background-video>
-	<page-title class="text-7xl">Pong Pong</page-title>
+		<video src="/public/videos/bg.mp4" muted loop></video>
+		<img src="/public/images/bg.webp" alt="" />
+	</background-container>
+	<page-title class="text-8xl">Pong Pong</page-title>
 	<main-menu-buttons>
 		<start-game-button data-route="" class="button text-5xl mb-4" data-selected="true">Start Game</start-game-button>
-		<option-button data-route="about" class="button text-3xl">Options</option-button>
+		<option-button data-route="options" class="button text-3xl">Options</option-button>
 		<login-button class="button text-3xl">Login</login-button>
 		<exit-button class="button text-3xl">Exit</exit-button>
 	</main-menu-buttons>
 </page>
 
-<script type="module">
-	let currentIdx = 0
-	let buttonList = []
-
-	document.addEventListener('keyup', evt => {
-		if (evt.key === 'ArrowDown') {
-			if (currentIdx + 1 >= buttonList.length) currentIdx = 0
-			else currentIdx++
-		} else if (evt.key === 'ArrowUp') {
-			if (currentIdx - 1 < 0) currentIdx = buttonList.length - 1
-			else currentIdx--
-		}
-		unselectButtons()
-		buttonList[currentIdx].dataset.selected = true
-	})
-	document.querySelectorAll('main-menu-buttons *').forEach((el, idx) => {
-		buttonList.push(el)
-		el.dataset.idx = idx
-		el.addEventListener('mouseenter', evt => {
-			unselectButtons()
-			currentIdx = Number(el.dataset.idx)
-			el.dataset.selected = true
-		})
-		el.addEventListener('mousedown', evt => {
-			console.log(buttonList[currentIdx])
-		})
-	})
-	document.addEventListener('keypress', evt => {
-		if (evt.key === 'Enter') {
-			console.log(buttonList[currentIdx])
-			const newRoute = buttonList[currentIdx].getAttribute('data-route')
-			if (newRoute != undefined) navigate(newRoute)
-		}
-	})
-	function unselectButtons() {
-		buttonList.forEach(el => (el.dataset.selected = false))
-	}
-</script>
+<script type="module" src="public/js/index.js"></script>

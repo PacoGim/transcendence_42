@@ -4,10 +4,10 @@ import { readFile } from 'fs/promises'
 import fastifyStatic from '@fastify/static'
 import { renderTemplateFromFile } from './functions/renderTemplateFromFile.fn.js'
 import { publicWatcher } from './services/publicWatcher.service.js'
-import __dirname ,{setDirName} from './functions/dirname.fn.js'
+import __dirname, { setDirName } from './functions/dirname.fn.js'
 
 const fastify: FastifyInstance = Fastify()
-const validRoutes = ['index', 'about', 'login']
+const validRoutes = ['index', 'about', 'login', 'options']
 
 setDirName(path.resolve())
 publicWatcher()
@@ -20,7 +20,7 @@ fastify.register(fastifyStatic, {
 async function getHTML(route: string, type?: string): Promise<any> {
 	return new Promise(async (resolve, reject) => {
 		let page
-				
+
 		if (type === 'hydrate') {
 			const filePath = path.join(__dirname(), 'srcs/pages', `${route}.html`)
 			page = await readFile(filePath, 'utf8').catch(() => reject(null))
@@ -33,10 +33,10 @@ async function getHTML(route: string, type?: string): Promise<any> {
 
 fastify.route({
 	method: 'GET',
-	url: '/*',
+	url: '/:route',
 	exposeHeadRoute: false,
 	handler: async (req: FastifyRequest, reply: FastifyReply) => {
-		let route = (req.params as { '*': string | undefined })['*'] || ''
+		let route = (req.params as { route: string | undefined })['route'] || ''
 		const type = req.headers.type as string
 		if (route === '') route = 'index'
 		if (validRoutes.includes(route)) {
@@ -50,7 +50,7 @@ fastify.route({
 
 const start = async () => {
 	try {
-		await fastify.listen({host:"0.0.0.0", port: 3000 })
+		await fastify.listen({ host: '0.0.0.0', port: 3000 })
 		console.log('Server running on http://localhost:3000')
 	} catch (err) {
 		fastify.log.error(err)

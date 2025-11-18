@@ -14,7 +14,7 @@ export function publicWatcher() {
 	const rootFolder = 'srcs/public'
 
 	const watcher = watch(rootFolder, {
-		ignored: [/(^|[\/\\])node_modules([\/\\]|$)/, /\.ts$/],
+		ignored: [/(^|[\/\\])node_modules([\/\\]|$)/, /\.ts$/,/\.DS_Store$/],
 		persistent: true
 	})
 
