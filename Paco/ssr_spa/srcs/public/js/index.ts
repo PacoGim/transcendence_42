@@ -26,7 +26,7 @@ document.addEventListener('keyup', evt => {
 	if (currentButton?.dataset?.selected !== undefined) currentButton.dataset.selected = 'true'
 })
 
-document.querySelectorAll<HTMLElement>('main-menu-buttons *').forEach((el: HTMLElement, idx) => {
+document.querySelectorAll<HTMLElement>('.btn-traverse').forEach((el: HTMLElement, idx) => {
 	buttonList.push(el)
 	el.dataset.idx = String(idx)
 	el.addEventListener('mouseenter', evt => {

@@ -75,7 +75,7 @@
 			align-items: center;
 		}
 
-		main-menu-buttons * {
+		.btn-traverse {
 			padding: 0.5rem 1rem;
 			transform: scale(1);
 			transition-property: transform;
@@ -84,7 +84,7 @@
 			cursor: pointer;
 		}
 
-		main-menu-buttons *[data-selected='true'] {
+		.btn-traverse[data-selected='true'] {
 			background-color: rgba(0, 0, 0, 0.75);
 			transform: scale(1.2);
 		}
@@ -99,10 +99,10 @@
 	</background-container>
 	<page-title class="text-8xl">Pong Pong</page-title>
 	<main-menu-buttons>
-		<start-game-button data-route="" class="button text-5xl mb-4" data-selected="true">Start Game</start-game-button>
-		<option-button data-route="options" class="button text-3xl">Options</option-button>
-		<login-button class="button text-3xl">Login</login-button>
-		<exit-button class="button text-3xl">Exit</exit-button>
+		<start-game-button data-route="" class="btn-traverse button text-5xl mb-4" data-selected="true">Start Game</start-game-button>
+		<option-button data-route="options" class="btn-traverse button text-3xl">Options</option-button>
+		<login-button class="btn-traverse button text-3xl">Login</login-button>
+		<exit-button class="btn-traverse button text-3xl">Exit</exit-button>
 	</main-menu-buttons>
 </page>
 

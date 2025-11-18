@@ -8,6 +8,8 @@ async function loadPage(route: string) {
 	updateDom(htmlDoc)
 }
 
+//TODO Add all the key listeners here from index.html/index.ts tp enable better navigation
+
 function updateDom(htmlDoc: Document) {
 	const $mainPage: HTMLElement | null = document.querySelector('page')
 	const $htmlDocPage: HTMLElement | null = htmlDoc.querySelector('page')
