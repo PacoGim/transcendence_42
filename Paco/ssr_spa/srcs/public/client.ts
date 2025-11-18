@@ -1,8 +1,8 @@
 async function loadPage(route: string) {
 	const location: string = `/${route || ''}`
-	const res: Response = await fetch(location, { headers: { type: 'hydrate' } })
+	const res: Response = await window.fetch(location, { headers: { type: 'hydrate' } })
 	const html: string = await res.text()
-	const parser: DOMParser = new DOMParser()
+	const parser: DOMParser = new window.DOMParser()
 	const htmlDoc: Document = parser.parseFromString(html, 'text/html')
 
 	updateDom(htmlDoc)
@@ -37,12 +37,20 @@ function updateStyleModule(htmlDocStyle: HTMLStyleElement) {
 
 function runFunction(htmlDocScript: HTMLScriptElement) {
 	if (htmlDocScript) {
-		document.querySelectorAll('body script[type="module"]:not([src])').forEach($el => {
+		document.querySelectorAll('body script[type="module"]:not([keep])').forEach($el => {
 			$el.remove()
 		})
 		const newScript: HTMLScriptElement = document.createElement('script')
 		if (htmlDocScript.type) newScript.type = htmlDocScript.type
-		newScript.textContent = htmlDocScript.textContent
+		if (htmlDocScript.src) {
+			fetch(htmlDocScript.src)
+				.then(res => res.text())
+				.then(res => {
+					newScript.textContent = res
+				})
+		} else {
+			newScript.textContent = htmlDocScript.textContent
+		}
 		document.body.appendChild(newScript)
 	}
 }
