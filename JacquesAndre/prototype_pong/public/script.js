@@ -1,17 +1,18 @@
 import { board, arena } from "./board.js"
+import { color } from "./pickerColor.js"
 
-const canvas = document.createElement("canvas")
 const score = document.getElementById("score")
 const buttonLocal = document.getElementById("PlayerLocal")
 const buttonOnline = document.getElementById("PlayerOnline")
-const picker1 = document.getElementById("colorPickerPlayer1")
-const picker2 = document.getElementById("colorPickerPlayer2")
-const pickerBall = document.getElementById("colorPickerBall")
-const gameContainer = document.getElementById("game-container")
+
 const messages = document.getElementById('messages')
 const input = document.getElementById('messageInput')
 const messageSend = document.getElementById('messageSend')
 const pseudoInput = document.getElementById('pseudoInput')
+const lobbys = document.getElementById('lobbys')
+
+const gameContainer = document.getElementById("game-container")
+const canvas = document.createElement("canvas")
 const ctx = canvas.getContext("2d")
 canvas.width = board.width
 canvas.height = board.height
@@ -27,68 +28,39 @@ let modeAi2 = false
 let player1 = 1
 let player2 = 2
 let keyState = {}
-let color1 = "#00FF00"
-let color2 = "#FF0000"
-let colorBall = "#FFFF00"
-let color1Comp =  "#FF00FF"
-let color2Comp = "#00FFFF"
-let colorBallComp = "#0000FF"
+
 let gameMode = "none"
 let lobbylocalList = null
 
 async function refreshLobbylocalList()
 {
+	lobbys.replaceChildren();
 	lobbylocalList = await fetch("/lobbylocal", {method:"GET"}).then(r=>r.json())
+	console.log(lobbylocalList)
+	if (!lobbylocalList || lobbylocalList.size == 0)
+	{
+		const { lobbyId } = await fetch("/lobbylocal", { method: "POST"} ).then(r=>r.json())
+		const buttonJoin = document.createElement("button");
+		buttonJoin.textContent = lobbyId
+		buttonJoin.addEventListener("click", (ev)=>{
+			handleLocal(lobbyId);
+		})
+		lobbys.appendChild(buttonJoin)
+		return
+	}
+	lobbylocalList?.lobbies.forEach((lobby, idx)=>{
+		const buttonJoin = document.createElement("button");
+		buttonJoin.textContent = lobby.id
+		buttonJoin.addEventListener("click", (ev)=>{
+			handleLocal(lobby.id);
+		})
+		lobbys.appendChild(buttonJoin)
+	})
 }
 
-function colorContrasted(hex)
-{
-	const r = parseInt(hex.slice(1, 3), 16)
-	const g = parseInt(hex.slice(3, 5), 16)
-	const b = parseInt(hex.slice(5, 7), 16)
-	const rComp = 255 - r
-	const gComp = 255 - g
-	const bComp = 255 - b
-	const compColor = `rgb(${rComp},${gComp},${bComp})`
-	return compColor
-}
+await refreshLobbylocalList()
 
-function randomColor()
-{
-	const random = Math.floor(Math.random() * 0xffffff);
-	const hex = random.toString(16).padStart(6, "0");
-	return `#${hex}`;
-}
-
-function toggleColor()
-{
-	color1 = randomColor()
-	color1Comp = colorContrasted(color1)
-	color2 = randomColor()
-	color2Comp = colorContrasted(color2)
-	colorBall = randomColor()
-	colorBallComp = colorContrasted(colorBall)
-	score.style.color = colorBall
-}
-
-picker1.addEventListener("input", ()=>{
-	color1 = picker1.value
-	color1Comp = colorContrasted(color1)
-	console.log({color1, color1Comp})
-})
-picker2.addEventListener("input", ()=>{
-	color2 = picker2.value
-	color2Comp = colorContrasted(color2)
-	console.log({color2, color2Comp})
-})
-pickerBall.addEventListener("input", ()=>{
-	colorBall = pickerBall.value
-	colorBallComp = colorContrasted(colorBall)
-	console.log({colorBall, colorBallComp})
-})
-
-
-async function handleLocal()
+async function handleLocal(lobbyIdArg)
 {
 	if (wslocal)
 	{
@@ -102,13 +74,17 @@ async function handleLocal()
 	gameMode = "local"
 	buttonOnline.style.display = "none"
 	buttonLocal.textContent = "Quit-Game"
-	const { lobbyId } = await fetch("/lobbylocal", { method: "POST"} ).then(r=>r.json())
-	wslocal = new WebSocket(`wss://${location.host}/lobbylocal/${lobbyId}?pseudo=${pseudoInput.value}`)
+	if (!lobbyIdArg)
+	{
+		const {lobbyId} = await fetch("/lobbylocal", { method: "POST"} ).then(r=>r.json())
+		lobbyIdArg = lobbyId
+	}
+	wslocal = new WebSocket(`wss://${location.host}/lobbylocal/join/${lobbyIdArg}?pseudo=${pseudoInput.value}`)
 
-	wslocal.onopen = () => { console.log(`${pseudoInput.value} connected to ${lobbyId}`); }
+	wslocal.onopen = () => { console.log(`${pseudoInput.value} connected to ${lobbyIdArg}`); }
 
 	wslocal.onclose = () => {
-		console.log(`${pseudoInput.value} disconnected from ${lobbyId}`);
+		console.log(`${pseudoInput.value} disconnected from ${lobbyIdArg}`);
 		wslocal = null;
 		buttonLocal.textContent = "Play-Local";
 	}
@@ -201,7 +177,7 @@ input.addEventListener('keypress', function(e) {
 	}
 });
 
-buttonLocal.addEventListener("click", handleLocal)
+buttonLocal.addEventListener("click", () => handleLocal(null))
 buttonOnline.addEventListener("click", handleOnline)
 
 document.addEventListener("keydown", (e) => { keyState[e.key] = true })
@@ -214,25 +190,6 @@ document.addEventListener("mousemove", (e) => {
 	else {keyState["z"] = false; keyState["a"] = false; }
 })
 
-function drawline(x1, y1, x2, y2)
-{
-	// Définir le style du trait
-ctx.strokeStyle = "white"   // couleur
-ctx.lineWidth = 1         // épaisseur
-
-// Commencer un nouveau chemin
-ctx.beginPath()
-
-// Position de départ
-ctx.moveTo(x1, y1)
-
-// Position d’arrivée
-ctx.lineTo(x2, y2)
-
-// Tracer le trait
-ctx.stroke()
-}
-
 function draw() {
 	// Score
 	const player1Tag = modeAi1?"IA-1":"PLAYER-1"
@@ -240,7 +197,7 @@ function draw() {
 	if (state.players[1]) score.innerText = `${player1Tag} ${state.players[0].score} | ${player2Tag} ${state.players[1].score}`
 
 	ctx.clearRect(0, 0, board.width, board.height);
-	if (state.changeColor) toggleColor()
+	if (state.changeColor) color.toggleColor()
 
 	// Définition de l’arène
 	const centerX = arena.centerX
@@ -250,19 +207,19 @@ function draw() {
 
 	ctx.beginPath()
 	ctx.arc(centerX, centerY, radius + paddleWidth / 2 , -Math.PI / 2, Math.PI / 2)
-	ctx.strokeStyle = color2Comp
+	ctx.strokeStyle = color.color2Comp
 	ctx.lineWidth = paddleWidth
 	ctx.stroke()
 
 	ctx.beginPath()
 	ctx.arc(centerX, centerY, radius + paddleWidth / 2, Math.PI / 2, -Math.PI / 2)
-	ctx.strokeStyle = color1Comp
+	ctx.strokeStyle = color.color1Comp
 	ctx.lineWidth = paddleWidth
 	ctx.stroke()
 
 	// === Balle ===
 	ctx.beginPath()
-	ctx.strokeStyle = colorBall
+	ctx.strokeStyle = color.colorBall
 	ctx.arc(state.ball.x, state.ball.y, board.ballSize, 0, Math.PI * 2)
 	ctx.fill()
 	// === Raquettes ===
@@ -272,7 +229,7 @@ function draw() {
 		const aEnd = p.angle + p.paddleSize
 
 		ctx.beginPath()
-		ctx.strokeStyle = p.side == 0?color1:color2
+		ctx.strokeStyle = p.side == 0?color.color1:color.color2
 		ctx.lineWidth = paddleWidth
 		ctx.arc(centerX, centerY, radius + paddleWidth / 2, aStart, aEnd)
 		ctx.stroke()
@@ -283,7 +240,7 @@ function draw() {
 		const y = centerY + (radius + paddleWidth / 2) * Math.sin(p.angle)
 		ctx.beginPath()
 		ctx.arc(x, y, paddleWidth / 2, 0, Math.PI * 2)
-		ctx.fillStyle = colorBall
+		ctx.fillStyle = color.colorBall
 		ctx.fill()
 
 	});
@@ -291,8 +248,9 @@ function draw() {
 }
 
 
-setInterval(()=>
+setInterval(async ()=>
 {
+	// await refreshLobbylocalList();
 	if (keyState["i"]){ modeAi1 = !modeAi1; keyState["i"] = false;}
 	if (keyState["o"]){ modeAi2 = !modeAi2; keyState["o"] = false;}
 	if (keyState[" "])

@@ -11,6 +11,19 @@ export class Lobby
 		console.log(`🆕 Lobby ${id} created`)
 	}
 
+	toJSON()
+	{
+		return {
+			id: this.id,
+			users: Array.from(this.users.values()).map(u => ({
+			id: u.id,
+			pseudo: u.pseudo
+			})),
+			size: this.size
+		};
+	}
+
+
 	addUser(user: User)
 	{
 		this.users.set(user.id, user)
@@ -39,7 +52,8 @@ export class Lobby
 		)
 	}
 
-	handleMessage(sender: User, msg: any) {
+	handleMessage(sender: User, msg: any)
+	{
 		this.broadcast(
 			{
 				type: "chat",

@@ -35,6 +35,11 @@ input[type="text"]
   gap: 10px;
 }
 
+#lobbys {
+  height: 50px;
+  border-color: blueviolet;
+}
+
 button {
   background-color: #222;
   color: white;

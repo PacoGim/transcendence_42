@@ -36,12 +36,13 @@ fastify.post("/lobby", async (req, reply) => {
 });
 
 // 👉 Connexion WebSocket à un lobby
-fastify.get<{ Params: { lobbyId: string }; Querystring: { pseudo: string } }>(
+fastify.get<{ Params: { lobbyId: string }; Querystring: { pseudo?: string } }>(
   "/lobby/:lobbyId",
   { websocket: true },
   (connection, req) => {
     const { lobbyId } = req.params;
-    const { pseudo } = req.query;
+     const incoming = typeof req.query.pseudo === "string" ? req.query.pseudo.trim() : "";
+    const pseudo = incoming.length > 0 ? incoming : `Player-${Math.floor(Math.random() * 10000)}`;
 
     let lobby = manager.getLobby(lobbyId);
     if (!lobby) {
