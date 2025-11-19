@@ -68,6 +68,10 @@ function updateUserList(users: any[]) {
         pseudoSpan.textContent = u.pseudo;
         pseudoSpan.className = "user-pseudo";
 
+		const statusSpan = document.createElement("span")
+		statusSpan.textContent = u.status
+		statusSpan.className = "user-status"
+
         // Création des boutons
         // const btnAddFriend = createButton("Ajouter", "add-friend");
         // const btnRemoveFriend = createButton("Enlever", "remove-friend");
@@ -77,7 +81,7 @@ function updateUserList(users: any[]) {
         const btnDuel = createButton("Duel", "duel");
 
         // Ajouter tout à la div utilisateur
-        userDiv.append(pseudoSpan, /*btnAddFriend, btnRemoveFriend, btnBlock, btnUnblock,*/ btnMP, btnDuel);
+        userDiv.append(pseudoSpan, statusSpan, /*btnAddFriend, btnRemoveFriend, btnBlock, btnUnblock,*/ btnMP, btnDuel);
         userListDiv.appendChild(userDiv);
     });
 }
@@ -346,14 +350,14 @@ async function refreshWebSocket() {
 	ws.addEventListener("message", (e)=>{
 		const message = json_parse(e.data);
 		if (!message) return
-		console.log("received: ", message)
+		if (message?.type === "error") console.log("received: ", message)
 		if (message?.type === "duel" && message?.action === "accept")
-			return setWss(user.websocket, "left")
+			return setWss(user.websocket, 0)
 		if (message?.type === "duel" && message?.action === "propose")
 		{
 			if (confirm(`${message?.from} send you a duel, do you accept?`))
 			{
-				setWss(user.websocket, "right")
+				setWss(user.websocket, 1)
 				return user?.websocket?.send(json_stringify({type: "duel", to: message?.from, action: "accept"}))
 			}
 			else

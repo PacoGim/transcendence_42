@@ -35,7 +35,8 @@ export default class User
   {
     return {
       pseudo: this.pseudo,
-      connected: this.socket?.readyState === WebSocket.OPEN
+      connected: this.socket?.readyState === WebSocket.OPEN,
+      status: this.status
     }
   }
 }

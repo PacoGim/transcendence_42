@@ -2,13 +2,10 @@
 
 
 export const color = {
-color1: "#00FF00",
-color2 : "#FF0000",
+player: ["#00FF00", "#FF0000", "#FF0000", "#FF0000"],
+playerComp :  ["#FF00FF","#00FFFF","#00FFFF","#00FFFF"],
 colorBall : "#FFFF00",
-color1Comp :  "#FF00FF",
-color2Comp : "#00FFFF",
-colorBallComp : "#0000FF",
-toggleColor
+colorBallComp : "#0000FF"
 }
 
 function colorContrasted(hex: any)
@@ -30,12 +27,13 @@ function randomColor()
 	return `#${hex}`;
 }
 
-function toggleColor()
+export function toggleColor()
 {
-	color.color1 = randomColor()
-	color.color1Comp = colorContrasted(color.color1)
-	color.color2 = randomColor()
-	color.color2Comp = colorContrasted(color.color2)
+	for (let i=0; i<color.player.length; i++)
+	{
+		color.player[i] = randomColor()
+		color.playerComp[i] = colorContrasted(color.player[i])
+	}
 	color.colorBall = randomColor()
 	color.colorBallComp = colorContrasted(color.colorBall)
 }

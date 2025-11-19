@@ -31,8 +31,6 @@ export default class Lobby
 		return nb
 	}
 
-
-
 	addUser(pseudo: string)
 	{
 		if (this.isPseudoTaken(pseudo)) return {id:"0", pseudo:""}
@@ -97,6 +95,8 @@ export default class Lobby
 		}
 		else if (msg?.type === "duel" && msg?.action === "propose")
 		{
+			if (sender.status !== "chat")
+				return sender.send({type:"error", text: `You're already in game`, timestamp: now})
 			if (destinataire.status !== "chat")
 				return sender.send({type:"error", text: `${msg.to} isn't available`, timestamp: now})
 			destinataire.send({type:"duel", from: sender.pseudo, action:"propose" , timestamp: now})
@@ -109,6 +109,7 @@ export default class Lobby
 		}
 		else if (msg?.type === "duel" && msg?.action === "accept")
 		{
+			console.log(`${sender.pseudo} create game`)
 			createGameServer(destinataire, sender)
 			destinataire.send({type:"duel", from: sender.pseudo, action:"accept" , timestamp: now})
 			// sender.send({type:"duel", from: destinataire.pseudo, action:"accept" , timestamp: now})
@@ -118,14 +119,14 @@ export default class Lobby
 	}
 
 
-	cleanup() {
-		for (const [id, user] of this.users.entries()) {
-			if (user.socket?.readyState === WebSocket.CLOSED) {
-				console.log(`🧹 Removing disconnected user ${user.pseudo}`);
-				this.users.delete(id);
-			}
-		}
-	}
+	// cleanup() {
+	// 	for (const [id, user] of this.users.entries()) {
+	// 		if (user.socket?.readyState === WebSocket.CLOSED) {
+	// 			console.log(`🧹 Removing disconnected user ${user.pseudo}`);
+	// 			this.users.delete(id);
+	// 		}
+	// 	}
+	// }
 
 	broadcast(payload: any, exceptId?: string)
 	{

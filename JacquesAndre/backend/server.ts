@@ -64,7 +64,6 @@ app.delete("/api/lobby", (req, reply)=>{
 	if (!user) return reply.code(403).send({error:`userId ${cleanId} invalid`})
 	lobby.removeUser(user)
 	reply.send({success: true})
-
 })
 
 app.get("/api/ws", { websocket: true}, (socket, req)=>{

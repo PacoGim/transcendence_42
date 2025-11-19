@@ -1,63 +1,51 @@
 import { WebSocket } from "ws";
+import User from "./User.js"
 
 export class Player
 {
-	id: number;
-	pseudo: string;
-	socket?: WebSocket;
-	angle: number;
-	defaultAngle: number;
-	spin: number;
-	score: number;
-	pause: boolean;
-	key: string;
-	paddleSize: number;
+	readonly index: number
+	readonly nbPlayer : number
+	readonly paddleSize: number
+	readonly defaultAngle: number
+	readonly minAngle: number
+	readonly maxAngle: number
+	readonly user: User
+	angle: number
+	score: number
+	pause: boolean
+	key: string
 
-	constructor(id: number, angle: number, spin: number) {
-		this.id = id;
-		this.angle = angle;
-		this.pseudo = "undefined";
-		this.defaultAngle = angle;
-		this.spin = spin;
-		this.score = 0;
-		this.pause = false;
-		this.key = "none";
-		this.paddleSize = 0.2; // radians (~11.5°)
-		this.socket = undefined;
+	constructor(index: number, nbPlayer: number, user: User)
+	{
+		this.index = index
+		this.nbPlayer = nbPlayer
+		this.paddleSize = 0.2 // radians (~11.5°)
+		this.user = user
+		this.key = "none"
+		this.pause = false
+		this.score = 5
+		this.angle = (Math.PI + 2 * index * Math.PI / nbPlayer) % (2 * Math.PI)
+		this.defaultAngle = (Math.PI + 2 * index * Math.PI / nbPlayer) % (2 * Math.PI)
+		this.minAngle = ((Math.PI / 2) + (2 * this.index * Math.PI / this.nbPlayer) + this.paddleSize)
+		this.maxAngle = ((Math.PI / 2) + (2 * (this.index + 1) * Math.PI / this.nbPlayer) - this.paddleSize)
+		console.log(`created player${index} angle ${this.angle} min ${this.minAngle} max ${this.maxAngle}`)
+		user.status = "game"
 	}
 
-	move(direction: "left" | "right")
+	move(direction: "-" | "+")
 	{
-		const step = 0.05 * this.spin;
-		if (direction === "left") this.angle += step;
-		if (direction === "right") this.angle -= step;
+		if (direction === "-") this.angle += 0.05
+		if (direction === "+") this.angle -= 0.05
 
-		// 🔁 Normalisation dans [-π, π]
-		// this.angle = Math.atan2(Math.sin(this.angle), Math.cos(this.angle));
+		if (this.angle < this.minAngle) this.angle = this.minAngle
+		if (this.angle > this.maxAngle) this.angle = this.maxAngle
 
-		// ✅ Borne selon le côté
-		if (this.id === 1)
-		{
-			// Joueur gauche : autorisé entre 90° et 270° (π/2 à 3π/2)
-			const min = (Math.PI / 2) + this.paddleSize
-			const max = 3 * Math.PI / 2 - this.paddleSize
-			if (this.angle < min) this.angle = min
-			if (this.angle > max) this.angle = max
-		}
-		else if (this.id === 2)
-		{
-			// Joueur droit : autorisé entre -90° et +90° (-π/2 à π/2)
-			const min = -Math.PI / 2 + this.paddleSize
-			const max = Math.PI / 2 - this.paddleSize
-			if (this.angle < min) this.angle = min
-			if (this.angle > max) this.angle = max
-		}
 	}
 
 	togglePause()
 	{
 		this.pause = !this.pause
-		// console.log(`⏸️ Joueur ${this.id} pause: ${this.pause}`)
+		if (this.pause) console.log(`⏸️ Joueur ${this.user.pseudo} toggle pause`)
 	}
 
 	resetAngle()
