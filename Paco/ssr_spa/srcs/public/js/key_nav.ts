@@ -1,0 +1,81 @@
+import { navigate } from './routing.js'
+
+let currentIdx = 0
+let buttonList: HTMLElement[] = []
+
+document.addEventListener('keyup', evt => {
+	if (evt.key === 'ArrowDown') {
+		currentIdx = (currentIdx + 1) % buttonList.length
+	} else if (evt.key === 'ArrowUp') {
+		currentIdx = (currentIdx - 1 + buttonList.length) % buttonList.length
+	}
+	unselectButtons()
+	let currentButton = buttonList[currentIdx]
+	if (currentButton?.dataset?.selected !== undefined) currentButton.dataset.selected = 'true'
+})
+
+document.addEventListener('keyup', evt => {
+	let currentButton = buttonList[currentIdx]
+	console.log(currentButton)
+	if (currentButton) {
+		let currentoption = Number(currentButton.dataset.currentoption)
+		let length = Number(currentButton.dataset.length)
+		if (evt.key === 'ArrowLeft') {
+			currentButton.dataset.currentoption = String((currentoption - 1 + length) % length)
+			currentButton.click()
+		} else if (evt.key === 'ArrowRight') {
+			currentButton.dataset.currentoption = String((currentoption + 1) % length)
+			currentButton.click()
+		}
+	}
+})
+
+document.addEventListener('keypress', evt => {
+	if (evt.key === 'Enter') {
+		let currentButton = buttonList[currentIdx]
+		if (currentButton) {
+			const newRoute = currentButton.getAttribute('data-route')
+			if (newRoute != undefined) navigate(newRoute)
+			else currentButton.click()
+		}
+	}
+})
+
+export function initKeyNav() {
+	console.log('Initializing Key Nav')
+	document.querySelectorAll<HTMLElement>('.traverse').forEach((el: HTMLElement, idx) => {
+		buttonList.push(el)
+		el.dataset.idx = String(idx)
+	})
+	hookKeyNav()
+}
+
+export function cleanKeyNav() {
+	console.log('Cleaning Key Nav')
+	unHookKeyNav()
+	buttonList.forEach($el => $el.remove())
+	buttonList.length = 0
+	currentIdx = 0
+}
+
+function highlightMouseEnter(el: HTMLElement) {
+	unselectButtons()
+	currentIdx = Number(el.dataset.idx)
+	el.dataset.selected = 'true'
+}
+
+function hookKeyNav() {
+	buttonList.forEach($el => {
+		$el.addEventListener('mouseenter', () => highlightMouseEnter($el))
+	})
+}
+
+function unHookKeyNav() {
+	buttonList.forEach($el => {
+		$el.removeEventListener('mouseenter', () => highlightMouseEnter($el))
+	})
+}
+
+function unselectButtons() {
+	buttonList.forEach(el => (el.dataset.selected = 'false'))
+}

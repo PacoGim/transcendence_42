@@ -1,7 +1,18 @@
-up:
-	mkdir -p ~/sgoinfre
+up: docker-required
 	docker compose build
 	docker compose up -d
+	docker compose logs -f
+
+docker-required:
+	@docker info >/dev/null 2>&1 || { \
+		echo "Docker not running. Launching Docker Desktop..."; \
+		open -a Docker; \
+		echo "Waiting for Docker to start..."; \
+		while ! docker info >/dev/null 2>&1; do \
+			sleep 2; \
+		done; \
+		echo "Docker is running."; \
+	}
 
 it:
 	docker exec -it backend bash

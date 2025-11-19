@@ -1,14 +1,16 @@
-async function loadPage(route: string) {
+import { cleanEvents, initEvents } from './events.js'
+
+export async function loadPage(route: string) {
 	const location: string = `/${route || ''}`
 	const res: Response = await window.fetch(location, { headers: { type: 'hydrate' } })
 	const html: string = await res.text()
 	const parser: DOMParser = new window.DOMParser()
 	const htmlDoc: Document = parser.parseFromString(html, 'text/html')
 
+	cleanEvents()
 	updateDom(htmlDoc)
+	initEvents()
 }
-
-//TODO Add all the key listeners here from index.html/index.ts tp enable better navigation
 
 function updateDom(htmlDoc: Document) {
 	const $mainPage: HTMLElement | null = document.querySelector('page')
@@ -56,27 +58,3 @@ function runFunction(htmlDocScript: HTMLScriptElement) {
 		document.body.appendChild(newScript)
 	}
 }
-
-async function navigate(route: string) {
-	history.pushState({}, '', `/${route}`)
-	await loadPage(route)
-}
-
-window.addEventListener('popstate', () => {
-	const route = location.pathname.replace('/', '') || ''
-	loadPage(route)
-})
-
-document.addEventListener('DOMContentLoaded', _ => {
-	document.body.addEventListener('click', e => {
-		e.preventDefault()
-		if (e?.target) {
-			const target: HTMLElement = e.target as HTMLElement
-			const $a: HTMLAnchorElement | null = target.closest('*[data-route]')
-			if ($a) {
-				const newRoute = $a.getAttribute('data-route')
-				if (newRoute != undefined) navigate(newRoute)
-			}
-		}
-	})
-})
