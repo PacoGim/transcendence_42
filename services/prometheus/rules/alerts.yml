@@ -1,0 +1,33 @@
+groups:
+  - name: containers
+    rules:
+      - alert: ContainerDown
+        expr: running_containers < total_images
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container Down Alert"
+          description: "The number of running containers is below the threshold. Current running containers: {{ $value }}."
+
+  - name: db
+    rules:
+      - alert: FailedQueries
+        expr: increase(total_db_failed_queries[5m]) > 5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database Failed Queries Alert"
+          description: "The number of failed database queries has increased by more than 5 in the last 5 minutes. Current increase: {{ $value }}."
+
+  - name: ContainerMemoryUsage
+    rules:
+      - alert: ContainerMemoryHigh
+        expr: (container_memory_usage_bytes{container_label_com_docker_compose_image!=""} / (204.8 * 1024 * 1024)) * 100 > 100
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container Memory Usage High"
+          description: "Container {{ $labels.container_label_com_docker_compose_service }} memory usage has exceeded 80% of its limit. Current usage: {{ $value }}%."

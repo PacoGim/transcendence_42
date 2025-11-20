@@ -1,0 +1,35 @@
+<head>
+	<title>Login</title>
+	<style module>
+		a {
+			color: rgb(0, 172, 14);
+		}
+	</style>
+</head>
+
+<page type="login">
+	<a data-route="" class="">/index</a>
+	<a data-route="options">Options</a>
+	<a data-route="register">Register</a>
+    <a data-route="dashboard">Dashboard</a>
+    <a data-route="users">Users</a>
+	<p class="bg-blue-400">This the Login</p>
+</page>
+
+<script type="module">
+	console.log('This is login')
+
+    /////////// LOGIN ///////////
+    fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username: '2',
+            pwd: 'password123'
+        })
+    })
+    .then(res => res.json())
+    .then(data => console.log('Login response:', data))
+</script>

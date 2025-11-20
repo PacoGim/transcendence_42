@@ -1,0 +1,33 @@
+import sqlite3 from 'sqlite3'
+
+export default function initDb() {
+    const db = new sqlite3.Database('./data/db.sqlite', (err) => {
+        if (err)
+            return console.error('\x1b[32m%s\x1b[0m', 'Could not connect to database', err);
+        else
+            console.log('\x1b[32m%s\x1b[0m', 'Connected to database');
+    });
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY NOT NULL,
+            name TEXT NOT NULL,
+            pwd TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            username TEXT NOT NULL UNIQUE
+        )
+    `);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS queries_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            query_type TEXT,
+            query TEXT NOT NULL,
+            status TEXT CHECK( status IN ('success','failure') ) NOT NULL,
+            error_code TEXT,
+            error_message TEXT,
+            latency_seconds REAL,
+            executed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+    console.log('\x1b[32m%s\x1b[0m', 'Users and queries_log tables created if not already exists');
+    return db;
+}

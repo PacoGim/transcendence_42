@@ -1,0 +1,2 @@
+cluster.name: "elasticsearch-cluster"
+network.host: localhost
