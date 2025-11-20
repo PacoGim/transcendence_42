@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 import Lobby from "./classes/Lobby.js"
-import { json_parse } from "../shared/json_wrapper.ts"
+import { json_parse, json_stringify } from "../shared/json_wrapper.ts"
 
 const app: FastifyInstance = Fastify({
 	  https: {
@@ -81,7 +81,7 @@ app.get("/api/ws", { websocket: true}, (socket, req)=>{
 			// Vérifier la taille maximale
             if (rawString.length > MAX_MESSAGE_LENGTH) {
                 console.warn(`Message too long from ${cleanId}, ignored`);
-                socket.send(JSON.stringify({ type: "error", text: `message too long (${MAX_MESSAGE_LENGTH} bytes max for the json)` }));
+                socket.send(json_stringify({ type: "error", text: `message too long (${MAX_MESSAGE_LENGTH} bytes max for the json)` }));
                 return;
             }
 			const msg = json_parse(rawString)

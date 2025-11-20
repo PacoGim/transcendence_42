@@ -20,14 +20,15 @@ export class Ball
 
 	reset(defaultAngle: number)
 	{
-		this.x = this.defaultX + this.defaultX * (1.5 - Math.random()) / 5
-		this.y = this.defaultY + this.defaultY * (1.5 - Math.random()) / 5
-		const minV : number = 3;
-		const maxV : number = 4;
+		this.x = this.defaultX * (6.5 - Math.random()) / 5
+		this.y =  this.defaultY * (6.5 - Math.random()) / 5
+		const minV : number = 3
+		const maxV : number = 4
 		const randomV : number = minV + Math.random() * (maxV - minV);
 		const randomNoiseAngle : number = - (Math.PI / 6) + Math.random() * (Math.PI / 3)
 		defaultAngle += randomNoiseAngle
 		this.vx = randomV *  Math.cos(defaultAngle)
 		this.vy = randomV * Math.sin(defaultAngle)
 	}
+
 }

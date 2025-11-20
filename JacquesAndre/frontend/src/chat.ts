@@ -352,12 +352,12 @@ async function refreshWebSocket() {
 		if (!message) return
 		if (message?.type === "error") console.log("received: ", message)
 		if (message?.type === "duel" && message?.action === "accept")
-			return setWss(user.websocket)
+			return setWss(user.websocket, user.pseudo)
 		if (message?.type === "duel" && message?.action === "propose")
 		{
 			if (confirm(`${message?.from} send you a duel, do you accept?`))
 			{
-				setWss(user.websocket)
+				setWss(user.websocket, user.pseudo)
 				return user?.websocket?.send(json_stringify({type: "duel", to: message?.from, action: "accept"}))
 			}
 			else

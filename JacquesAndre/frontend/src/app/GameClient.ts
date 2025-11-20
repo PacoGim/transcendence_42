@@ -1,3 +1,4 @@
+import { json_stringify } from "../../../shared/json_wrapper.ts"
 import { board, arena } from "./board.ts"
 import { color, toggleColor } from "./pickerColor.ts"
 
@@ -9,28 +10,34 @@ canvas.width = board.width
 canvas.height = board.height
 gameContainer?.appendChild(canvas);
 
-let state = { ball: {x:0, y:0}, players: [
-	{score:0, pseudo:"player0", angle:0, side:0, paddleSize:10},
-	{score:0, pseudo:"player1", angle:0, side:1, paddleSize:1},
-	{score:0, pseudo:"player1", angle:0, side:1, paddleSize:1}],
+let state = { ball: {dist:0, theta:0}, players: [
+	{score:0, pseudo:"player0", angle:0, minAngle:0, maxAngle:0, paddleSize:10}],
 	changeColor: false }
 let end : any = null
 let keyState : any  = {}
 let modeAI = true
+let pseudo = ""
+let anglePlayer = -1
 
 let wss : any = null
 
-export function setWss(webSocket : any)
+export function setWss(webSocket : any, pseu:string)
 {
 	console.log("start a new game")
 	wss = webSocket
+	pseudo = pseu
+	anglePlayer = -1
 	wss.onmessage = (e: any) =>
 	{
 		const data = JSON.parse(e.data)
 		if (data.type === "state")
 		{
-			console.log("received: ", data)
 			state = data
+			if (anglePlayer === -1)
+			{
+				anglePlayer = initAnglePlayer(state.players)
+				console.log("anglePlayer", anglePlayer)
+			}
 			if (end)
 			{
 				console.log("reset end")
@@ -39,7 +46,7 @@ export function setWss(webSocket : any)
 		else if (data.type === "end")
 		{
 			end = data.end
-			console.log(data.end)
+			console.log("data.end",data.end)
 		}
 	}//onmessage
 	modeAI = true
@@ -75,16 +82,19 @@ function draw()
 	// === Balle ===
 	ctx.beginPath()
 	ctx.strokeStyle = color.colorBall
-	ctx.arc(state.ball.x, state.ball.y, board.ballSize, 0, Math.PI * 2)
+	const ballX = arena.centerX + state.ball.dist * Math.cos(state.ball.theta + anglePlayer)
+	const ballY = arena.centerY + state.ball.dist * Math.sin(state.ball.theta + anglePlayer)
+	ctx.arc(ballX, ballY, board.ballSize, 0, Math.PI * 2)
 	ctx.fill()
 
-	const nbPlayer = state.players.length
+	debug!.innerHTML = `x ${Math.round(ballX)} | y ${Math.round(ballY)} | r ${Math.round(state?.ball?.dist)} | theta ${Math.round(state?.ball?.theta*5729)/100}`
+
 	state.players.forEach((p, index : number) => {
 		// Calcul de la position du paddle (centré sur l’angle du joueur)
-		const aStart = p.angle - p.paddleSize
-		const aEnd = p.angle + p.paddleSize
-		const bgStart = (Math.PI / 2) + (2 * index * Math.PI / nbPlayer)
-		const bgEnd = (Math.PI / 2) + (2 * (index + 1) * Math.PI / nbPlayer)
+		const aStart = p.angle - p.paddleSize + anglePlayer
+		const aEnd = p.angle + p.paddleSize + anglePlayer
+		const bgStart = p.minAngle + anglePlayer
+		const bgEnd = p.maxAngle + anglePlayer
 
 		// background player
 		ctx.beginPath()
@@ -101,17 +111,18 @@ function draw()
 		ctx.stroke()
 
 		// Optionnel : petit repère pour voir le centre du joueur
-		const x = centerX + (radius + paddleWidth / 2) * Math.cos(p.angle)
-		const y = centerY + (radius + paddleWidth / 2) * Math.sin(p.angle)
+		const x = centerX + (radius + paddleWidth / 2) * Math.cos(p.angle + anglePlayer)
+		const y = centerY + (radius + paddleWidth / 2) * Math.sin(p.angle + anglePlayer)
 		ctx.beginPath()
 		ctx.arc(x, y, paddleWidth / 2, 0, Math.PI * 2)
 		ctx.fillStyle = color.colorBall
 		ctx.fill()
 
 	});
+
 	requestAnimationFrame(draw);
 }//draw
-// const debug = document.getElementById("debug")
+const debug = document.getElementById("debug")
 
 function start()
 {
@@ -120,30 +131,11 @@ function start()
 		if (end) return clearInterval(idInterval)
 		if (keyState["i"]){ modeAI = !modeAI; keyState["i"] = false;}
 		if (keyState[" "])
-			return wss?.send(JSON.stringify({ type: "input", key: "space" })); keyState[" "] = false
-		// const centerX = arena.centerX
-		// const centerY = arena.centerY
-		// const ball_angle = Math.atan2(state.ball.y - centerY, state.ball.x - centerX)
-		// const diff1 = arena.centerY - state.ball.y + arena.radius * Math.sin(state.players[0].angle)
-		// const diff2 = arena.centerY - state.ball.y + arena.radius * Math.sin(state.players[1].angle)
-		// debug!.innerHTML = `diff1 ${diff1} <br> diff2 ${diff2}`
-		// if (modeAI && side=== 0)
-		// {
-		// 	if (diff1 < -20) wss.send(JSON.stringify({ type: "input", key: "+" }))
-		// 	else if (diff1 > 20) wss.send(JSON.stringify({ type: "input", key: "-" }))
-		// 	else wss.send(JSON.stringify({type:"input", key: "none"}))
-		// 	return
-		// }
-		// if (modeAI && side=== 1)
-		// {
-		// 	if (diff2 < -20) wss.send(JSON.stringify({ type: "input", key: "-" }))
-		// 	else if (diff2 > 20) wss.send(JSON.stringify({ type: "input", key: "+" }))
-		// 	else wss.send(JSON.stringify({type:"input", key: "none"}))
-		// 	return
-		// }
-		if (keyState["s"] && !keyState["d"]) wss?.send(JSON.stringify({ type: "input", key: "-" }))
-		else if (!keyState["s"] && keyState["d"]) wss?.send(JSON.stringify({ type: "input", key: "+" }))
-		else wss?.send(JSON.stringify({type:"input", key: "none"}))
+			return wss?.send(json_stringify({ type: "input", key: "space" })); keyState[" "] = false
+		if (modeAI) return wss?.send(json_stringify({type:"input", key:"chatGPT"}))
+		if (keyState["s"] && !keyState["d"]) wss?.send(json_stringify({ type: "input", key: "-" }))
+		else if (!keyState["s"] && keyState["d"]) wss?.send(json_stringify({ type: "input", key: "+" }))
+		else wss?.send(json_stringify({type:"input", key: "none"}))
 	}, 20)
 
 	draw()
@@ -161,8 +153,19 @@ function formatScore(players: any) : string
 
   return players
     .map((p : any) => {
-      const crown = p.score === bestScore ? " 👑" : "";
-      return `${p.pseudo.slice(0,5)}${crown} (${p.score})`;
+      const crown = p.score === bestScore ? " 👑" : ""
+      return `${p.pseudo.slice(0,4)}${crown} (${p.score})`
     })
     .join(" | ");
+}
+
+function initAnglePlayer(players : any) : number
+{
+	console.log("pseudo", pseudo, "players", players)
+	const nbPlayer : number = players.length
+	for (let index = 0; index < nbPlayer; index++)
+		if (players[index].pseudo === pseudo)
+			return Math.PI * (0.5 - (1 + 2*index) / nbPlayer)
+
+	return 0
 }
