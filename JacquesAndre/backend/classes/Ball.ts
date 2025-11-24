@@ -108,7 +108,7 @@ function predictImpacts(ball: IBall, hertz: number = 60): Impact[]
     const impacts: Impact[] = []
     let currentBall: IBall = { ...ball }
 
-	const maxImpact = 10
+	const maxImpact = 3
     for (let i = 0; i < maxImpact; i++)
 	{
         const impact = predictImpactFrom(currentBall)

@@ -1,8 +1,9 @@
 import { WebSocket } from "ws"
 
 import User from "./User.js"
-import { arena } from "./board.js";
 import type { Impact } from "./Ball.ts";
+
+const MaxTangenteSpeed = 0.2
 
 export class Player
 {
@@ -19,6 +20,7 @@ export class Player
 	ai: boolean
 	pseudo: string
 	key: string
+	tangenteSpeed: number
 
 	constructor(index: number, nbPlayer: number, user: User)
 	{
@@ -27,6 +29,7 @@ export class Player
 		this.paddleSize = 0.25 * Math.PI / nbPlayer
 		this.user = user
 		this.key = "none"
+		this.tangenteSpeed = 0
 		this.pause = false
 		this.ai = true
 		this.score = Math.round(21 / nbPlayer)
@@ -45,34 +48,30 @@ export class Player
 	{
 		this.pseudo = "🤖" + this.user.pseudo
 		let theta = this.defaultAngle
-		predictionIA.forEach(pr=>{
+		for (const pr of predictionIA) {
 			if (pr.theta > this.minAngle && pr.theta < this.maxAngle)
 			{
 				theta = pr.theta
-				return
+				break   // <--- sort de la boucle dès qu'on trouve le premier
 			}
-		})
-		if (this.angle > theta + this.paddleSize / 2) this.angle -= 0.05
-		else if (this.angle < theta - this.paddleSize / 2) this.angle += 0.05
-		if (this.angle - this.paddleSize < this.minAngle) this.angle = this.minAngle + this.paddleSize
-		if (this.angle + this.paddleSize > this.maxAngle) this.angle = this.maxAngle - this.paddleSize
+		}
+		if (this.angle > theta + this.paddleSize / 2) this.decrementAngle()
+		else if (this.angle < theta - this.paddleSize / 2) this.incrementAngle()
 	}
 
 	handleKey(predictionIA: Impact[])
 	{
-		const key = this.key
+		const lastKey = this.key
 		this.key = "none"
-		if (key === "space") return this.togglePause()
-			if (key === "chatGPT") this.ai = !this.ai
+		if (lastKey === "space") return this.togglePause()
+			if (lastKey === "chatGPT") this.ai = !this.ai
 		if (this.ai)  return this.handleIA(predictionIA)
 			this.pseudo = this.user.pseudo
 		if (this.user.socket && this.user.socket.readyState !== WebSocket.OPEN) return this.togglePause()
 
-		if (key === "none") return
-		if (key === "-") this.angle += 0.05
-		else if (key === "+") this.angle -= 0.05
-		if (this.angle - this.paddleSize < this.minAngle) this.angle = this.minAngle + this.paddleSize
-		if (this.angle + this.paddleSize > this.maxAngle) this.angle = this.maxAngle - this.paddleSize
+		if (lastKey === "none") this.decreaseTangenteSpeed()
+		else if (lastKey === "-") this.incrementAngle()
+		else if (lastKey === "+") this.decrementAngle()
 	}
 
 	togglePause()
@@ -84,5 +83,30 @@ export class Player
 	resetAngle()
 	{
 		this.angle = this.defaultAngle
+		this.tangenteSpeed = 0
+	}
+
+	private decreaseTangenteSpeed()
+	{
+		if (this.tangenteSpeed > 0.02) this.tangenteSpeed -= 0.02
+		if (this.tangenteSpeed < -0.02) this.tangenteSpeed += 0.02
+	}
+
+	private decrementAngle()
+	{
+		this.angle -= 0.05
+		if (this.angle - this.paddleSize < this.minAngle)
+			this.angle = this.minAngle + this.paddleSize
+		this.tangenteSpeed += 0.02
+		if (this.tangenteSpeed > MaxTangenteSpeed) this.tangenteSpeed = MaxTangenteSpeed
+	}
+
+	private incrementAngle()
+	{
+		this.angle += 0.05
+		if (this.angle + this.paddleSize > this.maxAngle)
+			this.angle = this.maxAngle - this.paddleSize
+		this.tangenteSpeed -= 0.02
+		if (this.tangenteSpeed < -MaxTangenteSpeed) this.tangenteSpeed = -MaxTangenteSpeed
 	}
 }

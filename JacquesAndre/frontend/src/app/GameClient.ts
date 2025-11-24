@@ -11,7 +11,7 @@ canvas.width = board.width
 canvas.height = board.height
 gameContainer?.appendChild(canvas);
 
-let state = { ball: {dist:0, theta:0, x:0, y:0}, impacts: [], players: [
+let state = { ball: {dist:0, theta:0, x:0, y:0}, message:"", impacts: [], players: [
 	{score:0, pseudo:"player0", angle:0, minAngle:0, maxAngle:0, paddleSize:10}],
 	changeColor: false }
 let end : boolean = false
@@ -89,8 +89,8 @@ function draw()
 	ctx.arc(ballX, ballY, board.ballSize, 0, Math.PI * 2)
 	ctx.fill()
 
-	debug!.innerHTML = `x ${Math.round(ballX)} | y ${Math.round(ballY)} | r ${Math.round(state?.ball?.dist)} | theta ${Math.round(state?.ball?.theta*5729)/100}`
-
+	// debug!.innerHTML = `x ${Math.round(ballX)} | y ${Math.round(ballY)} | r ${Math.round(state?.ball?.dist)} | theta ${Math.round(state?.ball?.theta*5729)/100}`
+	debug!.textContent = state.message
 	state.players.forEach((p, index : number) => {
 		// Calcul de la position du paddle (centré sur l’angle du joueur)
 		const aStart = p.angle - p.paddleSize + anglePlayer
