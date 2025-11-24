@@ -22,14 +22,12 @@ function updateDom(htmlDoc: Document) {
 	const $htmlDocScript: HTMLScriptElement | null = htmlDoc.querySelector('body script[type="module"]')
 
 	$mainPage?.dispatchEvent(new Event('cleanup'))
-	// $mainPage?.click()
 	if ($htmlDocTitle) document.title = $htmlDocTitle.innerHTML
 
 	if ($htmlDocStyle) updateStyleModule($htmlDocStyle)
 
 	if ($mainPage && $htmlDocPage) {
 		$mainPage.innerHTML = $htmlDocPage.innerHTML
-		// console.log($htmlDocPage.getAttribute('type'))
 		$mainPage.setAttribute('type', $htmlDocPage.getAttribute('type') || '')
 	}
 
@@ -46,7 +44,6 @@ function updateStyleModule(htmlDocStyle: HTMLStyleElement) {
 }
 
 function runFunction(htmlDocScript: HTMLScriptElement) {
-	// console.log("HTML Script: ", htmlDocScript)
 	if (htmlDocScript) {
 		document.querySelectorAll('body script[type="module"]:not([keep])').forEach($el => {
 			$el.remove()

@@ -1,7 +1,15 @@
 import { CurrentButtonStore } from '../stores/current_button.store.js'
 import { KeyboardStore } from '../stores/keyboard.store.js'
 
-const loginButtonValues = {
+type LoginButtonValues = {
+	[key: string]: {
+		id: string
+		inner: string
+		route: string
+	}
+}
+
+const loginButtonValues: LoginButtonValues = {
 	loginButton: {
 		id: 'registerButton',
 		inner: 'Register',
@@ -15,23 +23,24 @@ const loginButtonValues = {
 }
 
 const $page: HTMLElement = document.querySelector('page[type=index]')!
+let currentButton: HTMLElement
+
+const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButton = el))
 
 const unsubKeyStore = KeyboardStore.subscribe(key => {
 	if (['ArrowLeft', 'ArrowRight'].includes(key)) {
-		const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => {
-			const nextValue = loginButtonValues[el.id]
-
-			el.innerText = nextValue.inner
-			el.id = nextValue.id
-			el.dataset.route = nextValue.route
-
-			unsubCurrentButtonStore()
-		})
+		const nextValue = loginButtonValues[currentButton.id]
+		if (nextValue) {
+			currentButton.innerText = nextValue.inner
+			currentButton.id = nextValue.id
+			currentButton.dataset.route = nextValue.route
+		}
 	}
 })
 
 const cleanPage = () => {
 	$page.removeEventListener('cleanup', cleanPage)
+	unsubCurrentButtonStore()
 	unsubKeyStore()
 }
 
