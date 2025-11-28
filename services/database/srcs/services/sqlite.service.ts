@@ -2,7 +2,7 @@ import sqlite3 from 'sqlite3'
 import { log } from '../logs';
 
 export default function initDb() {
-    const db = new sqlite3.Database('./data/db.sqlite', (err) => {
+    const db = new sqlite3.Database('/app/services/database/data/db.sqlite', (err) => {
         if (err)
             return log(`Could not connect to database: ${err}`, 'error');
         else

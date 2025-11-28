@@ -1,3 +1,3 @@
 FROM grafana/grafana:12.2
 
-WORKDIR /app/backend/grafana
+WORKDIR /app/services/grafana

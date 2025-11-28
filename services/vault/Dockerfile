@@ -1,6 +1,6 @@
 FROM hashicorp/vault:1.21
 
-WORKDIR /app/backend/vault
+WORKDIR /app/services/vault
 
 RUN apk update && apk add openssl curl unzip bash clang
 

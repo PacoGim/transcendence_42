@@ -4,12 +4,12 @@ RUN apt-get update && apt-get install -y build-essential ca-certificates curl un
 RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:${PATH}"
 
-WORKDIR /app/backend/database
+WORKDIR /app/services/database
 
 COPY srcs ./srcs
 COPY package.json .
 
-RUN mkdir -p ./data && chmod -R 777 ./data
+RUN mkdir -p /app/services/database/data
 
 RUN bun install
 

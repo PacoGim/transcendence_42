@@ -14,7 +14,7 @@ services:
       - ./services/grafana/provisioning:/etc/grafana/provisioning
       - ./services/grafana/dashboards:/var/lib/grafana/dashboards
     networks:
-      - monitoring
+      - metrics
     labels:
     - "projectLabel=transcendence"
 
@@ -26,9 +26,10 @@ services:
     volumes:
       - ./services/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./services/prometheus/rules:/etc/prometheus/rules
+      - prometheus-data:/prometheus
     networks:
       - transcendence
-      - monitoring
+      - metrics
     labels:
       - "projectLabel=transcendence"
 
@@ -43,7 +44,7 @@ services:
       - /sys:/sys:ro # system info -> hardware stats (cpu, mem, io usage)
       - /var/lib/docker/:/var/lib/docker:ro # docker metadata (images, containers, volumes...) -> container stats
     networks:
-      - monitoring
+      - metrics
     labels:
     - "projectLabel=transcendence"
 
@@ -58,7 +59,7 @@ services:
       - /sys:/host/sys:ro # host system info -> hardware stats (cpu, mem, io usage)
       - /:/rootfs:ro # host filesystem info -> disk usage stats
     networks:
-      - monitoring
+      - metrics
     labels:
       - "projectLabel=transcendence"
 
@@ -72,7 +73,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # pour communiquer avec le daemon docker
     networks:
-      - monitoring
+      - metrics
     labels:
     - "projectLabel=transcendence"
 
@@ -84,17 +85,17 @@ services:
     volumes:
       - ./services/alertManager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
     networks:
-      - monitoring
+      - metrics
     labels:
       - "projectLabel=transcendence"
+
+volumes:
+  prometheus-data:
 
 networks:
   transcendence:
     name: transcendence_network
     driver: bridge
-  monitoring:
-    name: monitoring_network
-    driver: bridge
-  elk:
-    name: elk_network
+  metrics:
+    name: metrics_network
     driver: bridge

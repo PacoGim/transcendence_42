@@ -77,9 +77,8 @@ services:
     ports:
       - "6989:6989"
     volumes:
-      # - database:/app/services/database
       - ./services/database/srcs:/app/services/database/srcs
-      - ./services/database/data:/app/services/database/data
+      - database-data:/app/services/database/data
       - ./logs:/app/logs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6989/health"]
@@ -94,13 +93,10 @@ services:
     labels:
       - "projectLabel=transcendence"
 
+volumes:
+  database-data:
+
 networks:
   transcendence:
     name: transcendence_network
-    driver: bridge
-  monitoring:
-    name: monitoring_network
-    driver: bridge
-  elk:
-    name: elk_network
     driver: bridge

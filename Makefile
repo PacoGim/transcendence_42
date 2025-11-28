@@ -31,9 +31,9 @@ docker-required:
 	}
 
 down:
-	docker compose -f $(FILEPATH) down -v
-	docker compose -f $(FILEPATH_ELK) down -v
-	docker compose -f $(FILEPATH_METRICS) down -v
+	docker compose -f $(FILEPATH) down
+	docker compose -f $(FILEPATH_ELK) down
+	docker compose -f $(FILEPATH_METRICS) down
 
 nuke:
 	docker ps -q | xargs -r docker stop

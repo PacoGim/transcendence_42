@@ -4,8 +4,8 @@ services:
     container_name: elasticsearch
     expose:
       - 9200
-    # volumes:
-      # - ./services/elk/elasticsearch/data:/usr/share/elasticsearch/data
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
     environment:
       - logger.level=error
       - cluster.name=elasticsearch
@@ -56,7 +56,6 @@ services:
       - "5601:5601"
     volumes:
       - ./services/elk/kibana/imports:/usr/share/kibana/imports
-      # - ./services/elk/kibana/data:/usr/share/kibana/data
     environment:
       - server.name=kibana
       - server.host=localhost
@@ -72,13 +71,10 @@ services:
     labels:
       - "projectLabel=transcendence"
 
+volumes:
+  elasticsearch-data:
+
 networks:
-  transcendence:
-    name: transcendence_network
-    driver: bridge
-  monitoring:
-    name: monitoring_network
-    driver: bridge
   elk:
     name: elk_network
     driver: bridge
