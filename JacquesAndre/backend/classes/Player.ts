@@ -64,9 +64,9 @@ export class Player
 		const lastKey = this.key
 		this.key = "none"
 		if (lastKey === "space") return this.togglePause()
-			if (lastKey === "chatGPT") this.ai = !this.ai
+		if (lastKey === "chatGPT") this.ai = !this.ai
 		if (this.ai)  return this.handleIA(predictionIA)
-			this.pseudo = this.user.pseudo
+		this.pseudo = this.user.pseudo
 		if (this.user.socket && this.user.socket.readyState !== WebSocket.OPEN) return this.togglePause()
 
 		if (lastKey === "none") this.decreaseTangenteSpeed()

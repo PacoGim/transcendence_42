@@ -1,6 +1,6 @@
 import { json_stringify, json_parse } from "../../shared/json_wrapper.ts"
 import { loadChatHistory, handleIncomingMessage, cleanHistory } from "./messagesLocalStorage.ts"
-import { setWss } from "./app/GameClient.ts"
+import { setWss } from "./app/GameClientBab.ts"
 
 let user: {
 	userId: string;

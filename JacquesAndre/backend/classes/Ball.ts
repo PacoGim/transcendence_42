@@ -1,4 +1,4 @@
-import { arena } from "./board.ts"
+import { arena } from "../../shared/board.ts"
 
 export class Ball
 {

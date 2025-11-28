@@ -80,7 +80,7 @@ export default class Lobby
 		return this.broadcast({
 				type: "chat",
 				from: sender.pseudo,
-				text: msg.text,
+				text: msg?.text,
 				timestamp: now
 			})
 		if (msg?.type === "input")
