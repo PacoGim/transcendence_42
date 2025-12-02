@@ -13,7 +13,7 @@ import { log } from './logs.js'
 import { applyError } from './functions/applyError.fn.js'
 
 const fastify: FastifyInstance = Fastify()
-const validRoutes = ['index', 'about', 'login', 'options', 'register', 'dashboard', 'users']
+const validRoutes = ['index', 'about', 'login', 'options', 'register', 'dashboard', 'users', 'game']
 
 fastify.addHook('onResponse', (request: FastifyRequest, reply: FastifyReply) => {
 	totalHttpRequests.inc({

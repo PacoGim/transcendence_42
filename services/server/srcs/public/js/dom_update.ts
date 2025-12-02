@@ -22,7 +22,7 @@ function updateDom(htmlDoc: Document) {
 	const $htmlDocPage: HTMLElement | null = htmlDoc.querySelector('page')
 	const $htmlDocTitle: HTMLTitleElement | null = htmlDoc.querySelector('head title')
 	const $htmlDocStyle: HTMLStyleElement | null = htmlDoc.querySelector('head style')
-	const $htmlDocScript: HTMLScriptElement | null = htmlDoc.querySelector('body script[type="module"]')
+	const $htmlDocScript: HTMLScriptElement[] | null[] = htmlDoc.querySelectorAll('body script[type="module"]')
 
 	$mainPage?.dispatchEvent(new Event('cleanup'))
 	if ($htmlDocTitle) document.title = $htmlDocTitle.innerHTML
@@ -34,7 +34,9 @@ function updateDom(htmlDoc: Document) {
 		$mainPage.setAttribute('type', $htmlDocPage.getAttribute('type') || '')
 	}
 
-	if ($htmlDocScript) runFunction($htmlDocScript)
+	if ($htmlDocScript.length > 0) {
+		$htmlDocScript.forEach(scriptEl => runFunction(scriptEl))
+	}
 
 	PageChangeStore.emit(document.title)
 }
@@ -46,7 +48,7 @@ function updateStyleModule(htmlDocStyle: HTMLStyleElement) {
 	$head.appendChild(htmlDocStyle)
 }
 
-function runFunction(htmlDocScript: HTMLScriptElement) {
+async function runFunction(htmlDocScript: HTMLScriptElement) {
 	if (htmlDocScript) {
 		document.querySelectorAll('body script[type="module"]:not([keep])').forEach($el => {
 			$el.remove()
@@ -54,12 +56,8 @@ function runFunction(htmlDocScript: HTMLScriptElement) {
 		const newScript: HTMLScriptElement = document.createElement('script')
 		if (htmlDocScript.type) newScript.type = htmlDocScript.type
 		if (htmlDocScript.src) {
-			fetch(htmlDocScript.src)
-				.then(res => res.text())
-				.then(res => {
-					// console.log("Fetched script: ", res)
-					newScript.textContent = res
-				})
+			const res = await (await fetch(htmlDocScript.src)).text()
+			newScript.textContent = res
 		} else {
 			newScript.textContent = htmlDocScript.textContent
 		}
