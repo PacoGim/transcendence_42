@@ -2,18 +2,21 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
     container_name: elasticsearch
+    restart: unless-stopped
     expose:
-      - 9200
+      - ${ELASTICSEARCH_PORT}
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     environment:
+      - ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST}
+      - ELASTICSEARCH_PORT=${ELASTICSEARCH_PORT}
       - logger.level=error
       - cluster.name=elasticsearch
       - discovery.type=single-node
       - xpack.security.enabled=false
       - xpack.license.self_generated.type=trial
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      test: ["CMD", "curl", "-f", "${ELASTICSEARCH_HEALTH_URL}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,20 +28,23 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.15.0
     container_name: logstash
+    restart: unless-stopped
+    expose:
+      - ${LOGSTASH_PORT}
     volumes:
-      - ./services/elk/logstash/pipeline:/usr/share/logstash/pipeline:ro
-      - ./logs:/app/logs:ro
+      - ./services/elk/logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ${LOGS_PATH}:${LOGS_DIR}:ro
     environment:
       - http.host=0.0.0.0
-      # - xpack.monitoring.elasticsearch.hosts=http://elasticsearch:9200
-      - xpack.monitoring.enabled=false
-      # - xpack.monitoring.elasticsearch.username=bro
-      # - xpack.monitoring.elasticsearch.password=changeme
+      - xpack.monitoring.elasticsearch.hosts=http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      - xpack.monitoring.enabled=true
+      - xpack.monitoring.elasticsearch.username=${ELASTICSEARCH_USER}
+      - xpack.monitoring.elasticsearch.password=${ELASTICSEARCH_PWD}
     depends_on:
       elasticsearch:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9600/_node/pipelines"]
+      test: ["CMD", "curl", "-f", "${LOGSTASH_HEALTH_URL}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -52,17 +58,22 @@ services:
       context: ./services/elk/kibana
       dockerfile: Dockerfile
     container_name: kibana
+    restart: unless-stopped
     ports:
-      - "5601:5601"
+      - "${KIBANA_PORT}:${KIBANA_PORT}"
     volumes:
       - ./services/elk/kibana/imports:/usr/share/kibana/imports
     environment:
+      - KIBANA_OBJECTS_URL=${KIBANA_OBJECTS_URL}
+      - KIBANA_STATUS_URL=${KIBANA_STATUS_URL}
+      - ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST}
+      - ELASTICSEARCH_PORT=${ELASTICSEARCH_PORT}
       - server.name=kibana
-      - server.host=localhost
-      - elasticsearch.hosts=["http://elasticsearch:9200"]
+      - server.host=${KIBANA_HOST}
+      - elasticsearch.hosts=["http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}"]
       - xpack.monitoring.ui.container.elasticsearch.enabled=true
-      - elasticsearch.username=bro
-      - elasticsearch.password=changeme
+      - elasticsearch.username=${ELASTICSEARCH_USER}
+      - elasticsearch.password=${ELASTICSEARCH_PWD}
     depends_on:
       elasticsearch:
         condition: service_healthy

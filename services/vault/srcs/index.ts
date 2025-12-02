@@ -2,18 +2,16 @@ import { generateKeys } from "./generateKeys.ts";
 import { routes } from "./routes/handler.route.ts";
 import { log } from "./logs.ts";
 
-const PORT = 6988;
-
 async function main() {
     await generateKeys();
     Bun.serve({
-        port: PORT,
+        port: Number(process.env.VAULT_API_PORT),
         routes,
         fetch() {
             return new Response("Route not Known", { status: 404 });
         }
     });
-    log(`Listening on http://localhost:${PORT}`, 'info');
+    log(`Listening on http://localhost:${process.env.VAULT_API_PORT}`, 'info');
 }
 
 main();

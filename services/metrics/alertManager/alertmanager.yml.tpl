@@ -1,8 +1,8 @@
 global:
-  smtp_smarthost: 'smtp.ethereal.email:587' # SMTP server used for sending emails -> gmail = smtp.gmail.com:587
-  smtp_from: 'Alertmanager <zpib7n47qwquyanp@ethereal.email>' # sender email address
-  smtp_auth_username: 'zpib7n47qwquyanp@ethereal.email' # SMTP login (same as smtp_from)
-  smtp_auth_password: '3pDXZv8pYmZPnjGg5A' # SMTP password (from email provider)
+  smtp_smarthost: ${ALERT_HOST} # SMTP server used for sending emails -> gmail = smtp.gmail.com:587
+  smtp_from: "Alertmanager <${ALERT_FROM}>" # sender email address
+  smtp_auth_username: ${ALERT_AUTH_USER} # SMTP login (same as smtp_from)
+  smtp_auth_password: ${ALERT_AUTH_PWD} # SMTP password (from email provider)
   resolve_timeout: 5m # time to wait before retrying to resolve a notification
   smtp_require_tls: true # enforce TLS for SMTP connection
 
@@ -16,8 +16,8 @@ route: # who to notify and when
 receivers: # where to send notifications
   - name: 'email-receiver' # email receiver
     email_configs:
-      - to: 'zpib7n47qwquyanp@ethereal.email'
-        from: 'Alertmanager <zpib7n47qwquyanp@ethereal.email>'
+      - to: ${ALERT_TO}
+        from: "Alertmanager <${ALERT_FROM}>"
         require_tls: true # secure SMTP connection
         headers:
           Subject: 'Alert: {{ .CommonLabels.alertname }}'

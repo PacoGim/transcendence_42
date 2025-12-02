@@ -1,18 +1,22 @@
 services:
   grafana:
     build:
-      context: ./services/grafana
+      context: ./services/metrics/grafana
       dockerfile: Dockerfile
     container_name: grafana
+    restart: unless-stopped
     user: '0' # root, otherwisse find right id with cmd 'id -u'
     ports:
-      - "4000:4000"
-    environment:
-      - GF_SERVER_HTTP_PORT=4000 # user = admin, pwd = admin
-      # - GF_SECURITY_ADMIN_PASSWORD=your_password
+      - "${GRAFANA_PORT}:${GRAFANA_PORT}"
     volumes:
-      - ./services/grafana/provisioning:/etc/grafana/provisioning
-      - ./services/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./services/metrics/grafana/provisioning/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./services/metrics/grafana/provisioning/datasources/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./services/metrics/grafana/dashboards:${GRAFANA_DASHBOARDS_PATH}
+    environment:
+      - GF_SERVER_HTTP_PORT=${GRAFANA_PORT}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PWD}
+      - GRAFANA_DASHBOARDS_PATH=${GRAFANA_DASHBOARDS_PATH}
     networks:
       - metrics
     labels:
@@ -21,12 +25,15 @@ services:
   prometheus:
     image: prom/prometheus:v3.7.3
     container_name: prometheus
+    restart: unless-stopped
     expose:
-      - 9090
+      - ${PROMETHEUS_PORT}
     volumes:
-      - ./services/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./services/prometheus/rules:/etc/prometheus/rules
+      - ./services/metrics/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./services/metrics/prometheus/rules:/etc/prometheus/rules
       - prometheus-data:/prometheus
+    environment:
+      - PROMETHEUS_PORT=${PROMETHEUS_PORT}
     networks:
       - transcendence
       - metrics
@@ -36,8 +43,9 @@ services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.52.0
     container_name: cadvisor
+    restart: unless-stopped
     expose:
-      - 8080
+      - ${CADVISOR_PORT}
     volumes:
       - /:/rootsfs:ro # see filesys of host -> mesure host disk usage
       - /var/run:/var/run:ro # docker socket + containers info -> list containers running
@@ -51,8 +59,9 @@ services:
   node_exporter:
     image: prom/node-exporter:v1.10.2
     container_name: node_exporter
+    restart: unless-stopped
     expose:
-      - 9100
+      - ${NODE_EXPORTER_PORT}
     pid: "host" # pour avoir les bonnes stats cpu/mem/io du host
     volumes:
       - /proc:/host/proc:ro # host process info -> cpu, mem, io stats
@@ -65,13 +74,17 @@ services:
 
   docker_custom_exporter:
     build:
-      context: ./services/docker_custom_exporter
+      context: ./services/metrics/docker_custom_exporter
       dockerfile: Dockerfile
     container_name: docker_custom_exporter
+    restart: unless-stopped
     expose:
-      - 6789
+      - ${DOCKER_CUSTOM_EXPORTER_PORT}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # pour communiquer avec le daemon docker
+      - ${SOCKET_PATH}:${SOCKET_PATH} # pour communiquer avec le daemon docker
+    environment:
+      - DOCKER_CUSTOM_EXPORTER_PORT=${DOCKER_CUSTOM_EXPORTER_PORT}
+      - SOCKET_PATH=${SOCKET_PATH}
     networks:
       - metrics
     labels:
@@ -80,10 +93,17 @@ services:
   alertmanager:
     image: prom/alertmanager:v0.29.0
     container_name: alert_manager
+    restart: unless-stopped
     expose:
-      - 9093
+      - ${ALERTMANAGER_PORT}
     volumes:
-      - ./services/alertManager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./services/metrics/alertManager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    environment:
+      - ALERT_HOST=${ALERT_HOST}
+      - ALERT_FROM=${ALERT_FROM}
+      - ALERT_AUTH_USER=${ALERT_AUTH_USER}
+      - ALERT_AUTH_PWD=${ALERT_AUTH_PWD}
+      - ALERT_TO=${ALERT_TO}
     networks:
       - metrics
     labels:

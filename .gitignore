@@ -2,3 +2,9 @@ node_modules
 .DS_Store
 dist
 logs/*
+./services/elk/logstash/pipeline/logstash.conf
+./services/metrics/alertManager/alertmanager.yml
+./services/metrics/grafana/provisioning/dashboards/dashboards.yml
+./services/metrics/grafana/provisioning/datasources/datasources.yml
+./services/metrics/prometheus/prometheus.yml
+./services/vault/conf/config.hcl

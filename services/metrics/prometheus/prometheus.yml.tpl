@@ -5,19 +5,19 @@ global:
 scrape_configs:
   - job_name: 'cadvisor'
     static_configs:
-      - targets: ['cadvisor:8080']
+      - targets: ['cadvisor:${CADVISOR_PORT}']
   - job_name: 'node_exporter'
     static_configs:
-      - targets: ['node_exporter:9100']
+      - targets: ['node_exporter:${NODE_EXPORTER_PORT}']
   - job_name: 'db_metrics'
     static_configs:
-      - targets: ['database:6989']
+      - targets: ['database:${DB_PORT}']
   - job_name: 'docker_custom_exporter'
     static_configs:
-      - targets: ['docker_custom_exporter:6789']
+      - targets: ['docker_custom_exporter:${DOCKER_CUSTOM_EXPORTER_PORT}']
   - job_name: 'server'
     static_configs:
-      - targets: ['server:3000']
+      - targets: ['server:${SERVER_PORT}']
 
 rule_files:
   - "./rules/alerts.yml"
@@ -26,7 +26,7 @@ alerting:
   alertmanagers:
     - static_configs:
         - targets:
-            - 'alert_manager:9093'
+            - 'alert_manager:${ALERTMANAGER_PORT}'
 
 # data exporters = petits programmes qui transforment les metriques d'une appli en format comprehensible par prometheus
 # integration = config de prometheus pour aller chercher les donnees de ces exporters via leurs endpoints

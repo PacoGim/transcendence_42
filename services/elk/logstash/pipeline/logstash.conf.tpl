@@ -14,7 +14,7 @@ filter {
 
 output {
   elasticsearch {
-    hosts => ["http://elasticsearch:9200"]
+    hosts => ["http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}"]
     index => "my-logs-%{+YYYY.MM.dd}"
   }
 }

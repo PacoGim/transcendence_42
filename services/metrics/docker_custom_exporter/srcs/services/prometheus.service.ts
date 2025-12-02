@@ -2,7 +2,7 @@ import client from 'prom-client'
 import Docker from 'dockerode'
 
 export const register = new client.Registry();
-const docker = new Docker({ socketPath: '/var/run/docker.sock' })
+const docker = new Docker({ socketPath: process.env.SOCKET_PATH })
 
 const runningContainers = new client.Gauge({
   name: 'running_containers',

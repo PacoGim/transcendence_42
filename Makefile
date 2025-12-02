@@ -3,6 +3,7 @@ FILEPATH_ELK = docker-compose-elk.yml
 FILEPATH_METRICS = docker-compose-metrics.yml
 
 up:
+	./generate_yml_conf_files.sh
 	docker compose -f $(FILEPATH) build
 	docker compose -f $(FILEPATH) up -d
 	docker compose -f $(FILEPATH) logs -f
@@ -19,7 +20,6 @@ all:
 	make -C . up  FILEPATH=$(FILEPATH_METRICS)
 	
 re: down up
-
 
 docker-required:
 	@docker info >/dev/null 2>&1 || { \
