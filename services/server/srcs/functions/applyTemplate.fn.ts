@@ -17,7 +17,7 @@ export async function applyTemplate(pageContent: string): Promise<string> {
 
 		const title: string | undefined = document.querySelector('title')?.innerHTML!
 		const style: string | undefined = document.querySelector('style')?.outerHTML!
-		const script: string | undefined = document.querySelector('script')?.outerHTML!
+		const scripts: string[] | undefined = Array.from(document.querySelectorAll('script')).map(script => script.outerHTML)
 		const body: string = document.querySelector('page')?.outerHTML!
 
 		let template = await getTemplate()
@@ -25,7 +25,7 @@ export async function applyTemplate(pageContent: string): Promise<string> {
 		final = final.replace('{{body}}', body)
 		final = final.replace('{{style}}', style)
 		final = final.replace('{{title}}', title)
-		final = final.replace('{{script}}', script || '')
+		final = final.replace('{{script}}', scripts.join('\n') || '')
 
 		resolve(final)
 	})
