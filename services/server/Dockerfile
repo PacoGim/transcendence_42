@@ -19,6 +19,7 @@ COPY srcs ./srcs
 COPY pnpm-lock.yaml ./
 COPY tsconfig.json ./
 COPY tailwind.config.js ./
+COPY nodemon.json ./
 
 RUN pnpm install
 
