@@ -1,12 +1,19 @@
 import { genSalt } from 'bcrypt';
-import { setSecret } from './routes/vault.route.ts';
+import { setSecret, CheckSecretExists } from './routes/vault.route.ts';
 import { generateSecret, exportJWK } from 'jose';
 import { CryptoKey, JWK } from 'jose';
+import { log } from './logs.ts';
 
 export async function generateKeys() {
-    await generateBcryptSalt();
-    await generateJwsSecret();
-    await generateJweSecret();
+    if (await CheckSecretExists('bcrypt_salt') === false)
+        await generateBcryptSalt();
+    else log('Bcrypt salt already exists in Vault, skipping generation.', "warn");
+    if (await CheckSecretExists('jws_secret') === false)
+        await generateJwsSecret();
+    else log('JWS secret already exists in Vault, skipping generation.', "warn");
+    if (await CheckSecretExists('jwe_secret') === false)
+        await generateJweSecret();
+    else log('JWE secret already exists in Vault, skipping generation.', "warn");
 }
 
 export async function generateBcryptSalt() {

@@ -50,21 +50,30 @@ services:
       - "${VAULT_API_PORT}:${VAULT_API_PORT}"
     expose:
       - ${VAULT_PORT}
+      - ${VAULT_CLUSTER_PORT}
     volumes:
-      # - vault:/app/services/vault
       - ./services/vault/srcs:/app/services/vault/srcs
+      - ./services/vault/conf/config.hcl:/app/services/vault/conf/config.hcl
+      - vault-secure:/app/services/vault/secure
+      - vault-data:/vault/data
       - ${LOGS_PATH}:${LOGS_DIR}
     environment:
-      # ne pas changer ces noms de variables en dev
-      VAULT_DEV_LISTEN_ADDRESS: ${VAULT_DEV_LISTEN_ADDR}
       VAULT_ADDR: ${VAULT_ADDR}
-      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN_ID} # utiliser JWT dans prod a la place
       VAULT_API_PORT: ${VAULT_API_PORT}
+      VAULT_HEALTH_URL: ${VAULT_HEALTH_URL}
+      VAULT_CACERT: ${VAULT_CERT_PATH} # env var belonging to vault image
+      VAULT_KEY_PATH: ${VAULT_KEY_PATH}
+      UNSEAL_PASSPHRASE: ${PASSPHRASE}
+      VAULT_SECURE_DIR: ${VAULT_SECURE_DIR}
+      VAULT_SEALED_FILE: ${VAULT_SEALED_FILE}
+      VAULT_ROOT_TOKEN_FILE: ${VAULT_ROOT_TOKEN_FILE}
+      NODE_EXTRA_CA_CERTS: ${VAULT_CERT_PATH} # env var belonging to nodejs
+      VAULT_CERT_PATH: ${VAULT_CERT_PATH}
     healthcheck:
-      test: ["CMD", "curl", "-f", "${VAULT_HEALTH_URL}"]
-      interval: 2s
-      timeout: 1s
-      retries: 5
+      test: ["CMD", "curl", "-f", "${VAULT_API_HEALTH_URL}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     cap_add:
       - IPC_LOCK
     networks:
@@ -99,6 +108,8 @@ services:
 
 volumes:
   database-data:
+  vault-data:
+  vault-secure:
 
 networks:
   transcendence:

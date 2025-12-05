@@ -10,5 +10,10 @@ const vaultRoutes = {
 }
 
 export const routes = {
-    ...vaultRoutes
+    ...vaultRoutes,
+    "/health": {
+        GET: () => {
+            return new Response(JSON.stringify({ status: 'ok', uptime: process.uptime() }), { status: 200 });
+        },
+    }
 }

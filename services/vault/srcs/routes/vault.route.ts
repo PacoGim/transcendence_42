@@ -1,26 +1,52 @@
-import vaultLib from 'node-vault';
 import { log } from '../logs.ts';
+import https from 'https';
+import fs from 'fs';
 
-const VAULT_ADDR = process.env.VAULT_ADDR;
-const VAULT_TOKEN = process.env.VAULT_DEV_ROOT_TOKEN_ID;
+const VAULT_TOKEN = fs.readFileSync(process.env.VAULT_ROOT_TOKEN_FILE as string, 'utf8').trim();
+const VAULT_CERT_PATH = fs.readFileSync(process.env.VAULT_CERT_PATH as string, 'utf8');
 
-if (!VAULT_ADDR || !VAULT_TOKEN) {
-    throw new Error('VAULT_ADDR or VAULT_TOKEN is not defined in environment variables.');
+const httpsAgent = new https.Agent({ ca: VAULT_CERT_PATH });
+
+async function vaultFetch(path: string, options: RequestInit) {
+    return fetch(`${process.env.VAULT_ADDR}/v1/${path}`, {
+        ...options,
+        headers: {
+            'X-Vault-Token': VAULT_TOKEN,
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
+        },
+        dispatcher: httpsAgent
+        }
+    )
 }
 
-const vault = vaultLib({
-    apiVersion: 'v1',
-    endpoint: VAULT_ADDR,
-    token: VAULT_TOKEN,
-});
+export async function CheckSecretExists(name: string): Promise<boolean | void> {
+    try {
+        const res = await vaultFetch(`secret/data/${name}`, {
+            method: 'GET',
+        });
+        if (res.ok)
+            return true;
+        return false
+    } catch(error: unknown) {
+        if (error instanceof Error && error.message.includes('404')) {
+            throw new Error('Secret not found');
+        }
+    }
+}
 
 export async function getSecret(request:Request) {
     const { name } = await request.json();
     let res;
     try {
-        const secret = await vault.read(`secret/data/${name}`);
+        const secret = await vaultFetch(`secret/data/${name}`, {
+            method: 'GET',
+        })
+        if (!secret.ok) throw new Error(`${secret.status} ${secret.statusText}`);
+        const data = await secret.json();
+        const secretData = { value: data.data.value };
         log(`Secret ${name} retrieved from Vault`, 'info');
-        res = { status: 200, message: secret.data.data.value };
+        res = { status: 200, message: secretData };
     }
     catch (error:unknown) {
        res = { status: 500, message: 'Error getting secret' };
@@ -32,7 +58,11 @@ export async function getSecret(request:Request) {
 export async function setSecret(name: string, value: string) {
     let res;
     try {
-        await vault.write(`secret/data/${name}`, { data: { value } });
+        const secret = await vaultFetch(`secret/data/${name}`, {
+            method: 'POST',
+            body: JSON.stringify({ data: { value } }),
+        })
+        if (!secret.ok) throw new Error(`${secret.status} ${secret.statusText}`);
         log(`Secret ${name} set in Vault`, 'info');
         res = { status: 200, message: 'Secret set' };
     }

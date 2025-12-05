@@ -1,6 +1,7 @@
 import { generateKeys } from "./generateKeys.ts";
 import { routes } from "./routes/handler.route.ts";
 import { log } from "./logs.ts";
+import { getSecret } from "./routes/vault.route.ts";
 
 async function main() {
     await generateKeys();
