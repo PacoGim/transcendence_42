@@ -1,10 +1,12 @@
 import { WebSocket } from 'ws'
 import { json_stringify } from '../public/functions/json_wrapper.js'
+import { KeyType } from '../types/message.type.js'
 
 export default class User {
 	public pseudo: string
 	public socket: WebSocket | undefined
 	public status: string
+	public key: KeyType = "none"
 	constructor(public readonly id: string, pseudo: string | undefined) {
 		this.pseudo = pseudo?.trim() || `Player-${Math.floor(Math.random() * 1000)}`
 		this.socket = undefined

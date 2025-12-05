@@ -1,7 +1,7 @@
 import { WebSocket } from "ws"
 
 import User from "./User.js"
-import type { Impact } from "./Ball.ts";
+import type { Impact } from "../types/game.type.js"
 
 const MaxTangenteSpeed = 0.2
 
@@ -32,7 +32,7 @@ export class Player
 		this.tangenteSpeed = 0
 		this.pause = false
 		this.ai = true
-		this.score = Math.round(21 / nbPlayer)
+		this.score = Math.round(7 / nbPlayer)
 		this.pseudo = ""
 		const twoPiOverPlayers = (2 * Math.PI) / this.nbPlayer
 		this.minAngle = this.index * twoPiOverPlayers

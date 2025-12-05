@@ -1,7 +1,10 @@
 import { Player } from "./Player.js";
-import { Ball, Impact } from "./Ball.js";
+import { Ball } from "./Ball.js";
 import User from "./User.js";
-import { arena, board } from "../public/functions/board.js"
+import { arena, board } from "../public/functions/game.scale.js"
+import type { Impact, GameState, Countdown, GamePause } from "../types/game.type.js";
+import type { InputType } from "../types/message.type.js"
+import { json_parse } from "../public/functions/json_wrapper.js";
 
 const hertz = 60
 const tick_ms = 1000 / hertz
@@ -13,9 +16,10 @@ export class Game
 private players: Player[]
 private ball: Ball
 private predictions : Impact[]
-private intervalId : any
-private IAinterval : any
-private message : string
+private intervalId : NodeJS.Timeout | undefined
+private IAinterval : NodeJS.Timeout | undefined
+private status : 'state' | 'end' = 'state'
+private nbFrame : number = 0
 
 constructor (player0: User, player1: User)
 {
@@ -23,18 +27,22 @@ constructor (player0: User, player1: User)
 
 	this.ball = new Ball()
 	this.predictions = this.ball.predictImpact(hertz)
-	this.message = ""
-	const nbPlayer = 3
+	const nbPlayer = 7
 
 	this.players = [
 		new Player(0, nbPlayer, player0),
 		new Player(1, nbPlayer, player1),
 		new Player(2, nbPlayer, new User("", "Neo")),
-		// new Player(3, nbPlayer, new User("", "Mia")),
-		// new Player(4, nbPlayer, new User("", "Pac")),
-		// new Player(5, nbPlayer, new User("", "Man")),
-		// new Player(6, nbPlayer, new User("", "Wai")),
+		new Player(3, nbPlayer, new User("", "Mia")),
+		new Player(4, nbPlayer, new User("", "Pac")),
+		new Player(5, nbPlayer, new User("", "Man")),
+		new Player(6, nbPlayer, new User("", "Wai")),
 		// new Player(7, nbPlayer, new User("", "Tai")),
+		// new Player(8, nbPlayer, new User("", "Boa")),
+		// new Player(9, nbPlayer, new User("", "Noa")),
+		// new Player(10, nbPlayer, new User("", "Nim")),
+		// new Player(11, nbPlayer, new User("", "Wix")),
+		// new Player(12, nbPlayer, new User("", "Rio")),
 	];
 	this.setupSockets();
 	this.startGameLoop();
@@ -47,12 +55,12 @@ public destroy()
 	if (this.intervalId)
 	{
 		clearInterval(this.intervalId)
-		this.intervalId = null
+		this.intervalId = undefined
 	}
 	if (this.IAinterval)
 	{
 		clearInterval(this.IAinterval)
-		this.IAinterval = null
+		this.IAinterval = undefined
 	}
 
 	// 2. Débrancher les écouteurs de socket
@@ -71,18 +79,16 @@ public destroy()
 	this.predictions = []
 }//destroy()
 
-private broadcast(data: any): void
+private broadcast(data: GameState | Countdown | GamePause): void
 {
-	const msg = JSON.stringify(data)
-	this.players.forEach(p => p.user.socket?.send(msg))
+	this.players.forEach(p => p.user.send(data))
 }//broadcast
 
 private async startCountdown(): Promise<void>
 {
     let count = 3;
 
-    this.message = count.toString();
-    this.broadcast({ type: "countdown", value: count });
+    this.broadcast({ type: "countdown", value: count.toString() });
 
     return new Promise(resolve => {
         const timer = setInterval(() => {
@@ -90,16 +96,13 @@ private async startCountdown(): Promise<void>
             count--;
 
             if (count > 0) {
-                this.message = count.toString();
-                this.broadcast({ type: "countdown", value: count });
+                this.broadcast({ type: "countdown", value: count.toString() });
             }
             else {
                 clearInterval(timer);
-                this.message = "GO";
                 this.broadcast({ type: "countdown", value: "GO" });
 
                 setTimeout(() => {
-                    this.message = "";
                     resolve();
                 }, 500);
             }
@@ -113,11 +116,10 @@ private setupSockets()
 {
 	this.players.forEach((p: Player) => {
 		p.user.socket?.on("message", (msg: any) => {
-			const data = JSON.parse(msg.toString())
-			if (data.type === "input")
-				p.key = data.key;
+			const data = json_parse(msg.toString()) as InputType
+			if (!data) return
+			p.key = data.key;
 		})
-
 		p.user.socket?.on("close", () => this.destroy())
 	})
 }//setupSockets()
@@ -134,16 +136,16 @@ private startGameLoop()
 		this.ball.reset(this.getRandomWeightedPlayer().defaultAngle)
 		this.players.forEach(p => p.resetAngle())
 		this.predictions = this.ball.predictImpact(hertz)
+		this.intervalId = setInterval(() => this.gameTick(), tick_ms)
+		this.IAinterval = setInterval(() => { this.predictions=this.ball.predictImpact(hertz) }, tick_ai)
 	});
-	this.intervalId = setInterval(() => this.gameTick(), tick_ms)
-	this.IAinterval = setInterval(() => { this.predictions=this.ball.predictImpact(hertz) }, tick_ai)
 }//startGameLoop()
 
 private gameTick()
 {
 	this.players.forEach(p=>p.handleKey(this.predictions))
 
-	if (this.players.some(p => p.pause)) return
+	if (this.players.some(p => p.pause)) return this.broadcast({ type: "pause" });
 
 	this.ball.x += this.ball.vx
 	this.ball.y += this.ball.vy
@@ -181,18 +183,8 @@ private gameTick()
 				break;
 			}
 		}
-
-		if (endgame)
-		{
-			this.broadcast({ type: "end", players: this.players.map(p => ({
-				pseudo: p.user.pseudo,
-				score: p.score,
-				ai:p.ai
-			})) });
-			this.destroy()
-			return;
-		}
-
+		this.status = 'state'
+		if (endgame) this.status = 'end'
 		if (playerBounced)
 		{
 			let coef = 2
@@ -236,45 +228,35 @@ private gameTick()
 	}
 
 	this.broadcast({
-	type: "state",
+	type: this.status,
 	ball: { dist, theta, x:this.ball.x, y:this.ball.y },
-	message: this.message,
 	impacts:this.predictions,
 	players: this.players.map(p => ({
+		pseudo: p.user.pseudo,
+		score: p.score,
+		ai:p.ai,
+		angle: p.angle,
 		minAngle:p.minAngle,
 		maxAngle:p.maxAngle,
-		pseudo: p.user.pseudo,
-		angle: p.angle,
-		score: p.score,
-		paddleSize: p.paddleSize,
-		ai:p.ai
+		paddleSize: p.paddleSize
 	})),
-	changeColor
+	changeColor,
+	nbFrame: (++this.nbFrame)
 	});
+	if (this.status === "end") this.destroy()
 }//gameTick()
-
-private formatRanking(): string
-{
-	const sorted = [...this.players].sort((a, b) => b.score - a.score);
-	const bestScore = sorted[0].score;
-	return sorted.map(p => {
-	const crown = p.score === bestScore ? " 👑" : "";
-	const AI = p.ai?"🤖":""
-	return `${AI}${p.user.pseudo}${crown} (${p.score})`;
-	}).join(", ");
-}//formatRanking()
 
 private getRandomWeightedPlayer(): Player
 {
 	const total = this.players.reduce((sum, p) => sum + p.score, 0);
-	if (total === 0) return this.players[Math.floor(Math.random() * this.players.length)];
+	if (total === 0) return this.players[Math.floor(Math.random() * this.players.length)] as Player;
 
 	let r = Math.random() * total;
 	for (const p of this.players) {
 	if (r < p.score) return p;
 	r -= p.score;
 	}
-	return this.players[this.players.length - 1];
+	return this.players[this.players.length - 1] as Player;
 }//getRandomWeightedPlayer
 
 }//class Game

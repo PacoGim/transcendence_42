@@ -121,12 +121,6 @@ fastify.get('/api/ws', { websocket: true }, (socket, req) => {
 	if (!user) return socket.close()
 		console.log('Socket closed')
 	lobby.refreshWebsocket(cleanId, socket)
-	console.log('User lobby: ', user?.socket?._readyState)
-	// lobby.broadcast({})
-	lobby.broadcast({
-		id: user.id
-	})
-	socket.on('close', () => lobby.broadcast({}))
 	socket.on('message', (raw: any) => {
 		const rawString = sanitizeHtml(raw.toString())
 		// Vérifier la taille maximale
@@ -138,7 +132,7 @@ fastify.get('/api/ws', { websocket: true }, (socket, req) => {
 		const msg = json_parse(rawString)
 		if (!msg) {
 			console.warn(`Json invalid from ${cleanId}, ignored`)
-			socket.send(JSON.stringify({ type: 'error', text: `Invalid json format` }))
+			socket.send(json_stringify({ type: 'error', text: `Invalid json format`, timestramp: Date.now() }))
 			return
 		}
 		lobby.handleMessage(user, msg)

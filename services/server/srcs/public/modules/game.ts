@@ -1,4 +1,4 @@
-import { setWss } from '../functions/GameClientBab.js'
+import { launchGame } from '../functions/GameClientBab.js'
 import { json_parse, json_stringify } from '../functions/json_wrapper.js'
 import { cleanHistory, handleIncomingMessage, loadChatHistory } from '../functions/messagesLocalStorage.js'
 
@@ -347,10 +347,10 @@ async function refreshWebSocket() {
 		// console.log(message)
 		if (!message) return
 		if (message?.type === 'error') console.log('received: ', message)
-		if (message?.type === 'duel' && message?.action === 'accept') return setWss(user.websocket, user.pseudo)
+		if (message?.type === 'duel' && message?.action === 'accept') return launchGame(user.websocket, user.pseudo)
 		if (message?.type === 'duel' && message?.action === 'propose') {
 			if (confirm(`${message?.from} send you a duel, do you accept?`)) {
-				setWss(user.websocket, user.pseudo)
+				launchGame(user.websocket, user.pseudo)
 				return user?.websocket?.send(json_stringify({ type: 'duel', to: message?.from, action: 'accept' }))
 			} else return user?.websocket?.send(json_stringify({ type: 'duel', to: message?.from, action: 'decline' }))
 		}

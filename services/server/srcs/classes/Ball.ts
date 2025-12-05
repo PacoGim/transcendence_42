@@ -1,4 +1,5 @@
-import { arena } from "../public/functions/board.js"
+import { arena } from "../public/functions/game.scale.js"
+import type { Impact } from "../types/game.type.js"
 
 export class Ball
 {
@@ -41,15 +42,6 @@ interface IBall {
     y: number;
     vx: number;
     vy: number;
-}
-
-export interface Impact {
-    tImpact: number;      // temps depuis le départ du segment
-    impactX: number;      // position X de l'impact
-    impactY: number;      // position Y de l'impact
-    theta: number;        // angle par rapport au centre
-    vx: number;           // vitesse après impact
-    vy: number;           // vitesse après impact
 }
 
 /**

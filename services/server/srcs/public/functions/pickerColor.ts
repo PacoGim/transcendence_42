@@ -2,8 +2,8 @@
 
 
 export const color = {
-player: ["#FF0000","#00FF00","#0000FF","#FF00FF","#00FFFF","#FFFF00","#FF5500","#0055FF"],
-playerComp :  ["#550000","#005500","#000055","#550055","#005555","#555500","#552200","#002255"],
+player: ["#FF0000","#00FF00","#0000FF","#FF00FF","#00FFFF","#FFFF00","#FF5500","#0055FF","#FF0000","#00FF00","#0000FF","#FF00FF", "#550000","#005500","#000055","#550055"],
+playerComp :  ["#550000","#005500","#000055","#550055","#005555","#555500","#552200","#002255", "#550000","#005500","#000055","#550055", "#550000","#005500","#000055","#550055"],
 colorBall : "#DEDEDE",
 colorBallComp : "#545454"
 }
@@ -27,7 +27,7 @@ function randomColor()
 	return `#${hex}`;
 }
 
-export function toggleColor()
+function toggleColor()
 {
 	return
 	for (let i=0; i<color.player.length; i++)

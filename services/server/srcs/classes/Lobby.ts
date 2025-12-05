@@ -2,13 +2,12 @@ import { WebSocket } from "ws";
 import { randomUUID } from "crypto";
 
 import User from "./User.js"
-// import createGameServer from "./GameServer.js"
 import { Game } from "./Game.js"
+import type { FrontType, MessageType } from "../types/message.type.js";
 
 export default class Lobby
 {
 	private users = new Map<string, User>()
-	private messages = {}
 
 	constructor() { console.log(`🆕 Lobby created`) }
 
@@ -54,7 +53,6 @@ export default class Lobby
 		if (!user || user.socket?.readyState === WebSocket.OPEN) return
 		user.socket = websocket
 		console.log(`🆕 ${user.pseudo} refresh his websocket`)
-		this.broadcast({})
 	}
 
 	getUser(userId: string): User | undefined
@@ -73,65 +71,61 @@ export default class Lobby
 			})
 	}
 
-	handleMessage(sender: User, msg: any)
+	handleMessage(sender: User, msg: MessageType)
 	{
 		const now = Date.now()
-		if (msg?.type === "chat")
-		return this.broadcast({
+		switch (msg.type)
+		{
+			case ("chat") : return this.broadcast({
 				type: "chat",
 				from: sender.pseudo,
 				text: msg?.text,
 				timestamp: now
 			})
-		if (msg?.type === "input")
-			return //console.log(msg)
-		const destinataire = this.getUserByPseudo(msg.to)
-		if (!destinataire)
-			return sender.send({type:"error", text: `${msg.to} can't be found`, timestamp: now})
-		if (msg?.type === "mp")
-		{
-			console.log(`${sender.pseudo} send a message to ${destinataire.pseudo}`)
-			destinataire.send({type:"mp", from: sender.pseudo, text: msg.text, timestamp: now})
-			sender.send({type:"mp", to:msg.to, text: msg.text, timestamp: now})
+			case ("input") : return sender.key = msg.key
+			case ("mp") :
+				{
+					const destinataire = this.getUserByPseudo(msg.to)
+					if (!destinataire)
+						return sender.send({type:"error", text: `${msg.to} can't be found`, timestamp: now})
+					console.log(`${sender.pseudo} send a message to ${destinataire.pseudo}`)
+					destinataire.send({type:"mp", from: sender.pseudo, text: msg.text, timestamp: now})
+					sender.send({type:"mp", to:msg.to, text: msg.text, timestamp: now})
+					break;
+				}
+			case ("duel") :
+				{
+					const destinataire = this.getUserByPseudo(msg.to)
+					if (!destinataire)
+						return sender.send({type:"error", text: `${msg.to} can't be found`, timestamp: now})
+					if (msg.action === "propose")
+					{
+						if (sender.status !== "chat")
+							return sender.send({type:"error", text: `You're already in game`, timestamp: now})
+						if (destinataire.status !== "chat")
+							return sender.send({type:"error", text: `${msg.to} isn't available`, timestamp: now})
+						destinataire.send({type:"duel", from: sender.pseudo, action:"propose" , timestamp: now})
+						console.log(`${sender.pseudo} send a duel to ${destinataire.pseudo}`)
+					}
+					else if (msg.action === "accept")
+					{
+						console.log(`${sender.pseudo} create game`)
+						new Game(destinataire, sender)
+						destinataire.send({type:"duel", from: sender.pseudo, action:"accept" , timestamp: now})
+						// sender.send({type:"duel", from: destinataire.pseudo, action:"accept" , timestamp: now})
+						console.log(`${sender.pseudo} accept a duel from ${destinataire.pseudo}`)
+					}
+					else if (msg.action === "decline")
+					{
+						destinataire.send({type:"duel", from: sender.pseudo, action:"decline" , timestamp: now})
+						console.log(`${sender.pseudo} refuse a duel from ${destinataire.pseudo}`)
+					}
+				}
 		}
-		else if (msg?.type === "duel" && msg?.action === "propose")
-		{
-			if (sender.status !== "chat")
-				return sender.send({type:"error", text: `You're already in game`, timestamp: now})
-			if (destinataire.status !== "chat")
-				return sender.send({type:"error", text: `${msg.to} isn't available`, timestamp: now})
-			destinataire.send({type:"duel", from: sender.pseudo, action:"propose" , timestamp: now})
-			console.log(`${sender.pseudo} send a duel to ${destinataire.pseudo}`)
-		}
-		else if (msg?.type === "duel" && msg?.action === "decline")
-		{
-			destinataire.send({type:"duel", from: sender.pseudo, action:"decline" , timestamp: now})
-			console.log(`${sender.pseudo} refuse a duel from ${destinataire.pseudo}`)
-		}
-		else if (msg?.type === "duel" && msg?.action === "accept")
-		{
-			console.log(`${sender.pseudo} create game`)
-			new Game(destinataire, sender)
-			destinataire.send({type:"duel", from: sender.pseudo, action:"accept" , timestamp: now})
-			// sender.send({type:"duel", from: destinataire.pseudo, action:"accept" , timestamp: now})
-			console.log(`${sender.pseudo} accept a duel from ${destinataire.pseudo}`)
-		}
-
 	}
 
-
-	// cleanup() {
-	// 	for (const [id, user] of this.users.entries()) {
-	// 		if (user.socket?.readyState === WebSocket.CLOSED) {
-	// 			console.log(`🧹 Removing disconnected user ${user.pseudo}`);
-	// 			this.users.delete(id);
-	// 		}
-	// 	}
-	// }
-
-	broadcast(payload: any, exceptId?: string)
+	broadcast(payload: FrontType, exceptId?: string)
 	{
-		// this.cleanup()
 		for (const [id, user] of this.users.entries())
 		{
 			if (id !== exceptId)
@@ -147,7 +141,7 @@ export default class Lobby
 	close()
 	{
 		this.broadcast({
-				type: "system",
+				type: "error",
 				text: `server close inappropriately`,
 				timestamp: Date.now()
 			})
