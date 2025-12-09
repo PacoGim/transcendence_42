@@ -1,6 +1,6 @@
-import { CurrentButtonStore } from '../stores/current_button.store.js'
-import { KeyboardStore } from '../stores/keyboard.store.js'
-import { StateStore } from '../stores/state.store.js'
+import { CurrentButtonStore } from '../stores/current_button.store'
+import { KeyboardStore } from '../stores/keyboard.store'
+import { StateStore } from '../stores/state.store'
 
 function applyTextUpdate(textSize: number, self: HTMLElement) {
 	// self.innerText = `Text Size (${textSize}px)`

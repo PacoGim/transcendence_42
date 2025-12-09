@@ -1,9 +1,9 @@
-import { cleanTabIndexedElementsEvents, getTabIndexedElements } from '../functions/getTabIndexedElements.fn.js'
-import { CurrentButtonStore } from '../stores/current_button.store.js'
-import { TabIndexStore } from '../stores/tabIndex.store.js'
-import { KeyboardStore } from '../stores/keyboard.store.js'
-import { PageDestroyStore, PageUpdateStore } from '../stores/page_state.js'
-import { navigate } from './routing.js'
+import { cleanTabIndexedElementsEvents, getTabIndexedElements } from '../functions/getTabIndexedElements.fn'
+import { CurrentButtonStore } from '../stores/current_button.store'
+import { TabIndexStore } from '../stores/tabIndex.store'
+import { KeyboardStore } from '../stores/keyboard.store'
+import { PageDestroyStore, PageUpdateStore } from '../stores/page_state'
+import { navigate } from './routing'
 
 let buttonList: HTMLElement[] = []
 let currentTabIndex = 0

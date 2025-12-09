@@ -1,6 +1,6 @@
 type Subscriber = (key: HTMLElement) => void
 
-export const CurrentButtonStore = (function () {
+function createCurrentButtonStore() {
 	const subscribers = new Set<Subscriber>()
 
 	function subscribe(fn: Subscriber) {
@@ -13,4 +13,12 @@ export const CurrentButtonStore = (function () {
 	}
 
 	return { subscribe, emit }
-})()
+}
+
+declare global {
+	interface Window {
+		CurrentButtonStore?: ReturnType<typeof createCurrentButtonStore>
+	}
+}
+
+export const CurrentButtonStore = (window.CurrentButtonStore ??= createCurrentButtonStore())

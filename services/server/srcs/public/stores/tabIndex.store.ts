@@ -2,7 +2,7 @@ type Subscriber = (tabIndex: number) => void
 
 let currentTabIndex = 0
 
-export const TabIndexStore = (function () {
+function createTabIndexStore() {
 	const subscribers = new Set<Subscriber>()
 
 	function subscribe(fn: Subscriber) {
@@ -20,4 +20,12 @@ export const TabIndexStore = (function () {
 	}
 
 	return { subscribe, emit, reset }
-})()
+}
+
+declare global {
+	interface Window {
+		TabIndexStore?: ReturnType<typeof createTabIndexStore>
+	}
+}
+
+export const TabIndexStore = (window.TabIndexStore ??= createTabIndexStore())

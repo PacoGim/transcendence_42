@@ -1,6 +1,6 @@
 import { arena, board } from "../functions/game.scale.js"
 import type { GameState } from "../../types/game.type.js"
-// import * as BABYLON from "babylonjs"
+import * as BABYLON from "babylonjs"
 
 type Mesh3D = {
 	ballMesh: BABYLON.Mesh | null,
@@ -62,7 +62,7 @@ private renderCanvas3D()
 
 private async initBabylon()
 {
-	await import('/lib/babylon.js')
+	// await import('/lib/babylon.js')
 	console.log("BABYLON after import", BABYLON)
 	this.engine = new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true, premultipliedAlpha: true })
 	this.scene = new BABYLON.Scene(this.engine)

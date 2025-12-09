@@ -1,6 +1,6 @@
-import { launchGame } from '../functions/GameClientBab.js'
-import { json_parse, json_stringify } from '../functions/json_wrapper.js'
-import { cleanHistory, handleIncomingMessage, loadChatHistory } from '../functions/messagesLocalStorage.js'
+import { launchGame } from '../functions/GameClientBab'
+import { json_parse, json_stringify } from '../functions/json_wrapper'
+import { cleanHistory, handleIncomingMessage, loadChatHistory } from '../functions/messagesLocalStorage'
 
 const $page: HTMLElement = document.querySelector('page[type=game]')!
 

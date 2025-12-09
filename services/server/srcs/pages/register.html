@@ -1,21 +1,17 @@
 <page type="register">
 	<page-title>Register</page-title>
 	<register-form>
-		<form-section>
+		<oauth-container tabindex="1" class="button text-3xl y-nav" data-action="selectRegisterType" data-state-value="0">
+			42
+		</oauth-container>
+		<!-- <form-section>
 			<span>Username:</span>
 			<input type="text" tabindex="1" />
 		</form-section>
-		<nav-button
-			tabindex="2"
-			class="button text-3xl y-nav"
-			data-action="selectRegisterType"
-			data-state-value="0"
-			></state
-		></nav-button>
 		<form-section>
 			<span>Password:</span>
 			<input type="text" tabindex="3" />
-		</form-section>
+		</form-section> -->
 	</register-form>
 	<menu-buttons>
 		<nav-button data-route="" class="button text-3xl" tabindex="3">Back</nav-button>
@@ -52,6 +48,13 @@
 			outline: none;
 			border-bottom: 2px white dashed;
 			/* box-shadow: inset 0px -2px 0px yellow; */
+		}
+		
+		oauth-container {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
 		}
 	</style>
 </head>

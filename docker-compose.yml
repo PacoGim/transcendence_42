@@ -14,6 +14,7 @@ services:
         condition: service_healthy
     volumes:
       - "./services/server/srcs:/app/srcs"
+      - "./services/server/build.ts:/app/build.ts"
       - ${LOGS_PATH}:${LOGS_DIR}
     networks:
       - transcendence

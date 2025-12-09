@@ -1,6 +1,6 @@
 type Subscriber = (key: string) => void
 
-export const PageUpdateStore = (function () {
+function createPageUpdateStore() {
 	const subscribers = new Set<Subscriber>()
 
 	function subscribe(fn: Subscriber) {
@@ -13,9 +13,9 @@ export const PageUpdateStore = (function () {
 	}
 
 	return { subscribe, emit }
-})()
+}
 
-export const PageDestroyStore = (function () {
+function createPageDestroyStore() {
 	const subscribers = new Set<Subscriber>()
 
 	function subscribe(fn: Subscriber) {
@@ -28,4 +28,16 @@ export const PageDestroyStore = (function () {
 	}
 
 	return { subscribe, emit }
-})()
+}
+
+declare global {
+	interface Window {
+		PageUpdateStore?: ReturnType<typeof createPageUpdateStore>
+	}
+	interface Window {
+		PageDestroyStore?: ReturnType<typeof createPageDestroyStore>
+	}
+}
+
+export const PageUpdateStore = (window.PageUpdateStore ??= createPageUpdateStore())
+export const PageDestroyStore = (window.PageDestroyStore ??= createPageDestroyStore())

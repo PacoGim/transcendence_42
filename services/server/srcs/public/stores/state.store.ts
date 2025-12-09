@@ -4,7 +4,7 @@ let config = {
 	textSize: 20
 }
 
-export const StateStore = (function () {
+function createStateStore() {
 	const subscribers = new Set<Subscriber>()
 
 	function subscribe(fn: Subscriber) {
@@ -22,4 +22,12 @@ export const StateStore = (function () {
 	}
 
 	return { subscribe, emit, update }
-})()
+}
+
+declare global {
+	interface Window {
+		StateStore?: ReturnType<typeof createStateStore>
+	}
+}
+
+export const StateStore = (window.StateStore ??= createStateStore())

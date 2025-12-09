@@ -76,6 +76,23 @@ await metricsRoutes(fastify)
 await authRoutes(fastify)
 await userRoutes(fastify)
 
+fastify.post('/api/auth', (req, reply) => {
+	const { provider, code } = JSON.parse(req.body)
+
+	fetch('https://oauth2.googleapis.com/token', {
+		method: 'POST',
+		body: JSON.stringify({ code })
+	})
+		.then(res => res.json())
+		.then(res => {
+			console.log('Response: ')
+			console.log(res)
+		})
+
+	console.log('Provider: ', provider)
+	console.log('Code: ', code)
+})
+
 fastify.get('/api/hello', (req, reply) => {
 	reply.send({ type: 'message', message: 'hello' })
 })
@@ -120,7 +137,7 @@ fastify.get('/api/ws', { websocket: true }, (socket, req) => {
 	console.log(`Connexion avec userId='${cleanId}'`)
 	const user = lobby.getUser(cleanId)
 	if (!user) return socket.close()
-		console.log('Socket closed')
+	console.log('Socket closed')
 	lobby.refreshWebsocket(cleanId, socket)
 	socket.on('message', (raw: any) => {
 		const rawString = sanitizeHtml(raw.toString())

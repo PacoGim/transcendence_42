@@ -20,6 +20,7 @@ COPY certs ./certs
 COPY pnpm-lock.yaml ./
 COPY tsconfig.json ./
 COPY tailwind.config.js ./
+COPY build.ts ./
 COPY nodemon.json ./
 
 RUN pnpm install

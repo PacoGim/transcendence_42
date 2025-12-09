@@ -1,4 +1,4 @@
-import { StateStore } from '../stores/state.store.js'
+import { StateStore } from '../stores/state.store'
 
 StateStore.subscribe(newConfig => {
 	const stateElements = Array.from(document.querySelectorAll('state'))

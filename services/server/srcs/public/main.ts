@@ -1,5 +1,5 @@
-import { CurrentButtonStore } from './stores/current_button.store.js'
-import { PageUpdateStore } from './stores/page_state.js'
+import { CurrentButtonStore } from './stores/current_button.store'
+import { PageUpdateStore } from './stores/page_state'
 
 // var BabylonState = {
 // 	engine: null as BABYLON.Engine | null,

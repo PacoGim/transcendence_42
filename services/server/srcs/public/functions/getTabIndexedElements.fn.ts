@@ -1,5 +1,5 @@
-import { KeyboardKeyEvent, KeyboardStore } from '../stores/keyboard.store.js'
-import { TabIndexStore } from '../stores/tabIndex.store.js'
+import { KeyboardKeyEvent, KeyboardStore } from '../stores/keyboard.store'
+import { TabIndexStore } from '../stores/tabIndex.store'
 
 let buttonList: HTMLElement[] = []
 let currentKeyPress: KeyboardKeyEvent

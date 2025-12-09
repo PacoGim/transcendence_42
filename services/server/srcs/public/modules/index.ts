@@ -1,5 +1,5 @@
-import { CurrentButtonStore } from '../stores/current_button.store.js'
-import { KeyboardStore } from '../stores/keyboard.store.js'
+import { CurrentButtonStore } from '../stores/current_button.store'
+import { KeyboardStore } from '../stores/keyboard.store'
 
 type LoginButtonValues = {
 	[key: string]: {
@@ -28,6 +28,7 @@ let currentButton: HTMLElement
 const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButton = el))
 
 const unsubKeyStore = KeyboardStore.subscribe(key => {
+	console.log('Index key press: ', key)
 	if (['ArrowLeft', 'ArrowRight'].includes(key.value)) {
 		const nextValue = loginButtonValues[currentButton.id]
 		if (nextValue) {

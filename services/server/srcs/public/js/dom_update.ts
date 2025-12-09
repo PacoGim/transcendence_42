@@ -1,7 +1,7 @@
 // import { cleanEvents, initEvents } from './events.js'
 
-import { CurrentButtonStore } from '../stores/current_button.store.js'
-import { PageDestroyStore, PageUpdateStore } from '../stores/page_state.js'
+import { CurrentButtonStore } from '../stores/current_button.store'
+import { PageDestroyStore, PageUpdateStore } from '../stores/page_state'
 
 export async function loadPage(route: string) {
 	const location: string = `/${route || ''}`

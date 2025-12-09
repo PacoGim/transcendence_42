@@ -1,24 +1,49 @@
-import { CurrentButtonStore } from '../stores/current_button.store.js'
-import { KeyboardStore } from '../stores/keyboard.store.js'
+import { CurrentButtonStore } from '../stores/current_button.store'
+import { KeyboardStore } from '../stores/keyboard.store'
+import { v4 as uuidv4 } from 'uuid'
 
-function handleCredentialResponse(response) {
-	console.log('Encoded JWT ID token: ' + response.credential)
-}
+/* 
+	1: Redirect user to OAuth page
+	2: User logs in the third party page
+	3: OAuth page returns with a private code
+	4: The frontend does a POST request with the private code
+	5: The backend then does a request to the same OAuth page 
+	with the code to get back the user data
+	6: The backend saves the user in DB and then returns the POST request
+*/
 
-function startGoogleOAuth(self: HTMLElement) {
-	google.accounts.id.initialize({
-		client_id: 'YOUR_GOOGLE_CLIENT_ID',
-		callback: handleCredentialResponse
-	})
-	google.accounts.id.renderButton(self, { theme: 'outline', size: 'large' })
-	google.accounts.id.prompt()
+document.addEventListener('DOMContentLoaded', () => {
+	const urlParams = new URLSearchParams(window.location.search)
+	console.log(window.location)
+	console.log(urlParams)
+	const providerParam = urlParams.get('provider')
+	const codeParam = urlParams.get('code')
+
+	console.log('Code: ', codeParam)
+})
+
+function start42OAuth(self: HTMLElement) {
+	const $el = document.createElement('a') as HTMLAnchorElement
+	const url =
+		'https://api.intra.42.fr/oauth/authorize?' +
+		new URLSearchParams({
+			client_id: 'u-s4t2ud-9f30b2430e51c381ae5e38158295eef89230a74b070231a798bd1bcb7a01709c',
+			redirect_uri: 'https://localhost/register',
+			response_type: 'code',
+			state: uuidv4()
+		})
+
+	$el.setAttribute('href', url)
+
+	$el.innerText = '42'
+
+	self.innerHTML = ''
+	self.append($el)
 }
 
 function selectRegisterType(registerType: string, self: HTMLElement) {
-	console.log(registerType)
-	console.log(self)
-	if (registerType === 'Google') {
-		startGoogleOAuth(self)
+	if (registerType === '42') {
+		start42OAuth(self)
 	} else {
 		self.innerText = registerType
 	}
@@ -27,10 +52,10 @@ function selectRegisterType(registerType: string, self: HTMLElement) {
 const actions = {
 	selectRegisterType: {
 		min: 0,
-		max: 2,
+		max: 1,
 		steps: 1,
 		callback: selectRegisterType,
-		values: ['42', 'Google', 'Email']
+		values: ['42', 'Email']
 	}
 }
 

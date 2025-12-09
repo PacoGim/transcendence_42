@@ -3,9 +3,9 @@ export type KeyboardKeyEvent = {
 	isShift: boolean
 }
 
-type Subscriber = (keyboardKeyEvent: KeyboardKeyEvent) => void
+type Subscriber = (e: KeyboardKeyEvent) => void
 
-export const KeyboardStore = (function () {
+function createKeyboardStore() {
 	const subscribers = new Set<Subscriber>()
 
 	function subscribe(fn: Subscriber) {
@@ -13,9 +13,17 @@ export const KeyboardStore = (function () {
 		return () => subscribers.delete(fn)
 	}
 
-	function emit(keyboardKeyEvent: KeyboardKeyEvent) {
-		for (const fn of subscribers) fn(keyboardKeyEvent)
+	function emit(e: KeyboardKeyEvent) {
+		for (const fn of subscribers) fn(e)
 	}
 
 	return { subscribe, emit }
-})()
+}
+
+declare global {
+	interface Window {
+		__KeyboardStore?: ReturnType<typeof createKeyboardStore>
+	}
+}
+
+export const KeyboardStore = (window.__KeyboardStore ??= createKeyboardStore())

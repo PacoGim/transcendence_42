@@ -1,5 +1,4 @@
-import { loadPage } from './dom_update.js'
-// import { initEvents } from './events.js'
+import { loadPage } from './dom_update'
 
 export async function navigate(route: string) {
 	history.pushState({}, '', `/${route}`)
@@ -12,15 +11,16 @@ window.addEventListener('popstate', () => {
 })
 
 document.addEventListener('DOMContentLoaded', _ => {
-	// initEvents()
 	document.body.addEventListener('click', e => {
-		e.preventDefault()
 		if (e?.target) {
 			const target: HTMLElement = e.target as HTMLElement
 			const $a: HTMLAnchorElement | null = target.closest('*[data-route]')
 			if ($a) {
 				const newRoute = $a.getAttribute('data-route')
-				if (newRoute != undefined) navigate(newRoute)
+				if (newRoute != undefined) {
+					e.preventDefault()
+					navigate(newRoute)
+				}
 			}
 		}
 	})
