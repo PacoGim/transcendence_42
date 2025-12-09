@@ -18,6 +18,8 @@ import Lobby from './classes/Lobby.js'
 import { json_parse, json_stringify } from './public/functions/json_wrapper.js'
 import { MessageType } from './types/message.type.js'
 
+import { v4 as uuidv4 } from 'uuid'
+
 const MAX_MESSAGE_LENGTH = 150
 
 const validRoutes = ['index', 'about', 'login', 'options', 'register', 'dashboard', 'users', 'game']
@@ -76,21 +78,39 @@ await metricsRoutes(fastify)
 await authRoutes(fastify)
 await userRoutes(fastify)
 
-fastify.post('/api/auth', (req, reply) => {
-	const { provider, code } = JSON.parse(req.body)
+fastify.post('/api/auth', async (req, reply) => {
+	const { code } = json_parse(req.body)
 
-	fetch('https://oauth2.googleapis.com/token', {
-		method: 'POST',
-		body: JSON.stringify({ code })
-	})
-		.then(res => res.json())
-		.then(res => {
-			console.log('Response: ')
-			console.log(res)
+	const url =
+		'https://api.intra.42.fr/oauth/token?' +
+		new URLSearchParams({
+			client_id: 'u-s4t2ud-9f30b2430e51c381ae5e38158295eef89230a74b070231a798bd1bcb7a01709c',
+			grant_type: 'authorization_code',
+			client_secret: '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',
+			code,
+			redirect_uri: 'https://localhost/register',
+			state: uuidv4()
 		})
 
-	console.log('Provider: ', provider)
-	console.log('Code: ', code)
+	const token = await fetch(url, { method: 'POST' })
+		.then(res => res.json())
+		.then(res => res?.access_token)
+
+	if (token) {
+		const infoFetch = await fetch('https://api.intra.42.fr/v2/me', {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		})
+			.then(res => res.json())
+			.then(res => {
+				const { email, login, first_name, last_name } = res
+				return { email, login, firstName: first_name, lastName: last_name }
+			})
+		return reply.send(infoFetch)
+	} else {
+		return reply.send({ status: 413 }).status(413)
+	}
 })
 
 fastify.get('/api/hello', (req, reply) => {

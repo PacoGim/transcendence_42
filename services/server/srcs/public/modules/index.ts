@@ -1,5 +1,6 @@
 import { CurrentButtonStore } from '../stores/current_button.store'
 import { KeyboardStore } from '../stores/keyboard.store'
+import { UserStore, type UserType } from '../stores/user.store'
 
 type LoginButtonValues = {
 	[key: string]: {
@@ -28,7 +29,6 @@ let currentButton: HTMLElement
 const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButton = el))
 
 const unsubKeyStore = KeyboardStore.subscribe(key => {
-	console.log('Index key press: ', key)
 	if (['ArrowLeft', 'ArrowRight'].includes(key.value)) {
 		const nextValue = loginButtonValues[currentButton.id]
 		if (nextValue) {
@@ -39,10 +39,19 @@ const unsubKeyStore = KeyboardStore.subscribe(key => {
 	}
 })
 
+const unsubUserStore = UserStore.subscribe((user: UserType) => {
+	if (user.isValid) {
+		// console.log('User is valid')
+	} else {
+		// console.log('User is not valid')
+	}
+})
+
 const cleanPage = () => {
 	$page.removeEventListener('cleanup', cleanPage)
 	unsubCurrentButtonStore()
 	unsubKeyStore()
+	unsubUserStore()
 }
 
 $page.addEventListener('cleanup', cleanPage)

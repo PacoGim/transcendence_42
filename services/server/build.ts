@@ -1,33 +1,25 @@
 import { build } from 'esbuild'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import fg from 'fast-glob'
 import { watch } from 'chokidar'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+async function buildAll() {
+	const entryPoints = await fg('srcs/public/**/*.ts')
+	console.log('Building files:', entryPoints)
 
-const publicPath = path.join(__dirname, 'srcs/public')
-const distPath = path.join(__dirname, 'dist/public')
-
-const watcherPublic = watch(publicPath)
-
-watcherPublic.on('all', (event, filePath, _) => {
-	if (path.extname(filePath) === '.ts') {
-		if (['add', 'addDir', 'change', 'unlink', 'unlinkDir'].includes(event)) {
-			buildSrc(filePath, filePath.replaceAll(publicPath, distPath).replace('.ts', '.js'))
-		}
-	}
-})
-
-function buildSrc(filePath: string, outFile: string) {
-	console.log(`Compiling: ${filePath} to ${outFile}`)
-	build({
-		outfile: outFile,
-		entryPoints: [filePath],
+	await build({
+		entryPoints,
+		outbase: 'srcs/public',
+		outdir: 'dist/public',
 		bundle: true,
-		platform: 'browser',
-		format: 'esm'
-	}).catch(error => {
-		console.log('Error building: ', publicPath, ' ', error)
+		splitting: true,
+		format: 'esm',
+		platform: 'browser'
 	})
 }
+
+buildAll().catch(console.error)
+
+watch('srcs/public', { ignoreInitial: true }).on('all', async () => {
+	console.log('Change detected, rebuilding...')
+	await buildAll()
+})

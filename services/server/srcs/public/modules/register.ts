@@ -1,6 +1,8 @@
+import { navigate } from '../js/routing'
 import { CurrentButtonStore } from '../stores/current_button.store'
 import { KeyboardStore } from '../stores/keyboard.store'
 import { v4 as uuidv4 } from 'uuid'
+import { UserStore } from '../stores/user.store'
 
 /* 
 	1: Redirect user to OAuth page
@@ -12,15 +14,30 @@ import { v4 as uuidv4 } from 'uuid'
 	6: The backend saves the user in DB and then returns the POST request
 */
 
-document.addEventListener('DOMContentLoaded', () => {
-	const urlParams = new URLSearchParams(window.location.search)
-	console.log(window.location)
-	console.log(urlParams)
-	const providerParam = urlParams.get('provider')
-	const codeParam = urlParams.get('code')
+const $spinner = document.querySelector('span[type="spinner"] img') as HTMLImageElement
+const $registerForm = document.querySelector('register-form') as HTMLElement
+const urlParams = new URLSearchParams(window.location.search)
+const codeParam = urlParams.get('code')
 
-	console.log('Code: ', codeParam)
-})
+if (codeParam) {
+	console.log('Fetching backend with code: ', codeParam)
+	fetch('https://localhost:443/api/auth', {
+		method: 'POST',
+		body: JSON.stringify({ code: codeParam })
+	})
+		.then(res => {
+			if (res.status === 200) return res.json()
+			$spinner.style.display = 'none'
+			$registerForm.style.display = 'block'
+		})
+		.then(res => {
+			UserStore.emit(res)
+			navigate('')
+		})
+} else {
+	$spinner.style.display = 'none'
+	$registerForm.style.display = 'block'
+}
 
 function start42OAuth(self: HTMLElement) {
 	const $el = document.createElement('a') as HTMLAnchorElement
@@ -90,7 +107,6 @@ const unsubKeyStore = KeyboardStore.subscribe(key => {
 			const nextValue = action.values[index]
 
 			action.callback(nextValue, currentButton)
-			// currentButton.innerText = nextValue.inner
 		}
 	}
 })

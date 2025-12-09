@@ -4,7 +4,7 @@ import { StateStore } from '../stores/state.store'
 
 function applyTextUpdate(textSize: number, self: HTMLElement) {
 	// self.innerText = `Text Size (${textSize}px)`
-	StateStore.update({ textSize })
+	// StateStore.update({ textSize })
 }
 
 function applyLangUpdate(val: string, self: HTMLElement) {

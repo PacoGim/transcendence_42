@@ -93,6 +93,12 @@ page {
 	color: #fff;
 }
 
+span[type="spinner"] img{
+	/* transform: scale(0.1); */
+	height: 128px;
+	width: 128px;
+}
+
 .y-nav[data-selected='true']::after {
 	content: '⏵';
 	opacity: 1;

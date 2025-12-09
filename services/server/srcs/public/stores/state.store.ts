@@ -1,8 +1,20 @@
+import { updateDomState } from '../functions/updateDomState.fn'
+import { PageUpdateStore } from './page_state'
+
 type Subscriber = (config: any) => void
 
 let config = {
-	textSize: 20
+	textSize: 20,
+	username: undefined
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+	updateDomState(config)
+})
+
+PageUpdateStore.subscribe(() => {
+	updateDomState(config)
+})
 
 function createStateStore() {
 	const subscribers = new Set<Subscriber>()
@@ -18,7 +30,10 @@ function createStateStore() {
 	}
 
 	function update(newConfig: any) {
-		for (const fn of subscribers) fn(newConfig)
+		for (let key in newConfig) {
+			config[key] = newConfig[key]
+		}
+		for (const fn of subscribers) fn(config)
 	}
 
 	return { subscribe, emit, update }

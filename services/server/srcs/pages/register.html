@@ -1,5 +1,6 @@
 <page type="register">
 	<page-title>Register</page-title>
+	<span type="spinner"><img src="/images/spinner.svg" alt="Loading" /></span>
 	<register-form>
 		<oauth-container tabindex="1" class="button text-3xl y-nav" data-action="selectRegisterType" data-state-value="0">
 			42
@@ -25,6 +26,7 @@
 	<style module>
 		register-form {
 			margin-bottom: 1rem;
+			display: none;
 		}
 
 		form-section {
@@ -49,7 +51,7 @@
 			border-bottom: 2px white dashed;
 			/* box-shadow: inset 0px -2px 0px yellow; */
 		}
-		
+
 		oauth-container {
 			display: flex;
 			flex-direction: row;

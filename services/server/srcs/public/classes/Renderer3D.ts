@@ -62,8 +62,6 @@ private renderCanvas3D()
 
 private async initBabylon()
 {
-	// await import('/lib/babylon.js')
-	console.log("BABYLON after import", BABYLON)
 	this.engine = new BABYLON.Engine(this.canvas, true, { preserveDrawingBuffer: true, stencil: true, premultipliedAlpha: true })
 	this.scene = new BABYLON.Scene(this.engine)
 	this.initScene()

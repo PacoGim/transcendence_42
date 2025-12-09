@@ -1,5 +1,6 @@
 import { CurrentButtonStore } from './stores/current_button.store'
 import { PageUpdateStore } from './stores/page_state'
+import { StateStore } from './stores/state.store'
 
 // var BabylonState = {
 // 	engine: null as BABYLON.Engine | null,
@@ -26,6 +27,10 @@ if ($bgContainer) {
 PageUpdateStore.emit('')
 const selectedElement: HTMLElement = document.querySelector('*[data-selected=true]') as HTMLElement
 if (selectedElement) CurrentButtonStore.emit(selectedElement)
+
+// StateStore.subscribe(config => {
+// 	console.log(config)
+// })
 
 // document.addEventListener('keydown', function (event) {
 // 	if (event.key === 'Tab') {
