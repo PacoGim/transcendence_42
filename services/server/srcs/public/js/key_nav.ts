@@ -58,8 +58,10 @@ KeyboardStore.subscribe(keyEvt => {
 		let currentButton = buttonList[currentTabIndex]
 		if (currentButton) {
 			const newRoute = currentButton.getAttribute('data-route')
-			if (newRoute != undefined) navigate(newRoute)
-			else currentButton.click()
+			if (newRoute != undefined) return navigate(newRoute)
+			const $anchor = currentButton.querySelector('a')
+			if ($anchor) return $anchor.click()
+			currentButton.click()
 		}
 	}
 })

@@ -15,12 +15,33 @@ import { UserStore } from '../stores/user.store'
 */
 
 const $spinner = document.querySelector('span[type="spinner"] img') as HTMLImageElement
+const $menuButtons = document.querySelector('menu-buttons') as HTMLElement
 const $registerForm = document.querySelector('register-form') as HTMLElement
 const urlParams = new URLSearchParams(window.location.search)
 const codeParam = urlParams.get('code')
+const $oauthContainer = document.querySelector('register-form oauth-container') as HTMLElement
+
+const actions = {
+	selectRegisterType: {
+		min: 0,
+		max: 1,
+		steps: 1,
+		callback: selectRegisterType,
+		values: ['42', 'Email']
+	}
+}
+
+const $page: HTMLElement = document.querySelector('page[type=register]')!
+
+let currentButton: HTMLElement
+
+const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButton = el))
+
+if ($oauthContainer) {
+	start42OAuth($oauthContainer)
+}
 
 if (codeParam) {
-	console.log('Fetching backend with code: ', codeParam)
 	fetch('https://localhost:443/api/auth', {
 		method: 'POST',
 		body: JSON.stringify({ code: codeParam })
@@ -28,6 +49,7 @@ if (codeParam) {
 		.then(res => {
 			if (res.status === 200) return res.json()
 			$spinner.style.display = 'none'
+			$menuButtons.style.display = 'flex'
 			$registerForm.style.display = 'block'
 		})
 		.then(res => {
@@ -36,6 +58,7 @@ if (codeParam) {
 		})
 } else {
 	$spinner.style.display = 'none'
+	$menuButtons.style.display = 'flex'
 	$registerForm.style.display = 'block'
 }
 
@@ -66,25 +89,9 @@ function selectRegisterType(registerType: string, self: HTMLElement) {
 	}
 }
 
-const actions = {
-	selectRegisterType: {
-		min: 0,
-		max: 1,
-		steps: 1,
-		callback: selectRegisterType,
-		values: ['42', 'Email']
-	}
-}
-
-const $page: HTMLElement = document.querySelector('page[type=register]')!
-
-let currentButton: HTMLElement
-
-const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButton = el))
-
 const unsubKeyStore = KeyboardStore.subscribe(key => {
 	if (['ArrowLeft', 'ArrowRight'].includes(key.value)) {
-		const data = currentButton.dataset
+		const data = currentButton?.dataset
 		if (data && data?.stateValue) {
 			const action = actions[data.action]
 			const current = Number(data.stateValue)

@@ -10,11 +10,12 @@ export async function loadPage(route: string) {
 	const parser: DOMParser = new window.DOMParser()
 	const htmlDoc: Document = parser.parseFromString(html, 'text/html')
 
-	// cleanEvents()
 	updateDom(htmlDoc)
-	// initEvents()
 	const selectedElement: HTMLElement = document.querySelector('*[data-selected=true]') as HTMLElement
-	if (selectedElement) CurrentButtonStore.emit(selectedElement)
+
+	setTimeout(() => {
+		if (selectedElement) CurrentButtonStore.emit(selectedElement)
+	}, 250)
 }
 
 async function updateDom(htmlDoc: Document) {
@@ -22,7 +23,7 @@ async function updateDom(htmlDoc: Document) {
 	const $htmlDocPage: HTMLElement | null = htmlDoc.querySelector('page')
 	const $htmlDocTitle: HTMLTitleElement | null = htmlDoc.querySelector('head title')
 	const $htmlDocStyle: HTMLStyleElement | null = htmlDoc.querySelector('head style')
-	const $htmlDocScript: HTMLScriptElement[] | null[] = htmlDoc.querySelectorAll('body script[type="module"]')
+	const $htmlDocScript: HTMLScriptElement[] | null[] = Array.from(htmlDoc.querySelectorAll('body script[type="module"]'))
 
 	$mainPage?.dispatchEvent(new Event('cleanup'))
 	PageDestroyStore.emit('')
@@ -37,10 +38,8 @@ async function updateDom(htmlDoc: Document) {
 	}
 
 	if ($htmlDocScript.length > 0) {
-		// $htmlDocScript.forEach(scriptEl => runFunction(scriptEl))
-
 		for (const scriptEl of $htmlDocScript) {
-			await runFunction(scriptEl)
+			await runFunction(scriptEl!)
 		}
 	}
 
@@ -64,7 +63,6 @@ function runFunction(htmlDocScript: HTMLScriptElement) {
 			if (htmlDocScript.type) newScript.type = htmlDocScript.type
 			if (htmlDocScript.src) {
 				const res = await (await fetch(htmlDocScript.src)).text()
-				// console.log(res)
 				newScript.textContent = res
 			} else {
 				newScript.textContent = htmlDocScript.textContent

@@ -1,29 +1,10 @@
-<page type="register">
-	<page-title>Register</page-title>
-	<span type="spinner"><img src="/images/spinner.svg" alt="Loading" /></span>
-	<register-form>
-		<oauth-container tabindex="1" class="button text-3xl y-nav" data-action="selectRegisterType" data-state-value="0">
-			42
-		</oauth-container>
-		<!-- <form-section>
-			<span>Username:</span>
-			<input type="text" tabindex="1" />
-		</form-section>
-		<form-section>
-			<span>Password:</span>
-			<input type="text" tabindex="3" />
-		</form-section> -->
-	</register-form>
-	<menu-buttons>
-		<nav-button data-route="" class="button text-3xl" tabindex="3">Back</nav-button>
-	</menu-buttons>
-</page>
-
-<script type="module" src="modules/register.js"></script>
-
 <head>
 	<title>Register</title>
 	<style module>
+		menu-buttons {
+			display: none;
+		}
+
 		register-form {
 			margin-bottom: 1rem;
 			display: none;
@@ -60,3 +41,26 @@
 		}
 	</style>
 </head>
+
+<page type="register">
+	<page-title>Register</page-title>
+	<span type="spinner"><img src="/images/spinner.svg" alt="Loading" /></span>
+	<register-form>
+		<oauth-container
+			tabindex="1"
+			class="button text-3xl y-nav"
+			data-action="selectRegisterType"
+			data-state-value="0"
+			data-selected="true"
+			><a
+				href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9f30b2430e51c381ae5e38158295eef89230a74b070231a798bd1bcb7a01709c&amp;redirect_uri=https%3A%2F%2Flocalhost%2Fregister&amp;response_type=code&amp;state=4c793e48-15be-4e09-8240-ff1152e39a33"
+				>42</a
+			></oauth-container
+		>
+	</register-form>
+	<menu-buttons>
+		<nav-button data-route="" class="button text-3xl" tabindex="3">Back</nav-button>
+	</menu-buttons>
+</page>
+
+<script type="module" src="modules/register.js"></script>
