@@ -14,8 +14,6 @@ export type InputType = {
 	key: KeyType
 }
 
-export type StatusType = "chat" | "game"
-
 export type KeyType = "none" | "+" | "-" | "space" | "chatGPT"
 
 export type DuelType = {
