@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import User from "./User.js"
 import { Game } from "./Game.js"
 import type { ChatType, DuelType, FrontType, InputType, MessageType, MpType } from "../types/message.type.js";
+import type { LobbyType, UserPseudoDto } from "../types/user.chat.type.js"
 
 export default class Lobby
 {
@@ -11,7 +12,7 @@ export default class Lobby
 
 	constructor() { console.log(`🆕 Lobby created`) }
 
-	toJSON() : Object
+	toJSON() : LobbyType
 	{
 		return {
 			size: this.size,
@@ -31,9 +32,9 @@ export default class Lobby
 		return nb
 	}
 
-	addUser(pseudo: string)
+	addUser(pseudo: string) : UserPseudoDto
 	{
-		if (this.isPseudoTaken(pseudo)) return {id:"0", pseudo:""}
+		if (this.isPseudoTaken(pseudo)) return {userId:"0", pseudo:""}
 		const newUser = new User(randomUUID(), pseudo)
 		this.users.set(newUser.id, newUser)
 		console.log(`🆕 ${newUser.pseudo} join the lobby`)
@@ -46,7 +47,7 @@ export default class Lobby
 		return {userId:newUser.id, pseudo:newUser.pseudo}
 	}
 
-	refreshWebsocket(userId: string, websocket:WebSocket)
+	refreshWebsocket(userId: string, websocket:WebSocket) : void
 	{
 		const user = this.getUser(userId)
 		if (!user || user.socket?.readyState === WebSocket.OPEN) return
@@ -59,7 +60,7 @@ export default class Lobby
 		return this.users.get(userId)
 	}
 
-	removeUser(user: User)
+	removeUser(user: User) : void
 	{
 		if (!user) return
 		console.log(`❌ ${user.pseudo} left the lobby`)
@@ -69,7 +70,7 @@ export default class Lobby
 			})
 	}
 
-	handleMP(sender: User, msg: MpType)
+	handleMP(sender: User, msg: MpType) : void
 	{
 		const destinataire = this.getUserByPseudo(msg.to)
 		if (!destinataire)
@@ -79,7 +80,7 @@ export default class Lobby
 		sender.send({type:"mp-to", to:msg.to, text: msg.text})
 	}
 
-	handleDuel(sender: User, msg: DuelType)
+	handleDuel(sender: User, msg: DuelType) : void
 	{
 		const destinataire = this.getUserByPseudo(msg.to)
 		if (!destinataire)
@@ -112,7 +113,7 @@ export default class Lobby
 		}
 	}
 
-	handleChat(sender: User, msg: ChatType)
+	handleChat(sender: User, msg: ChatType) : void
 	{
 		this.broadcast({
 				type: "chat",
@@ -121,12 +122,12 @@ export default class Lobby
 			})
 	}
 
-	handleInputKey(sender: User, msg: InputType)
+	handleInputKey(sender: User, msg: InputType) : void
 	{
 		sender.key = msg.key
 	}
 
-	handleMessage(sender: User, msg: MessageType)
+	handleMessage(sender: User, msg: MessageType) : void
 	{
 		switch (msg.type)
 		{
@@ -137,7 +138,7 @@ export default class Lobby
 		}
 	}
 
-	broadcast(payload: FrontType, exceptId?: string)
+	broadcast(payload: FrontType, exceptId?: string) : void
 	{
 		const now = Date.now()
 		for (const [id, user] of this.users.entries())

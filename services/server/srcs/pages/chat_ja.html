@@ -170,25 +170,6 @@
 			background: #5c6bc0;
 		}
 
-		.user-list {
-			display: none;
-			background: #2a2a3f;
-			color: #f5f5f5;
-			border-radius: 8px;
-			padding: 0.5em;
-			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-			min-width: 150px;
-			z-index: 1;
-			transition: opacity 0.8s ease, transform 0.8s ease;
-			opacity: 0;
-			transform: translateY(-10px);
-		}
-
-		.user-list[style*='display: block'] {
-			opacity: 1;
-			transform: translateY(0);
-		}
-
 		.user-item {
 			display: flex;
 			align-items: center;
@@ -284,6 +265,10 @@
 			background-color: #4cff00;
 			color: #222;
 		}
+		dialog::backdrop {
+			backdrop-filter: blur(2px); /* flou */
+			background: rgba(0,0,0,0.5); /* léger assombrissement facultatif */
+		}
 	</style>
 </head>
 
@@ -293,13 +278,23 @@
 		<a data-route="game" class="text-xl border-l-pink-300">Game</a>
 	</nav>
 	<h2>Chat</h2>
+	<dialog id="userList" class="user-list" closedby="any">
+		<p>This modal dialog has a groovy backdrop!</p>
+	</dialog>
+		<div>userlist</div>
+	</dialog>
 	<div id="chat">
 		<div id="lobby" class="lobby">lobby</div>
 		<div id="pseudo" class="pseudo">pseudo</div>
 		<div id="status" class="ws-status">status</div>
-		<div id="userList" class="user-list" style="display: none;">user list</div>
-		<div id="messages" class="messages">messages</div>
-		<input id="chatInput" class="chat-input hidden" placeholder="chat input">
+		<!-- <div id="userList" class="user-list" style="display: none;">user list</div> -->
+		<div id="messages" class="messages">global messages</div>
+		<input id="chatInput" class="chat-input hidden" placeholder="chat input...">
+		<dialog id="mp-modal" closedby="any">
+			<div id="mpMessages" class="mp-messages">mp messages</div>
+			<input id="mpInput" class="mp-input" placeholder="mp input...">
+			<button id="mpSendButton" class="mp-send-btn">
+		</dialog>
 		<div id="containerLogin"></div>
 	</div>
 	<div id="score"></div>

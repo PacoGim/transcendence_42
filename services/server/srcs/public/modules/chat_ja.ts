@@ -1,4 +1,5 @@
-import { FrontType } from "../../types/message.type.ts"
+import { FrontErrorType, FrontType } from "../../types/message.type.ts"
+import { LobbyType, UserPseudoDto } from "../../types/user.chat.type.ts"
 import { launchGame } from "../functions/GameClientBab.ts"
 import { json_parse, json_stringify } from "../functions/json_wrapper.ts"
 import { getStoredMessages, storeMessage, storeMP } from "../functions/messagesLocalStorage.ts"
@@ -16,13 +17,13 @@ class ChatApp
 	private lobbyDiv : HTMLDivElement
 	private pseudoDiv : HTMLDivElement
 	private statusDiv : HTMLDivElement
-	private userListDiv : HTMLDivElement
+	private userListDialog : HTMLDialogElement
 	private messagesDiv : HTMLDivElement
 	private messageInput : HTMLInputElement
 	private origin : string
 	private host : string
 	private user : User = {userId:'', pseudo:'', websocket:undefined}
-	private lobby : any
+	private lobby : LobbyType = {size:0, nb_active:0, users:[]}
 	private handleSendBound : undefined | ((e: KeyboardEvent)=>void)
 	constructor()
 	{
@@ -30,13 +31,21 @@ class ChatApp
 		this.lobbyDiv = document.getElementById("lobby") as HTMLDivElement
 		this.pseudoDiv = document.getElementById("pseudo") as HTMLDivElement
 		this.statusDiv = document.getElementById("status") as HTMLDivElement
-		this.userListDiv = document.getElementById("userList") as HTMLDivElement
+		this.userListDialog = document.getElementById("userList") as HTMLDialogElement
 		this.messagesDiv = document.getElementById("messages") as HTMLDivElement
 		this.messageInput = document.getElementById("chatInput") as HTMLInputElement
 		this.origin = window.location.origin
 		this.host = window.location.host
+		this.initDom()
 	}
 
+	private initDom()
+	{
+		this.lobbyDiv.addEventListener("click", ()=>{
+			console.log("click sur lobby")
+			this.userListDialog.showModal()
+		})
+	}
 
 	private showInput()
 	{
@@ -82,7 +91,7 @@ class ChatApp
 		try {
 			const res = await fetch(`${this.origin}/api/user?userId=${this.user.userId}`)
 			if (!res.ok) throw new Error(`https ${res.status}: ${res.statusText}`)
-			const json = await res.json()
+			const json = await res.json() as UserPseudoDto
 			this.user.pseudo = json.pseudo
 			this.pseudoDiv.innerText = this.user.pseudo
 		} catch (e) {
@@ -126,12 +135,11 @@ class ChatApp
 		{
 			// Vérifie si le message vient de l'utilisateur courant
 			const isSelf = message.from === this.user.pseudo
-
+			const time = formatTime(message.timestamp)
 			newDiv.className = `message chat ${isSelf ? 'self' : 'other'}`
-			newDiv.innerHTML = `
+			newDiv.innerHTML = `<span class="text">${time}</span>
 				<span class="from">${isSelf ? 'Me' : message.from}:</span>
-				<span class="text">${message.text}</span>
-			`
+				<span class="text">${message.text}</span>`
 		}
 
 		this.messagesDiv.appendChild(newDiv)
@@ -171,36 +179,35 @@ class ChatApp
 
 		ws.addEventListener('message', e => {
 			const message: FrontType = json_parse(e.data) as FrontType
-					console.log(message)
-					if (!message) return
-					switch(message.type)
-					{
-						case('error'): return console.error("received:", message.text)
-						case('system'): return console.warn("received:", message.text)
+			if (!message) return ;
+				switch(message.type)
+				{
+					case('error'): return console.error("received:", message.text)
+					case('system'): return console.warn("received:", message.text)
 
-						case('duel'):
+					case('duel'):
+					{
+						switch(message.action)
 						{
-							switch(message.action)
+							case("accept"): return this.startGame(ws, this.user.pseudo)
+							case("decline"): return console.log(`duel has been declined from ${message.from}`)
+							case("propose"):
 							{
-								case("accept"): return this.startGame(ws, this.user.pseudo)
-								case("decline"): return console.log(`duel has been declined from ${message.from}`)
-								case("propose"):
+								if (confirm(`${message?.from} send you a duel, do you accept?`))
 								{
-									if (confirm(`${message?.from} send you a duel, do you accept?`))
-									{
-										this.startGame(ws, this.user.pseudo)
-										return ws.send(json_stringify({ type: 'duel', to: message?.from, action: 'accept' }))
-									}
-									else
-										return ws.send(json_stringify({ type: 'duel', to: message?.from, action: 'decline' }))
+									this.startGame(ws, this.user.pseudo)
+									return ws.send(json_stringify({ type: 'duel', to: message?.from, action: 'accept' }))
 								}
+								else
+									return ws.send(json_stringify({ type: 'duel', to: message?.from, action: 'decline' }))
 							}
-							break
 						}
-						case ('chat'): {storeMessage(message); return this.refreshDisplayMessage()}
-						case ('mp-from'): {storeMP(message); break}
-						case ('mp-to'): {storeMP(message); break}
+						break
 					}
+					case ('chat'): {storeMessage(message); return this.refreshDisplayMessage()}
+					case ('mp-from'): {storeMP(message); break}
+					case ('mp-to'): {storeMP(message); break}
+				}
 		})
 	}
 
@@ -208,7 +215,7 @@ class ChatApp
 		try {
 			const res = await fetch(`${this.origin}/api/lobby`)
 			if (!res.ok) throw new Error(`https ${res.status}: ${res.statusText}`)
-			this.lobby = await res.json()
+			this.lobby = await res.json() as LobbyType
 			console.log('lobby: ', json_stringify(this.lobby))
 			this.lobbyDiv.innerText = `Lobby: ${this.lobby.nb_active} / ${this.lobby.size}`
 		} catch (e) {
@@ -237,17 +244,14 @@ class ChatApp
 		document.getElementById("containerLogin")?.append(inputPseudo, errorPseudo, buttonPseudo)
 
 		buttonPseudo.addEventListener('click', async () => {
-			let status
 			try {
 				const res = await fetch(`${this.origin}/api/lobby`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: json_stringify({ pseudo: inputPseudo.value })
 				})
-				status = res.ok
-				const json = await res.json()
-				if (!status) throw new Error(json?.error)
-
+				if (!res.ok) throw new Error(`https ${res.status}: ${res.statusText}`)
+				const json = await res.json() as UserPseudoDto
 				this.user.userId = json.userId
 				this.user.pseudo = json.pseudo
 				this.pseudoDiv.innerText = this.user.pseudo
@@ -280,4 +284,16 @@ if (document.readyState === 'loading')
 else
 {
 	new ChatApp().start()
+}
+
+function formatTime(timestamp: number): string {
+    const date = new Date(timestamp);
+
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
+
+	const time = `${hours}:${minutes}:${seconds}`
+	console.log(`timestamp(${timestamp}) time[${time}]`)
+    return time
 }

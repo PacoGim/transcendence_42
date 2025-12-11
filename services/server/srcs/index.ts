@@ -16,13 +16,14 @@ import { applyError } from './functions/applyError.fn.js'
 import fs from 'fs'
 import Lobby from './classes/Lobby.js'
 import { json_parse, json_stringify } from './public/functions/json_wrapper.js'
-import { MessageType } from './types/message.type.js'
+import { FrontErrorType, MessageType } from './types/message.type.js'
 
 import { v4 as uuidv4 } from 'uuid'
+import { LobbyType, UserPseudoDto } from './types/user.chat.type.js'
 
 const MAX_MESSAGE_LENGTH = 150
 
-const validRoutes = ['index', 'about', 'login', 'options', 'register', 'dashboard', 'users', 'game', 'chat', 'chat/mp']
+const validRoutes = ['index', 'about', 'login', 'options', 'register', 'dashboard', 'users', 'game', 'chat']
 
 const fastify: FastifyInstance = Fastify({
 	https: {
@@ -109,7 +110,7 @@ fastify.post('/api/auth', async (req, reply) => {
 			})
 		return reply.send(infoFetch)
 	} else {
-		return reply.send({ status: 413 }).status(413)
+		return reply.send({ status: 403 }).status(403)
 	}
 })
 
@@ -118,7 +119,7 @@ fastify.get('/api/hello', (req, reply) => {
 })
 
 fastify.get('/api/lobby', (req, reply) => {
-	reply.send(lobby)
+	reply.send(lobby.toJSON() as LobbyType)
 })
 
 fastify.get('/api/user', (req, reply) => {
@@ -126,8 +127,8 @@ fastify.get('/api/user', (req, reply) => {
 	const { userId } = query
 	const cleanId = sanitizeHtml(userId)
 	const user = lobby.getUser(sanitizeHtml(cleanId))
-	if (!user) return reply.code(403).send({ error: `userId ${cleanId} invalid` })
-	return reply.send({ userId: cleanId, pseudo: user.pseudo })
+	if (!user) return reply.code(403).send({ type: "error", text: `userId ${cleanId} invalid` } as FrontErrorType)
+	return reply.send({ userId: cleanId, pseudo: user.pseudo } as UserPseudoDto)
 })
 
 fastify.post('/api/lobby', (req, reply) => {
@@ -135,8 +136,8 @@ fastify.post('/api/lobby', (req, reply) => {
 	const { pseudo } = body
 	const cleanPseudo = sanitizeHtml(pseudo)
 	const payload = lobby.addUser(cleanPseudo)
-	if (payload.id === '0') return reply.code(403).send({ error: `${cleanPseudo} already taken` })
-	return reply.send(payload)
+	if (payload.userId === '0') return reply.code(403).send({ type:"error", text: `${cleanPseudo} already taken` } as FrontErrorType)
+	return reply.send(payload as UserPseudoDto)
 })
 
 fastify.delete('/api/lobby', (req, reply) => {
