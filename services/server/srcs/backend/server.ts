@@ -1,24 +1,23 @@
 import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import path from 'path'
-import { readFile } from 'fs/promises'
 import { existsSync, readFileSync } from 'fs'
 import sanitizeHtml from 'sanitize-html'
 import fastifyStatic from '@fastify/static'
 import fastifyWebsocket from '@fastify/websocket'
-import { applyTemplate } from './functions/applyTemplate.fn.js'
 import __dirname, { setDirName } from './functions/dirname.fn.js'
 import { publicWatcher } from './services/publicWatcher.service.js'
 import cookie from '@fastify/cookie'
 import { authRoutes, metricsRoutes, userRoutes } from './routes/handler.route.js'
 import { totalHttpRequests } from './services/prometheus.service.js'
 import { log } from './logs.js'
-import { applyError } from './functions/applyError.fn.js'
 import fs from 'fs'
 import Lobby from './classes/Lobby.js'
 import { json_parse, json_stringify } from '../frontend/functions/json_wrapper.js'
 import { MessageType } from '../types/message.type.js'
 
 import { v4 as uuidv4 } from 'uuid'
+
+import { getHTML } from './functions/getHTML.fn.js'
 
 const MAX_MESSAGE_LENGTH = 150
 
@@ -54,26 +53,6 @@ fastify.register(fastifyStatic, {
 	root: path.join(__dirname(), 'dist/public'),
 	prefix: '/'
 })
-
-async function getHTML(route: string, type?: string, error?: number): Promise<string> {
-	return new Promise(async (resolve, reject) => {
-		console.log(route, type, error)
-		const filePath = path.join(__dirname(), 'srcs/backend/pages', `${type !== 'error' ? route : 'error'}.html`)
-
-		if (!existsSync(filePath)) return reject()
-
-		let pageContent = await readFile(filePath, 'utf8')
-		if (pageContent === null) return reject()
-
-		if (type === 'render') {
-			pageContent = await applyTemplate(pageContent)
-		} else if (type === 'error') {
-			pageContent = await applyTemplate(pageContent)
-			pageContent = await applyError(pageContent, error)
-		}
-		resolve(pageContent)
-	})
-}
 
 await metricsRoutes(fastify)
 await authRoutes(fastify)
