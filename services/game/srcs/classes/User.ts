@@ -1,9 +1,8 @@
 import { WebSocket } from 'ws'
-import { json_stringify } from '../../frontend/functions/json_wrapper.js'
-import { KeyType, StatusType } from '../../types/message.type.js'
+import { json_stringify } from '../functions/json_wrapper.js'
+import { KeyType, StatusType } from '../types/message.type.js'
 
-export default class User
-{
+export default class User {
 	public pseudo: string
 	public socket: WebSocket | undefined
 	public status: StatusType = 'chat'
@@ -14,21 +13,17 @@ export default class User
 		console.log(`new user ${this.id} ${this.pseudo}`)
 	}
 
-	send(data: any) : void
-	{
-		if (this.socket?.readyState === WebSocket.OPEN)
-		{
+	send(data: any) {
+		if (this.socket?.readyState === WebSocket.OPEN) {
 			this.socket?.send(json_stringify(data))
 		}
 	}
 
-	close(reason?: string) : void
-	{
+	close(reason?: string) {
 		this.socket?.close(1000, reason)
 	}
 
-	toJSON() : UserChatType
-	{
+	toJSON() {
 		return {
 			pseudo: this.pseudo,
 			connected: this.socket?.readyState === WebSocket.OPEN,

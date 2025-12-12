@@ -9,3 +9,4 @@ services/metrics/grafana/provisioning/dashboards/dashboards.yml
 services/metrics/grafana/provisioning/datasources/datasources.yml
 services/metrics/prometheus/prometheus.yml
 services/vault/conf/config.hcl
+diff.txt

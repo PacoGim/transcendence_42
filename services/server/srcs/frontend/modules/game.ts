@@ -35,13 +35,14 @@ userListDiv.className = 'user-list'
 userListDiv.style.display = 'none'
 
 const location = window.location
-console.log("location:", location)
+console.log('location:', location)
 const origin = location.origin
 const host = location.host
 
 lobbyDiv.addEventListener('mouseenter', async () => {
 	try {
-		const res = await fetch(`${origin}/api/lobby`)
+		// const res = await fetch(`${origin}/api/lobby`)
+		const res = await fetch(`https://localhost:3333/api/lobby`)
 		const lobby = await res.json()
 		updateUserList(lobby.users)
 		// Positionner la liste juste sous la lobby
@@ -235,7 +236,8 @@ function sendMPMessage(targetPseudo: string, text: string) {
 
 async function refreshLobbyId() {
 	try {
-		const res = await fetch(`${origin}/api/lobby`)
+		// const res = await fetch(`${origin}/api/lobby`)
+		const res = await fetch(`https://localhost:3333/api/lobby`)
 		if (!res.ok) throw new Error(`https ${res.status}: ${res.statusText}`)
 		lobby = await res.json()
 		console.log('lobby: ', json_stringify(lobby))
@@ -333,7 +335,9 @@ async function refreshWebSocket() {
 
 	if (!user.userId) return console.warn('Lobby ou user non défini, impossible d’ouvrir WebSocket.')
 
-	const ws = new WebSocket(`wss://${host}/api/ws?userId=${user.userId}`)
+	console.log('WEBSOCKET: ', `wss://${host}/api/ws?userId=${user.userId}`)
+	// const ws = new WebSocket(`wss://${host}/api/ws?userId=${user.userId}`)
+	const ws = new WebSocket(`wss://localhost:3333/api/ws?userId=${user.userId}`)
 	user.websocket = ws
 
 	ws.addEventListener('open', () => {
@@ -352,32 +356,32 @@ async function refreshWebSocket() {
 		const message: FrontType = json_parse(e.data) as FrontType
 		console.log(message)
 		if (!message) return
-		switch(message.type)
-		{
-			case('error'): return console.error("received:", message.text)
-			case('system'): return console.warn("received:", message.text)
+		switch (message.type) {
+			case 'error':
+				return console.error('received:', message.text)
+			case 'system':
+				return console.warn('received:', message.text)
 
-			case('duel'):
-			{
-				switch(message.action)
-				{
-					case("accept"): return launchGame(ws, user.pseudo)
-					case("decline"): return console.log(`duel has been declined from ${message.from}`)
-					case("propose"):
-					{
-						if (confirm(`${message?.from} send you a duel, do you accept?`))
-						{
+			case 'duel': {
+				switch (message.action) {
+					case 'accept':
+						return launchGame(ws, user.pseudo)
+					case 'decline':
+						return console.log(`duel has been declined from ${message.from}`)
+					case 'propose': {
+						if (confirm(`${message?.from} send you a duel, do you accept?`)) {
 							launchGame(ws, user.pseudo)
 							return ws.send(json_stringify({ type: 'duel', to: message?.from, action: 'accept' }))
-						}
-						else
-							return ws.send(json_stringify({ type: 'duel', to: message?.from, action: 'decline' }))
+						} else return ws.send(json_stringify({ type: 'duel', to: message?.from, action: 'decline' }))
 					}
 				}
 			}
-			case ('chat'): return handleIncomingMessage(message, displayMessage)
-			case ('mp-from'): return handleIncomingMessage(message, displayMessage)
-			case ('mp-to'): return handleIncomingMessage(message, displayMessage)
+			case 'chat':
+				return handleIncomingMessage(message, displayMessage)
+			case 'mp-from':
+				return handleIncomingMessage(message, displayMessage)
+			case 'mp-to':
+				return handleIncomingMessage(message, displayMessage)
 		}
 	})
 }
@@ -412,7 +416,8 @@ export default async function chat(element: HTMLDivElement) {
 		buttonPseudo.addEventListener('click', async () => {
 			let status
 			try {
-				const res = await fetch(`${origin}/api/lobby`, {
+				// const res = await fetch(`${origin}/api/lobby`, {
+				const res = await fetch(`https://localhost:3333/api/lobby`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: json_stringify({ pseudo: inputPseudo.value })

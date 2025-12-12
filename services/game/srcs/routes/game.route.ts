@@ -1,9 +1,8 @@
 import { FastifyInstance } from 'fastify'
-import { json_parse, json_stringify } from '../../frontend/functions/json_wrapper.js'
+import { json_parse, json_stringify } from '../functions/json_wrapper.js'
 import sanitizeHtml from 'sanitize-html'
 import Lobby from '../classes/Lobby.js'
-import fastifyWebsocket from '@fastify/websocket'
-import { MessageType } from '../../types/message.type.js'
+import { MessageType } from '../types/message.type.js'
 
 const MAX_MESSAGE_LENGTH = 150
 const lobby = new Lobby()
