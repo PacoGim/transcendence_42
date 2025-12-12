@@ -1,5 +1,5 @@
 export type userRegisterType = {
-    name: string,
+    avatar: string,
     pwd: string,
     checkpwd: string,
     email: string,

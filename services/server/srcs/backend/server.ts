@@ -18,7 +18,6 @@ import { totalHttpRequests } from './services/prometheus.service.js'
 
 /********************** Routes **********************/
 import { authRoutes, metricsRoutes, userRoutes } from './routes/handler.route.js'
-import { apiRoutes } from './routes/api.route.js'
 import { routerRoute } from './routes/router.route.js'
 
 setDirName(path.resolve())
@@ -48,7 +47,6 @@ await fastify.register(fastifyWebsocket)
 metricsRoutes(fastify)
 authRoutes(fastify)
 userRoutes(fastify)
-apiRoutes(fastify)
 // gameRoutes(fastify)
 routerRoute(fastify)
 

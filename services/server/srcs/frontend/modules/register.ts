@@ -3,6 +3,8 @@ import { CurrentButtonStore } from '../stores/current_button.store'
 import { KeyboardStore } from '../stores/keyboard.store'
 import { v4 as uuidv4 } from 'uuid'
 import { UserStore } from '../stores/user.store'
+import fs from 'fs'
+import path from 'path'
 
 /* 
 	1: Redirect user to OAuth page
@@ -27,7 +29,7 @@ const actions = {
 		max: 1,
 		steps: 1,
 		callback: selectRegisterType,
-		values: ['42', 'Email']
+		values: ['42', 'User Form']
 	}
 }
 
@@ -64,6 +66,8 @@ if (codeParam) {
 
 function start42OAuth(self: HTMLElement) {
 	const $el = document.createElement('a') as HTMLAnchorElement
+	const $form = document.querySelector('user-form form') as HTMLElement
+
 	const url =
 		'https://api.intra.42.fr/oauth/authorize?' +
 		new URLSearchParams({
@@ -74,10 +78,62 @@ function start42OAuth(self: HTMLElement) {
 		})
 
 	$el.setAttribute('href', url)
-
 	$el.innerText = '42'
 
+	$form.style.display = 'none'
+
 	self.innerHTML = ''
+	self.append($el)
+}
+
+function handleUserForm(self: HTMLElement) {
+	const $el = document.createElement('span') as HTMLSpanElement
+	const $form = document.querySelector('user-form form') as HTMLElement
+	const $submitBtn = document.querySelector('user-form form button[type="submit"]') as HTMLElement
+
+	$form.style.display = 'block'
+
+	$el.innerText = 'User Form'
+	self.innerHTML = ''
+
+	$submitBtn.addEventListener('click', e => { {
+		e.preventDefault()
+
+		const $username = ($form.querySelector('input[name="username"]') as HTMLInputElement).value
+		const $email = ($form.querySelector('input[name="email"]') as HTMLInputElement).value
+		const $confirmEmail = ($form.querySelector('input[name="confirmEmail"]') as HTMLInputElement).value
+		const $password = ($form.querySelector('input[name="password"]') as HTMLInputElement).value
+		const $confirmPassword = ($form.querySelector('input[name="confirmPassword"]') as HTMLInputElement).value
+		const $avatarInput = $form.querySelector('input[name="avatar"]') as HTMLInputElement
+
+		let avatarFile: File | null = null
+		if ($avatarInput && $avatarInput.files && $avatarInput.files.length > 0) {
+			avatarFile = $avatarInput.files[$avatarInput.files.length - 1]
+		}
+		if ($email !== $confirmEmail) {
+			alert('Emails do not match')
+			return
+		}
+		if ($password !== $confirmPassword) {
+			alert('Passwords do not match')
+			return
+		}
+		const formData = {username: $username, email: $email, checkmail: $confirmEmail, pwd: $password, checkpwd: $confirmPassword}
+		console.log("--FRONT-- formData:", formData)
+		fetch('https://localhost:443/register', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(formData)
+		}).then(res => {
+			console.log("--FRONT-- res status:", res.status)
+			return res.json()
+		}).then(json => {
+			console.log('--FRONT-- 2e rep:', json)
+		})
+	} })
+
 	self.append($el)
 }
 
@@ -85,7 +141,7 @@ function selectRegisterType(registerType: string, self: HTMLElement) {
 	if (registerType === '42') {
 		start42OAuth(self)
 	} else {
-		self.innerText = registerType
+		handleUserForm(self)
 	}
 }
 

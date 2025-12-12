@@ -11,10 +11,10 @@ export default function initDb() {
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY NOT NULL,
-            name TEXT NOT NULL,
-            pwd TEXT NOT NULL,
+            username TEXT NOT NULL UNIQUE,
             email TEXT NOT NULL UNIQUE,
-            username TEXT NOT NULL UNIQUE
+            pwd TEXT,
+            avatar TEXT
         )
     `);
     db.run(`

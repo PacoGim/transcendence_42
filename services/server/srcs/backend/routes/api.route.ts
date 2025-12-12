@@ -1,16 +1,8 @@
-import { FastifyInstance } from 'fastify'
+import { FastifyRequest, FastifyReply } from 'fastify'
 import { v4 as uuidv4 } from 'uuid'
 import { json_parse } from '../../frontend/functions/json_wrapper.js'
 
-export async function apiRoutes(fastify: FastifyInstance) {
-	fastify.route({
-		method: 'POST',
-		url: '/api/auth',
-		handler: handlePOSTApiAuth
-	})
-}
-
-async function handlePOSTApiAuth(req, reply) {
+export async function handlePOSTApiAuth(req: FastifyRequest, reply: FastifyReply) {
 	const { code } = json_parse(req.body)
 
 	const url =

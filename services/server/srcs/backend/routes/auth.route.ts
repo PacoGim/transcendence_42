@@ -32,23 +32,35 @@ import { createToken } from '../crud/jwt.crud.js'
 */
 
 export async function registerUser(req: FastifyRequest, reply: FastifyReply) {
-	const { name, pwd, checkpwd, email, checkmail, username } = req.body as userRegisterType
+	const avatar = null
+	const { username, email, checkmail, pwd, checkpwd } = req.body as userRegisterType
+	console.log('--BACK-- Registering user with data:', {
+		username: username,
+		email: email,
+		checkmail: checkmail,
+		pwd: pwd,
+		checkpwd: checkpwd,
+		avatar: avatar
+	})
 	if (email !== checkmail) return reply.status(400).send({ message: 'Emails do not match' })
 	if (pwd !== checkpwd) return reply.status(400).send({ message: 'Passwords do not match' })
 	let body = await vaultPostQuery('getSecret', { name: 'bcrypt_salt' })
 	if (body.status >= 400) return reply.status(body.status).send({ message: body.message })
-	const salt = body.message
+	const salt = body.message.value
 	const hashedPwd = await bcrypt.hash(pwd, salt)
 	body = await dbPostQuery({
 		endpoint: 'dbRun',
 		query: {
 			verb: 'create',
-			sql: 'INSERT INTO users (name, pwd, email, username) VALUES (?, ?, ?, ?)',
-			data: [name, hashedPwd, email, username]
+			sql: 'INSERT INTO users (avatar, pwd, email, username) VALUES (?, ?, ?, ?)',
+			data: [ avatar, hashedPwd, email, username]
 		}
 	})
-	if (body.status >= 400) return reply.status(body.status).send({ message: body.message })
-	return reply.status(201).send({ message: 'User registered', data: { id: body.id, name: name } })
+	if (body.status >= 400){
+		console.error('--BACK-- db error:', body.message)
+		return reply.status(body.status).send({ message: body.message })
+	}
+	return reply.status(201).send({ message: 'User registered', data: { id: body.id } })
 }
 
 export async function logUser(req: FastifyRequest, reply: FastifyReply) {

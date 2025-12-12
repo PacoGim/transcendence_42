@@ -51,12 +51,51 @@
 			class="button text-3xl y-nav"
 			data-action="selectRegisterType"
 			data-state-value="0"
-			data-selected="true"
-			><a
-				href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9f30b2430e51c381ae5e38158295eef89230a74b070231a798bd1bcb7a01709c&amp;redirect_uri=https%3A%2F%2Flocalhost%2Fregister&amp;response_type=code&amp;state=4c793e48-15be-4e09-8240-ff1152e39a33"
-				>42</a
-			></oauth-container
-		>
+			data-selected="true">
+			<a
+				href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9f30b2430e51c381ae5e38158295eef89230a74b070231a798bd1bcb7a01709c&amp;redirect_uri=https%3A%2F%2Flocalhost%2Fregister&amp;response_type=code&amp;state=4c793e48-15be-4e09-8240-ff1152e39a33">
+				42
+			</a>
+			</oauth-container>
+		<user-form
+			class="button text-3xl y-nav"
+			data-action="selectRegisterType"
+			data-state-value="1">
+			<form
+				class="hidden"
+				>
+				<form-section>
+					<span>Username:</span>
+					<input type="text" name="username" value="username" required tabindex="2"/>
+				</form-section>
+				<form-section>
+					<span>Email:</span>
+					<input type="email" name="email" required value="email@email.com" tabindex="3"/>
+				</form-section>
+				<form-section>
+					<span>Confirm email:</span>
+					<input type="email" name="confirmEmail" required value="email@email.com" tabindex="4"/>
+				</form-section>
+				<form-section>
+					<span>Password:</span>
+					<input type="password" name="password" required value="password" tabindex="5"/>
+				</form-section>
+				<form-section>
+					<span>Confirm Password:</span>
+					<input type="password" name="confirmPassword" required value="password" tabindex="6"/>
+				</form-section>
+				<form-section>
+					<span>Avatar:</span>
+					<input type="file" name="avatar" required tabindex="7"/>
+				</form-section>
+				<button
+					type="submit"
+					class="button text-3xl"
+					data-action="submitRegisterForm" tabindex="8">
+					Register
+				</button>
+			</form>
+		</user-form>
 	</register-form>
 	<menu-buttons>
 		<nav-button data-route="" class="button text-3xl" tabindex="3">Back</nav-button>
