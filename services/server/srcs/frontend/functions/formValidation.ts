@@ -17,6 +17,80 @@ export function fieldValid(el: HTMLElement) {
         errorSpan.remove()
 }
 
+export function setupFieldValidation(input: HTMLInputElement, validator: (value: string) => boolean, errorMessage: string) {
+    input.addEventListener('input', () => {
+        if (validator(input.value))
+            fieldInvalid(input, errorMessage)
+        else
+            fieldValid(input)
+    })
+}
+
+export function setupConfirmFieldValidation(originalInput: HTMLInputElement, confirmInput: HTMLInputElement, errorMessage: string) {
+    confirmInput.addEventListener('input', () => {
+        if (confirmInput.value !== originalInput.value)
+            fieldInvalid(confirmInput, errorMessage)
+        else
+            fieldValid(confirmInput)
+    })
+}
+
+export function setupAllFieldValidation($form: HTMLElement) {
+    setupFieldValidation(
+		$form.querySelector('input[name="username"]') as HTMLInputElement,
+		isUsernameFormatInvalid,
+		'Username must be between 4 and 20 characters long and contain only letters, numbers and underscores'
+	)
+	setupFieldValidation(
+		$form.querySelector('input[name="email"]') as HTMLInputElement,
+		isEmailFormatInvalid,
+		'Invalid email format'
+	)
+	const $emailField = $form.querySelector('input[name="email"]') as HTMLInputElement
+	const $confirmEmailField = $form.querySelector('input[name="checkmail"]') as HTMLInputElement
+	setupFieldValidation(
+		$confirmEmailField,
+		(value: string) => value !== $emailField.value,
+		'Emails do not match'
+	)
+	setupFieldValidation(
+		$form.querySelector('input[name="pwd"]') as HTMLInputElement,
+		isPwdFormatInvalid,
+		'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character'
+	)
+	const $passwordField = $form.querySelector('input[name="pwd"]') as HTMLInputElement
+	const $confirmPasswordField = $form.querySelector('input[name="checkpwd"]') as HTMLInputElement
+	setupFieldValidation(
+		$confirmPasswordField,
+		(value: string) => value !== $passwordField.value,
+		'Passwords do not match'
+	)
+}
+
+export function setupAvatarPreview(avatarInput: HTMLInputElement, avatarPreview: HTMLImageElement) {
+    avatarInput.value = ""
+    avatarPreview.src = "/images/avatars/baseAvatar.jpg"
+
+    let avatarObjectURL: string | null = null
+    	avatarInput.addEventListener("change", () => {
+		const file = avatarInput.files?.[0] || null
+		if (isAvatarFileFormatInvalid(file)) {
+			fieldInvalid(avatarInput, 'Avatar file must be an image and less than 100 KB')
+			avatarInput.value = ""
+			return
+		} else
+			fieldValid(avatarInput)
+		if (avatarObjectURL) {
+			URL.revokeObjectURL(avatarObjectURL)
+			avatarObjectURL = null
+		}
+		if (file) {
+			avatarObjectURL = URL.createObjectURL(file)
+			avatarPreview.src = avatarObjectURL
+		}
+	})
+}
+
 export function isUsernameFormatInvalid(username: string): boolean { // a bouger dans "/functions"
 	if (username.length < 4)
 		return true
@@ -67,4 +141,19 @@ export function isAvatarFileFormatInvalid(avatarFile: File | null): boolean {
 		return true
 	}
 	return false
+}
+
+export function createFormData(form: HTMLElement, avatarInput: HTMLInputElement): FormData {
+    const formData = new FormData()
+    formData.append('username', (form.querySelector('input[name="username"]') as HTMLInputElement).value)
+    formData.append('email', (form.querySelector('input[name="email"]') as HTMLInputElement).value)
+    formData.append('checkmail', (form.querySelector('input[name="checkmail"]') as HTMLInputElement).value)
+    formData.append('pwd', (form.querySelector('input[name="pwd"]') as HTMLInputElement).value)
+    formData.append('checkpwd', (form.querySelector('input[name="checkpwd"]') as HTMLInputElement).value)
+
+    const avatarFile: File | null = avatarInput.files?.[0] || null
+    if (avatarFile) formData.append('avatar', avatarFile)
+    else formData.append("avatar", "")
+
+    return formData
 }
