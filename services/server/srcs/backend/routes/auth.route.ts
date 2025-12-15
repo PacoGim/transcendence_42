@@ -6,6 +6,7 @@ import { dbPostQuery } from '../crud/dbQuery.crud.js'
 import { vaultPostQuery } from '../crud/vaultQuery.crud.js'
 import { createToken } from '../crud/jwt.crud.js'
 import { pipeline } from 'stream/promises'
+import { isUsernameFormatInvalid, isEmailFormatInvalid, isPwdFormatInvalid, isAvatarFileFormatInvalid} from '../../frontend/functions/formValidation.js'
 import fs from 'fs'
 
 /* body to send for updateUser:
@@ -33,45 +34,12 @@ import fs from 'fs'
 	}
 */
 
-function isEmailFormatInvalid(email: string): boolean {
-	if (!email.includes('@'))
-		return true
-	if (!email.includes('.'))
-		return true
-	if (email.lastIndexOf('.') < email.indexOf('@'))
-		return true
-	if (email.indexOf('@') === 0)
-		return true
-	if (email.lastIndexOf('.') === email.length - 1)
-		return true
-	if (email.indexOf('.') - email.indexOf('@') === 1)
-		return true
-	if (email.length > 320)
-		return true
-	return false
-}
-
-function isPwdFormatInvalid(pwd: string): boolean {
-	if (pwd.length < 8)
-		return true
-	if (!pwd.match(/[a-z]/))
-		return true
-	if (!pwd.match(/[A-Z]/))
-		return true
-	if (!pwd.match(/[0-9]/))
-		return true
-	if (!pwd.match(/[\W_]/))
-		return true
-	return false
-}
-
 async function getMultipartFormData(req: FastifyRequest) {
 	const parts = req.parts()
 	const data: any = {};
 	for await (const part of parts) {
 		if (part.type === 'file') {
 			console.log('--BACK-- Received file:', part)
-	 		//redimensionner (128x128 min, 256x256 max)
 			if (!part.mimetype.startsWith('image/'))
 				return {"error": 'Invalid file type'}
 			const filePath = `/app/srcs/frontend/images/avatars/${part.filename}`
@@ -98,12 +66,10 @@ export async function registerUser(req: FastifyRequest, reply: FastifyReply) {
 		checkpwd: checkpwd,
 		avatar: avatar
 	})
-	// TODO: check username size (4 min) and format (filtre alphabet + chiffres)
-	if (isEmailFormatInvalid(email))
-		return reply.status(400).send({ message: 'Invalid email format' })
+	if (isUsernameFormatInvalid(username)) return reply.status(400).send({ message: 'Invalid username format' })
+	if (isEmailFormatInvalid(email)) return reply.status(400).send({ message: 'Invalid email format' })
 	if (email !== checkmail) return reply.status(400).send({ message: 'Emails do not match' })
-	if (isPwdFormatInvalid(pwd))
-		return reply.status(400).send({ message: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character' })
+	if (isPwdFormatInvalid(pwd)) return reply.status(400).send({ message: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character' })
 	if (pwd !== checkpwd) return reply.status(400).send({ message: 'Passwords do not match' })
 	let body = await vaultPostQuery('getSecret', { name: 'bcrypt_salt' })
 	if (body.status >= 400) return reply.status(body.status).send({ message: body.message })

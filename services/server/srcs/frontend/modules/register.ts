@@ -3,8 +3,7 @@ import { CurrentButtonStore } from '../stores/current_button.store'
 import { KeyboardStore } from '../stores/keyboard.store'
 import { v4 as uuidv4 } from 'uuid'
 import { UserStore } from '../stores/user.store'
-import fs from 'fs'
-import path from 'path'
+import { isUsernameFormatInvalid, isEmailFormatInvalid, isPwdFormatInvalid, isAvatarFileFormatInvalid, fieldInvalid, fieldValid} from '../functions/formValidation.js'
 
 /* 
 	1: Redirect user to OAuth page
@@ -86,36 +85,36 @@ function start42OAuth(self: HTMLElement) {
 	self.append($el)
 }
 
-function isEmailFormatInvalid(email: string): boolean { // a bouger dans "/functions"
-	if (!email.includes('@'))
-		return true
-	if (!email.includes('.'))
-		return true
-	if (email.lastIndexOf('.') < email.indexOf('@'))
-		return true
-	if (email.indexOf('@') === 0)
-		return true
-	if (email.lastIndexOf('.') === email.length - 1)
-		return true
-	if (email.indexOf('.') - email.indexOf('@') === 1)
-		return true
-	if (email.length > 320)
-		return true
-	return false
+function getAvatarFile(avatarInput: HTMLInputElement): File | null {
+	if (avatarInput && avatarInput.files && avatarInput.files.length > 0)
+		return avatarInput.files[avatarInput.files.length - 1]
+	return null
 }
 
-function isPwdFormatInvalid(pwd: string): boolean { // a bouger dans "/functions"
-	if (pwd.length < 8)
-		return true
-	if (!pwd.match(/[a-z]/))
-		return true
-	if (!pwd.match(/[A-Z]/))
-		return true
-	if (!pwd.match(/[0-9]/))
-		return true
-	if (!pwd.match(/[\W_]/))
-		return true
-	return false
+function changeAvatarPreview(avatarInput: HTMLInputElement) {
+	let avatarObjectURL: string | null = null
+	avatarInput.addEventListener("change", () => {
+		const file = getAvatarFile(avatarInput)
+		const avatarPreview = document.getElementById("avatarPreview") as HTMLImageElement
+		if (isAvatarFileFormatInvalid(file)) {
+			fieldInvalid(avatarInput, 'Avatar file must be an image and less than 100 KB')
+			avatarInput.value = ""
+			return
+		} else
+			fieldValid(avatarInput)
+		if (avatarObjectURL) {
+			URL.revokeObjectURL(avatarObjectURL)
+			avatarObjectURL = null
+		}
+		if (file) {
+			avatarObjectURL = URL.createObjectURL(file)
+			avatarPreview.src = avatarObjectURL
+		}
+	})
+}
+
+function hasInvalidFields(form: HTMLElement): boolean {
+	return form.querySelectorAll('.invalid-field').length > 0
 }
 
 function handleUserForm(self: HTMLElement) {
@@ -124,45 +123,63 @@ function handleUserForm(self: HTMLElement) {
 	const $submitBtn = document.querySelector('user-form form button[type="submit"]') as HTMLElement
 
 	$form.style.display = 'block'
-
 	$el.innerText = 'User Form'
 	self.innerHTML = ''
 
+	const $avatarInput = $form.querySelector('input[name="avatar"]') as HTMLInputElement
+	$avatarInput.value = ""
+	changeAvatarPreview($avatarInput)
+
+	const $usernameField = ($form.querySelector('input[name="username"]') as HTMLInputElement)
+	$usernameField.addEventListener('input', () => {
+		if (isUsernameFormatInvalid($usernameField.value))
+			fieldInvalid($usernameField, 'Username must be between 4 and 20 characters long and contain only letters, numbers and underscores')
+		else
+			fieldValid($usernameField)
+	})
+	const $emailField = ($form.querySelector('input[name="email"]') as HTMLInputElement)
+	$emailField.addEventListener('input', () => {
+		if (isEmailFormatInvalid($emailField.value))
+			fieldInvalid($emailField, 'Invalid email format')
+		else
+			fieldValid($emailField)
+	})
+	const $confirmEmailField = ($form.querySelector('input[name="confirmEmail"]') as HTMLInputElement)
+	$confirmEmailField.addEventListener('input', () => {
+		if ($confirmEmailField.value !== $emailField.value)
+			fieldInvalid($confirmEmailField, 'Emails do not match')
+		else
+			fieldValid($confirmEmailField)
+	})
+	const $passwordField = ($form.querySelector('input[name="password"]') as HTMLInputElement)
+	$passwordField.addEventListener('input', () => {
+		if (isPwdFormatInvalid($passwordField.value))
+			fieldInvalid($passwordField, 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character')
+		else
+			fieldValid($passwordField)
+	})
+	const $confirmPasswordField = ($form.querySelector('input[name="confirmPassword"]') as HTMLInputElement)
+	$confirmPasswordField.addEventListener('input', () => {
+		if ($confirmPasswordField.value !== $passwordField.value)
+			fieldInvalid($confirmPasswordField, 'Passwords do not match')
+		else
+			fieldValid($confirmPasswordField)
+	})
+
 	$submitBtn.onclick = (e) => {
 		e.preventDefault()
+
+		if (hasInvalidFields($form)) {
+			alert('Form contains invalid fields.')
+			return
+		}
 
 		const $username = ($form.querySelector('input[name="username"]') as HTMLInputElement).value
 		const $email = ($form.querySelector('input[name="email"]') as HTMLInputElement).value
 		const $confirmEmail = ($form.querySelector('input[name="confirmEmail"]') as HTMLInputElement).value
 		const $password = ($form.querySelector('input[name="password"]') as HTMLInputElement).value
 		const $confirmPassword = ($form.querySelector('input[name="confirmPassword"]') as HTMLInputElement).value
-		const $avatarInput = $form.querySelector('input[name="avatar"]') as HTMLInputElement
-		// TODO: alerts for invalid inputs on focus out in fields
-		// TODO: dans l'hote, reduire size de baseAvatar a 100 Ko max
-		// TODO: validate email format like in backend
-		// TODO: check username size (4 min) and format (filtre alphabet + chiffres)
-		let avatarFile: File | null = null
-		if ($avatarInput && $avatarInput.files && $avatarInput.files.length > 0)
-		{
-			avatarFile = $avatarInput.files[$avatarInput.files.length - 1]
-			console.log(avatarFile)
-		}
-		if (isEmailFormatInvalid($email)) {
-			alert('Invalid email format')
-			return
-		}
-		if ($email !== $confirmEmail) {
-			alert('Emails do not match')
-			return
-		}
-		if (isPwdFormatInvalid($password)) {
-			alert('Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character')
-			return
-		}
-		if ($password !== $confirmPassword) {
-			alert('Passwords do not match')
-			return
-		}
+		let avatarFile: File | null = getAvatarFile($avatarInput)
 
 		const formData = new FormData()
 		formData.append('username', $username)

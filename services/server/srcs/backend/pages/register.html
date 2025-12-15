@@ -14,6 +14,8 @@
 			display: flex;
 			margin-bottom: 1rem;
 			align-items: center;
+			justify-content: center;
+			flex-wrap: wrap;
 		}
 
 		form-section span {
@@ -78,15 +80,16 @@
 				</form-section>
 				<form-section>
 					<span>Password:</span>
-					<input type="password" name="password" required value="password" tabindex="5"/>
+					<input type="password" name="password" required value="Password1!@" tabindex="5"/>
 				</form-section>
 				<form-section>
 					<span>Confirm Password:</span>
-					<input type="password" name="confirmPassword" required value="password" tabindex="6"/>
+					<input type="password" name="confirmPassword" required value="Password1!@" tabindex="6"/>
 				</form-section>
 				<form-section>
 					<span>Avatar:</span>
-					<input type="file" accept="image/*" id="avatarInput" name="avatar" required tabindex="7"/>
+					<img id="avatarPreview" src="/images/avatars/baseAvatar.jpg" width="70px" height="70px" style="object-fit: cover; border-radius: 10%; margin-right: 10px;" />
+					<input id="avatarInput" type="file" accept="image/*" name="avatar" tabindex="7"/>
 				</form-section>
 				<button
 					type="submit"

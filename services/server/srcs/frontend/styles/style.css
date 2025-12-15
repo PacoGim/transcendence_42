@@ -129,3 +129,15 @@ span[type="spinner"] img{
 	transition-duration: 300ms;
 	transition-timing-function: ease-in-out;
 }
+
+.invalid-field {
+	border: 2px solid red;
+}
+
+.field-error-message {
+	flex-basis: 100%;
+	text-align: center;
+	color: red;
+	font-size: 0.875rem;
+	margin-top: 0.25rem;
+}
