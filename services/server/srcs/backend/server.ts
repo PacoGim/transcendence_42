@@ -56,7 +56,7 @@ await fastify.register(fastifyWebsocket)
 metricsRoutes(fastify)
 authRoutes(fastify)
 userRoutes(fastify)
-// gameRoutes(fastify)
+apiRoutes(fastify)
 routerRoute(fastify)
 
 publicWatcher()
