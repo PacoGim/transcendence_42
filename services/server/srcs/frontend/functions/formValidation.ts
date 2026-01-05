@@ -1,3 +1,7 @@
+export function hasInvalidFields(form: HTMLElement): boolean {
+	return form.querySelectorAll('.invalid-field').length > 0
+}
+
 export function fieldInvalid(el: HTMLElement, message?: string) {
     el.classList.add('invalid-field')
     let errorSpan = el.nextElementSibling as HTMLElement | null
