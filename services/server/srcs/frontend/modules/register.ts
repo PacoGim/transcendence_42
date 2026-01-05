@@ -1,9 +1,9 @@
 import { navigate } from '../js/routing'
 import { CurrentButtonStore } from '../stores/current_button.store'
 import { KeyboardStore } from '../stores/keyboard.store'
-import { v4 as uuidv4 } from 'uuid'
 import { UserStore } from '../stores/user.store'
-import { setupAvatarPreview, setupAllFieldValidation, createFormData} from '../functions/formValidation.js'
+import { setupAvatarPreview, setupAllFieldValidation, createFormData, hasInvalidFields} from '../functions/formValidation.js'
+import { start42OAuth } from '../functions/start42OAuth.js'
 
 /* 
 	1: Redirect user to OAuth page
@@ -39,11 +39,12 @@ let currentButton: HTMLElement
 const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButton = el))
 
 if ($oauthContainer) {
-	start42OAuth($oauthContainer)
+	const $uri = 'https://localhost/register'
+	start42OAuth($oauthContainer, $uri)
 }
 
 if (codeParam) {
-	fetch('https://localhost:443/api/auth', {
+	fetch('https://localhost:443/api/auth/register', {
 		method: 'POST',
 		body: JSON.stringify({ code: codeParam })
 	})
@@ -61,32 +62,6 @@ if (codeParam) {
 	$spinner.style.display = 'none'
 	$menuButtons.style.display = 'flex'
 	$registerForm.style.display = 'block'
-}
-
-function start42OAuth(self: HTMLElement) {
-	const $el = document.createElement('a') as HTMLAnchorElement
-	const $form = document.querySelector('user-form form') as HTMLElement
-
-	const url =
-		'https://api.intra.42.fr/oauth/authorize?' +
-		new URLSearchParams({
-			client_id: 'u-s4t2ud-9f30b2430e51c381ae5e38158295eef89230a74b070231a798bd1bcb7a01709c',
-			redirect_uri: 'https://localhost/register',
-			response_type: 'code',
-			state: uuidv4()
-		})
-
-	$el.setAttribute('href', url)
-	$el.innerText = '42'
-
-	$form.style.display = 'none'
-
-	self.innerHTML = ''
-	self.append($el)
-}
-
-function hasInvalidFields(form: HTMLElement): boolean {
-	return form.querySelectorAll('.invalid-field').length > 0
 }
 
 function handleUserForm(self: HTMLElement) {
@@ -131,7 +106,8 @@ function handleUserForm(self: HTMLElement) {
 
 function selectRegisterType(registerType: string, self: HTMLElement) {
 	if (registerType === '42') {
-		start42OAuth(self)
+		const $uri = 'https://localhost/register'
+		start42OAuth(self, $uri)
 	} else {
 		handleUserForm(self)
 	}
