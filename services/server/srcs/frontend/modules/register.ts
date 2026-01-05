@@ -1,9 +1,9 @@
 import { navigate } from '../js/routing'
 import { CurrentButtonStore } from '../stores/current_button.store'
 import { KeyboardStore } from '../stores/keyboard.store'
-import { v4 as uuidv4 } from 'uuid'
 import { UserStore } from '../stores/user.store'
-import { setupAvatarPreview, setupAllFieldValidation, createFormData } from '../functions/formValidation.js'
+import { setupAvatarPreview, setupAllFieldValidation, createFormData, hasInvalidFields} from '../functions/formValidation.js'
+import { start42OAuth } from '../functions/start42OAuth.js'
 
 /* 
 	1: Redirect user to OAuth page
@@ -39,11 +39,12 @@ let currentButton: HTMLElement
 const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButton = el))
 
 if ($oauthContainer) {
-	start42OAuth($oauthContainer)
+	const $uri = 'https://localhost/register'
+	start42OAuth($oauthContainer, $uri)
 }
 
 if (codeParam) {
-	fetch('https://localhost:443/api/auth', {
+	fetch('https://localhost:443/api/auth/register', {
 		method: 'POST',
 		body: JSON.stringify({ code: codeParam })
 	})
@@ -142,7 +143,8 @@ function handleUserForm(self: HTMLElement) {
 
 function selectRegisterType(registerType: string, self: HTMLElement) {
 	if (registerType === '42') {
-		start42OAuth(self)
+		const $uri = 'https://localhost/register'
+		start42OAuth(self, $uri)
 	} else {
 		handleUserForm(self)
 	}

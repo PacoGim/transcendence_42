@@ -1,3 +1,7 @@
+export function hasInvalidFields(form: HTMLElement): boolean {
+	return form.querySelectorAll('.invalid-field').length > 0
+}
+
 export function fieldInvalid(el: HTMLElement, message?: string) {
 	el.classList.add('invalid-field')
 	let errorSpan = el.nextElementSibling as HTMLElement | null
@@ -31,6 +35,19 @@ export function setupConfirmFieldValidation(
 		if (confirmInput.value !== originalInput.value) fieldInvalid(confirmInput, errorMessage)
 		else fieldValid(confirmInput)
 	})
+}
+
+export function setupUsernameAndPwdFieldsValidation($form: HTMLElement) {
+    setupFieldValidation(
+		$form.querySelector('input[name="username"]') as HTMLInputElement,
+		(value: string) => value.trim() === '',
+		'Empty field'
+	)
+	setupFieldValidation(
+		$form.querySelector('input[name="pwd"]') as HTMLInputElement,
+		(value: string) => value.trim() === '',
+		'Empty field'
+	)
 }
 
 export function setupAllFieldValidation($form: HTMLElement) {
