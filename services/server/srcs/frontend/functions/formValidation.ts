@@ -4,18 +4,22 @@ export function hasInvalidFields(form: HTMLElement): boolean {
 
 export function fieldInvalid(el: HTMLElement, message?: string) {
 	el.classList.add('invalid-field')
-	let errorSpan = el.nextElementSibling as HTMLElement | null
+	const parent = el.parentElement
+	if (!parent) return
+	let errorSpan = parent.querySelector('.field-error-message') as HTMLElement | null
 	if (!errorSpan) {
 		errorSpan = document.createElement('span')
 		errorSpan.classList.add('field-error-message')
-		el.parentNode?.insertBefore(errorSpan, el.nextSibling)
+		parent.appendChild(errorSpan)
 	}
 	if (message) errorSpan.textContent = message
 }
 
 export function fieldValid(el: HTMLElement) {
 	el.classList.remove('invalid-field')
-	const errorSpan = el.nextElementSibling as HTMLElement | null
+	const parent = el.parentElement
+	if (!parent) return
+	const errorSpan = parent.querySelector('.field-error-message') as HTMLElement | null
 	if (errorSpan) errorSpan.remove()
 }
 
@@ -72,6 +76,13 @@ export function setupAllFieldValidation($form: HTMLElement) {
 	const $passwordField = $form.querySelector('input[name="pwd"]') as HTMLInputElement
 	const $confirmPasswordField = $form.querySelector('input[name="checkpwd"]') as HTMLInputElement
 	setupFieldValidation($confirmPasswordField, (value: string) => value !== $passwordField.value, 'Passwords do not match')
+}
+
+export function resetAvatarButton(resetBtn: HTMLButtonElement, avatarInput: HTMLInputElement, avatarPreview: HTMLImageElement) {
+	resetBtn.addEventListener('click', () => {
+		avatarPreview.src = '/images/avatars/baseAvatar.jpg'
+		avatarInput.value = ''
+	})
 }
 
 export function setupAvatarPreview(avatarInput: HTMLInputElement, avatarPreview: HTMLImageElement) {

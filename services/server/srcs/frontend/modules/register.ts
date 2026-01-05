@@ -2,7 +2,7 @@ import { navigate } from '../js/routing'
 import { CurrentButtonStore } from '../stores/current_button.store'
 import { KeyboardStore } from '../stores/keyboard.store'
 import { UserStore } from '../stores/user.store'
-import { setupAvatarPreview, setupAllFieldValidation, createFormData, hasInvalidFields } from '../functions/formValidation.js'
+import { setupAvatarPreview, setupAllFieldValidation, createFormData, hasInvalidFields, resetAvatarButton } from '../functions/formValidation.js'
 import { start42OAuth } from '../functions/start42OAuth.js'
 
 /* 
@@ -80,6 +80,8 @@ function handleUserForm(self: HTMLElement) {
 	const $avatarInput = $form.querySelector('input[name="avatar"]') as HTMLInputElement
 	const $avatarPreview = $form.querySelector('#avatarPreview') as HTMLImageElement
 	setupAvatarPreview($avatarInput, $avatarPreview)
+	const $resetAvatarBtn = $form.querySelector('#resetAvatarButton') as HTMLButtonElement
+	resetAvatarButton($resetAvatarBtn, $avatarInput, $avatarPreview)
 
 	setupAllFieldValidation($form)
 
