@@ -7,19 +7,22 @@ type LoginButtonValues = {
 		id: string
 		inner: string
 		route: string
+		next: string
 	}
 }
 
 const loginButtonValues: LoginButtonValues = {
-	loginButton: {
+	registerButton: {
 		id: 'registerButton',
 		inner: 'Register',
-		route: 'register'
+		route: 'register',
+		next: 'loginButton'
 	},
-	registerButton: {
+	loginButton: {
 		id: 'loginButton',
 		inner: 'Login',
-		route: 'login'
+		route: 'login',
+		next: 'registerButton'
 	}
 }
 
@@ -30,7 +33,7 @@ const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButto
 
 const unsubKeyStore = KeyboardStore.subscribe(key => {
 	if (['ArrowLeft', 'ArrowRight'].includes(key.value)) {
-		const nextValue = loginButtonValues[currentButton.id]
+		const nextValue = loginButtonValues[loginButtonValues[currentButton.id].next]
 		if (nextValue) {
 			const $navLeft = document.createElement('nav-left')
 			const $navRight = document.createElement('nav-right')
