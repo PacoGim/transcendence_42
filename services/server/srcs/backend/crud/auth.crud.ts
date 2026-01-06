@@ -46,7 +46,6 @@ export async function fetch42User(url: string, saveToDb: boolean) {
 							}
 						})
 						if (body.status >= 400) return {status: body.status, message: body.message }
-						console.log("SUCCESS")
 						return { email, login, firstName: first_name, lastName: last_name }
 				}
 				else

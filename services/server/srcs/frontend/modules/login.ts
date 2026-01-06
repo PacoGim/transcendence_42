@@ -65,7 +65,6 @@ if (codeParam) {
 }
 
 function handleLoginForm(self: HTMLElement) {
-	console.log('Handling login form')
 	const $el = document.createElement('span') as HTMLSpanElement
 	const $form = document.querySelector('user-form form') as HTMLElement
 	const $submitBtn = document.querySelector('user-form form button[type="submit"]') as HTMLElement

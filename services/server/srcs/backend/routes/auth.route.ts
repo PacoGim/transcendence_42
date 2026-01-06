@@ -102,8 +102,6 @@ export async function logUser(req: FastifyRequest, reply: FastifyReply) {
 	return reply
 		.status(200)
 		.setCookie('token', token, {
-			// httpOnly: true,
-			// secure: true,
 			// sameSite: 'strict',
 			// signed: true
 			path: '/',
