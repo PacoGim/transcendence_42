@@ -3,7 +3,6 @@ import { CurrentButtonStore } from '../stores/current_button.store'
 import { KeyboardStore } from '../stores/keyboard.store'
 import { UserStore } from '../stores/user.store'
 import {
-	setupAllFieldValidation,
 	hasInvalidFields,
 	createLoginFormData,
 	setupUsernameAndPwdFieldsValidation

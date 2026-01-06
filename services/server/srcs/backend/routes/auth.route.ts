@@ -88,7 +88,9 @@ export async function registerUser(req: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function logUser(req: FastifyRequest, reply: FastifyReply) {
-	const { username, pwd } = req.body as userLoginType
+	const data = await getMultipartFormData(req)
+	const { username, pwd } = await data as userLoginType
+	console.log('--BACK-- Logging in user with data:', { username: username, pwd: pwd })
 	const alreadyLoggedInResponse = await checkIfAlreadyLoggedIn(req)
 	if (alreadyLoggedInResponse) return reply.status(200).send({ message: 'Already logged in' })
 	const body = await dbPostQuery({
