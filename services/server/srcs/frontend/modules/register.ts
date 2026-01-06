@@ -74,6 +74,8 @@ function handleUserForm(self: HTMLElement) {
 	const $submitBtn = document.querySelector('form button[type="submit"]') as HTMLElement
 	const $avatarInput = $registerForm.querySelector('input[name="avatar"]') as HTMLInputElement
 	const $avatarPreview = $registerForm.querySelector('#avatarPreview') as HTMLImageElement
+	const $resetAvatarBtn = $registerForm.querySelector('#resetAvatarButton') as HTMLButtonElement
+	resetAvatarButton($resetAvatarBtn, $avatarInput, $avatarPreview)
 
 	if (trackEvent === false) {
 		trackEvent = true
