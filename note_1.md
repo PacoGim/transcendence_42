@@ -4,6 +4,7 @@ Obligatoire:
 - Forms
     + register: css, remplace login/register par logout, fait office de login
     + coté front: bloquer /login et /register si deja log || bloquer /logout si pas log
+	+ Identifier d'où viens l'erreur de SQL constraint (email?, username?)
 - Local
     + css messages d'erreur
     + coté front: bloquer /login et /register si deja log || bloquer /logout si pas log
