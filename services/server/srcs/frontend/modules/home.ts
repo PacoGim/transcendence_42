@@ -59,6 +59,7 @@ const unsubKeyStore = KeyboardStore.subscribe(key => {
 })
 
 const unsubUserStore = UserStore.subscribe((user: UserType) => {
+	console.log(user)
 	if (user.isValid) {
 		$loginButton.remove()
 	} else {

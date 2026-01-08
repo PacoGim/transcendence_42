@@ -54,8 +54,10 @@ if (codeParam) {
 			if (res.status === 200) return res.json()
 			$menuButtons.style.display = 'flex'
 			$loginForm.style.display = 'block'
+			return
 		})
 		.then(res => {
+			console.log("Backend response: ", res)
 			UserStore.emit(res)
 			navigate('')
 		})
