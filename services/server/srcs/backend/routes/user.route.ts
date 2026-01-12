@@ -1,12 +1,12 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { dbPostQuery } from '../crud/dbQuery.crud.js'
-import { validateToken } from '../crud/auth.crud.js'
+import { getPayload } from '../crud/auth.crud.js'
 import { userUpdateType } from '../../types/user.type.js'
 import { getMultipartFormData } from '../crud/multipartForm.js'
 import { isUsernameFormatInvalid } from '../../frontend/functions/formValidation.js'
 
 export async function userDashboard(req: FastifyRequest, reply: FastifyReply) {
-	const token = await validateToken(req)
+	const token = await getPayload(req)
 	if (!token) return reply.status(401).send('Invalid or missing token')
 	const body = await dbPostQuery({ endpoint: 'dbGet', query: { verb: 'read', sql: 'SELECT * FROM users WHERE id = ?', data: [token.id] } })
 	if (body.status >= 400) return reply.status(body.status).send({ message: body.message })
@@ -22,7 +22,7 @@ export async function getUsers(req: FastifyRequest, reply: FastifyReply) {
 export async function updateUser(req: FastifyRequest, reply: FastifyReply) {
 	const data = await getMultipartFormData(req)
 
-	const token = await validateToken(req)
+	const token = await getPayload(req)
 	if (!token) return reply.status(401).send('Invalid or missing token')
 	const id = token.id
 

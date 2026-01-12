@@ -2,7 +2,7 @@ import fastify, { FastifyReply, FastifyRequest } from 'fastify'
 import httpErrors from 'http-errors'
 import bcrypt from 'bcrypt'
 import { userRegisterType, userLoginType } from '../../types/user.type.js'
-import { checkIfAlreadyLoggedIn } from '../crud/auth.crud.js'
+import { checkIfAlreadyLoggedIn, generateAndSendToken } from '../crud/auth.crud.js'
 import { dbPostQuery } from '../crud/dbQuery.crud.js'
 import { vaultPostQuery } from '../crud/vaultQuery.crud.js'
 import { createToken } from '../crud/jwt.crud.js'
@@ -117,18 +117,7 @@ export async function logUser(req: FastifyRequest, reply: FastifyReply) {
 	const matchPwd = await bcrypt.compare(pwd, body.data.pwd)
 
 	if (!matchPwd) return reply.status(401).send({ message: 'Invalid password' })
-		
-	const token = await createToken(body.data.id)
-	return reply
-		.status(200)
-		.setCookie('token', token, {
-			// sameSite: 'strict',
-			// signed: true
-			path: '/',
-			httpOnly: true,
-			secure: true,
-			sameSite: 'lax',
-			signed: false
-		})
-		.send({ message: `${body.data.username} logged in successfully with token ${token}` })
+
+	const infoFetch: object = { status: 200, message: 'OK', email: body.data.email, username: body.data.username }
+	return generateAndSendToken(infoFetch, body.data.id, reply)
 }

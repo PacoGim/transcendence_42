@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { v4 as uuidv4 } from 'uuid'
 import { json_parse } from '../../frontend/functions/json_wrapper.js'
-import { fetch42User } from '../crud/auth.crud.js'
+import { fetch42User, generateAndSendToken } from '../crud/auth.crud.js'
 
 const CLIENT_ID = process.env.CLIENT_ID || ''
 const CLIENT_SECRET = process.env.CLIENT_SECRET || ''
@@ -45,5 +45,5 @@ export async function handlePOSTApiAuthLogin(req: FastifyRequest, reply: Fastify
 
 	const infoFetch = await fetch42User(url, { saveToDb: false })
 	if (!infoFetch) return reply.status(403).send({ error: 'Invalid credentials' })
-	return reply.send(infoFetch)
+	return generateAndSendToken(infoFetch, infoFetch?.id, reply)
 }
