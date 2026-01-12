@@ -37,17 +37,33 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 			.then(async res => {
 				const { email, login, first_name, last_name } = res
 				if (saveToDb) {
+					const is_oauth = 1
 					const body = await dbPostQuery({
 						endpoint: 'dbRun',
 						query: {
 							verb: 'create',
-							sql: 'INSERT INTO users (email, username) VALUES (?, ?)',
-							data: [email, login]
+							sql: 'INSERT INTO users (email, username, is_oauth) VALUES (?, ?, ?)',
+							data: [email, login, is_oauth]
 						}
 					})
 					if (body.status >= 400) return { status: body.status, message: body.message }
 				}
-				return { email, login, firstName: first_name, lastName: last_name }
+				else {
+					const body = await dbPostQuery({
+						endpoint: 'dbGet',
+						query: {
+							verb: 'read',
+							sql: 'SELECT * FROM users WHERE username = ?',
+							data: [login]
+						}
+					})
+					if (body.status >= 400)
+						return { status: body.status, message: body.message }
+					const is_oauth = body.data.is_oauth
+					if (is_oauth !== 1)
+						return { status: 403, message: 'User registered with form' }
+				}
+				return { email, username: login }
 			})
 		return infoFetch
 	}

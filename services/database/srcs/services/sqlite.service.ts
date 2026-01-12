@@ -12,7 +12,8 @@ export default function initDb() {
             username TEXT NOT NULL UNIQUE,
             email TEXT NOT NULL UNIQUE,
             pwd TEXT,
-            avatar TEXT
+            avatar TEXT,
+            is_oauth INTEGER NOT NULL DEFAULT 0
         )
     `)
 	db.run(`
