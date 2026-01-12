@@ -1,4 +1,4 @@
-Christella: Kibana, user management (changer username/avatar), vault, 2fa
+Christella: vault, 2fa, Kibana
 Paco: Register, Login, Lobby, user management (visu)
 Jacques: Tournament
 
@@ -6,18 +6,16 @@ Obligatoire:
 - Microservices (chat dans son propre conteneur)
 - Tournoi
 - Forms
-	+ login: check already in database before login
-    + register: remplace login/register par logout
     + coté front: bloquer /login et /register si deja log || bloquer /logout si pas log
 	+ Identifier d'où viens l'erreur de SQL constraint (email?, username?)
     + css messages d'erreur bouge tout
-	
+
 - Remote 1v1
 - problemes nav (fleches, dans login/register entre oauth et back)
 
 Grands:
 - Live chat
-- User Management (match history, changer son username/avatar, friends)
+- User Management (match history, friends)
 
 Petits:
 - 2FA
