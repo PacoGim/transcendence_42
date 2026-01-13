@@ -17,6 +17,8 @@ export function fetchLogin(formData: FormData) {
 		.then(res => {
 			if (res?.status >= 400) return
 			console.log('Logging in response: ', res)
+			console.log('res infofetch login form: ', res.infoFetch)
+			UserStore.emit(res.infoFetch)
 			navigate('')
 		})
 }
