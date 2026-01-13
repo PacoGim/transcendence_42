@@ -53,7 +53,7 @@ if (codeParam) {
 			return
 		})
 		.then(res => {
-			if (res.status >= 400) return
+			if (res?.status >= 400) return
 			UserStore.emit(res.infoFetch)
 			navigate('')
 		})
