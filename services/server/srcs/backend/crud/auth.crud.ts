@@ -74,9 +74,10 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 	return null
 }
 
-export async function generateAndSendToken(infoFetch: object, userId: number | undefined | null, reply: any) {
-	if (!userId) return reply.status(404).send({ message: 'User ID not found' })
-	const token = await createToken(userId)
+export async function generateAndSendToken(infoFetch: any, reply: any) {
+	if (!infoFetch.id) return reply.status(404).send({ message: 'User ID not found' })
+	const userInfo = { email: infoFetch.email, username: infoFetch.username, id: infoFetch.id }
+	const token = await createToken(userInfo)
 	return reply
 		.status(200)
 		.setCookie('token', token, {

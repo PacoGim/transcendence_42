@@ -45,5 +45,5 @@ export async function handlePOSTApiAuthLogin(req: FastifyRequest, reply: Fastify
 
 	const infoFetch = await fetch42User(url, { saveToDb: false })
 	if (!infoFetch) return reply.status(403).send({ error: 'Invalid credentials' })
-	return generateAndSendToken(infoFetch, infoFetch?.id, reply)
+	return generateAndSendToken(infoFetch, reply)
 }

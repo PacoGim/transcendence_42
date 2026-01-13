@@ -17,3 +17,8 @@ export type userUpdateType = {
     avatar?: string
 }
 
+export type userInfoType = {
+    email: string
+    username: string
+    id: number
+}

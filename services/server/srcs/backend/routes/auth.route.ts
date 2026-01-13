@@ -5,7 +5,6 @@ import { userRegisterType, userLoginType } from '../../types/user.type.js'
 import { checkIfAlreadyLoggedIn, generateAndSendToken } from '../crud/auth.crud.js'
 import { dbPostQuery } from '../crud/dbQuery.crud.js'
 import { vaultPostQuery } from '../crud/vaultQuery.crud.js'
-import { createToken } from '../crud/jwt.crud.js'
 import {
 	isUsernameFormatInvalid,
 	isEmailFormatInvalid,
@@ -118,6 +117,6 @@ export async function logUser(req: FastifyRequest, reply: FastifyReply) {
 
 	if (!matchPwd) return reply.status(401).send({ message: 'Invalid password' })
 
-	const infoFetch: object = { status: 200, message: 'OK', email: body.data.email, username: body.data.username }
-	return generateAndSendToken(infoFetch, body.data.id, reply)
+	const infoFetch: object = { status: 200, message: 'OK', email: body.data.email, username: body.data.username, id: body.data.id, isValid: true }
+	return generateAndSendToken(infoFetch, reply)
 }
