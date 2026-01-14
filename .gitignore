@@ -16,3 +16,4 @@ services/server/srcs/frontend/images/avatars/*
 db.sqlite
 *_old*
 .env
+services/metrics/thanosSidecar/thanos-storage.yml
