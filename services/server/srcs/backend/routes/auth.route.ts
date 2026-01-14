@@ -120,3 +120,16 @@ export async function logUser(req: FastifyRequest, reply: FastifyReply) {
 	const infoFetch = { email: body.data.email, username: body.data.username, id: body.data.id }
 	return generateAndSendToken(infoFetch, reply)
 }
+
+export async function logoutUser(req: FastifyRequest, reply: FastifyReply) {
+	return reply
+		.status(200)
+		.clearCookie('token', {
+			path: '/',
+			httpOnly: true,
+			secure: true,
+			sameSite: 'lax',
+			signed: false
+		})
+		.send({ message: 'User logged out' })
+}

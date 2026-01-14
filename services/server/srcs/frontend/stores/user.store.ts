@@ -38,7 +38,16 @@ function createUserStore() {
 		for (const fn of subscribers) fn(user)
 	}
 
-	return { subscribe, emit }
+	function clear() {
+		  UserStore.emit({
+			email: '',
+			username: '',
+			id: undefined,
+			isValid: false
+		  })
+	}
+
+	return { subscribe, emit, clear }
 }
 
 declare global {

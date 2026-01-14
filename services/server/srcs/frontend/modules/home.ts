@@ -28,10 +28,18 @@ const loginButtonValues: LoginButtonValues = {
 
 const $page: HTMLElement = document.querySelector('page[type=index]')!
 const $loginButton: HTMLElement = document.querySelector('nav-button[data-route="login"]')!
-const $logoutButton: HTMLElement = document.querySelector('nav-button[data-route="logout"]')!
+const $logoutButton: HTMLElement = document.getElementById('logout_btn')!
 // nav-button data-route="login"
 // nav-button data-route="logout"
 let currentButton: HTMLElement
+
+$logoutButton.addEventListener('click', async () => {
+  await fetch('/logout', {
+    method: 'POST',
+    credentials: 'include'
+  })
+  UserStore.clear()
+})
 
 const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButton = el))
 
