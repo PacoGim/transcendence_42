@@ -2,10 +2,16 @@
 
 import { CurrentButtonStore } from '../stores/current_button.store'
 import { PageDestroyStore, PageUpdateStore } from '../stores/page_state'
+import { navigate } from './routing'
 
 export async function loadPage(route: string) {
 	const location: string = `/${route || ''}`
 	const res: Response = await window.fetch(location, { headers: { type: 'hydrate' } })
+
+	if (res.status >= 400) {
+		return navigate('forbidden')
+	}
+
 	const html: string = await res.text()
 	const parser: DOMParser = new window.DOMParser()
 	const htmlDoc: Document = parser.parseFromString(html, 'text/html')

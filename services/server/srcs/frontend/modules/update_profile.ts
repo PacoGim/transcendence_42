@@ -1,4 +1,3 @@
-import { redirectIfNotAuthenticated } from '../functions/authGuard'
 import { resetAvatarButton, setupAvatarPreview } from '../functions/formValidation'
 import { UserStore } from '../stores/user.store'
 
@@ -6,8 +5,6 @@ let trackEvent = false
 
 const $page: HTMLElement = document.querySelector('page[type=update_profile]')!
 const $usernameInput: HTMLInputElement = document.querySelector('input[name="username"]')!
-
-redirectIfNotAuthenticated()
 
 function handleUpdateProfile() {
 	const $submitBtn = document.querySelector('span[type="submit"]') as HTMLElement

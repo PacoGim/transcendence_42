@@ -97,12 +97,6 @@ export async function registerUser(req: FastifyRequest, reply: FastifyReply) {
 		.send({ message: 'User registered', data: { username: username, email, firstName: '', lastName: '', login: username } })
 }
 
-export async function validateToken(req: FastifyRequest, reply: FastifyReply) {
-	const alreadyLoggedInResponse = await checkIfAlreadyLoggedIn(req)
-
-	console.log(alreadyLoggedInResponse)
-}
-
 export async function logUser(req: FastifyRequest, reply: FastifyReply) {
 	const data = await getMultipartFormData(req)
 	const { username, pwd } = (await data) as userLoginType
@@ -128,8 +122,5 @@ export async function logUser(req: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function logoutUser(req: FastifyRequest, reply: FastifyReply) {
-	return reply
-		.status(200)
-		.clearCookie('token', userTokenCookieOptions())
-		.send({ message: 'User logged out' })
+	return reply.status(200).clearCookie('token', userTokenCookieOptions()).send({ message: 'User logged out' })
 }

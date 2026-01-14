@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { } from 'bun'
+import {} from 'bun'
 import { type RuleType, type TargetType } from '../types/rules.type'
 import { sanitizeURL } from 'url-sanitizer'
 import os from 'os'
@@ -144,58 +144,64 @@ async function allowRequest(req: Request, bodyText: string): Promise<boolean> {
 
 // permet de typer le champ data de l'objet Bun.Server
 interface WAFWebSocketData {
-  backendUrl: string;
-  ws_backend?: WebSocket;
+	backendUrl: string
+	ws_backend?: WebSocket
 }
 
+const authOnly = ['/chat', '/update_profile', '/users']
 
 Bun.serve({
 	port: 443,
 	key: fs.readFileSync('./certs/key.pem'),
 	cert: fs.readFileSync('./certs/cert.pem'),
 	websocket: {
-		open(ws_frontend : Bun.ServerWebSocket<WAFWebSocketData>)
-		{
-			console.log("WAF: Frontend WSS connected")
+		open(ws_frontend: Bun.ServerWebSocket<WAFWebSocketData>) {
+			console.log('WAF: Frontend WSS connected')
 			// pour chaque websocket ouverte depuis le frontend on construit une websocket vers le backend
 			const ws_backend = new WebSocket(ws_frontend.data?.backendUrl)
 			ws_frontend.data.ws_backend = ws_backend
 
-			ws_backend.onopen = () => console.log("WAF → Backend WSS connected")
+			ws_backend.onopen = () => console.log('WAF → Backend WSS connected')
 
 			// backend → frontend
-			ws_backend.onmessage = (event) => ws_frontend.send(event.data)
+			ws_backend.onmessage = event => ws_frontend.send(event.data)
 			ws_backend.onclose = () => ws_frontend.close()
 			ws_backend.onerror = () => ws_frontend.close()
 		},
 
 		// frontend → backend
-		message(ws_frontend : Bun.ServerWebSocket<WAFWebSocketData>, msg)
-		{
+		message(ws_frontend: Bun.ServerWebSocket<WAFWebSocketData>, msg) {
 			const ws_backend = ws_frontend.data?.ws_backend
-			if (!ws_backend || ws_backend.readyState !== ws_backend.OPEN) return console.log("Backend WS not ready")
+			if (!ws_backend || ws_backend.readyState !== ws_backend.OPEN) return console.log('Backend WS not ready')
 			ws_backend.send(msg)
 		},
 
-		close(ws_frontend : Bun.ServerWebSocket<WAFWebSocketData>)
-		{
+		close(ws_frontend: Bun.ServerWebSocket<WAFWebSocketData>) {
 			const ws_backend = ws_frontend.data?.ws_backend
 			ws_backend?.close()
-			console.log("WAF → Frontend WSS closed")
+			console.log('WAF → Frontend WSS closed')
 		}
-		//fin de gestion des websockets
 	},
 	fetch: async (req, server) => {
 		console.log(`from bun: ${new Date().toLocaleString()} ${req.method} ${req.url} ${server.url.protocol}`)
 
 		const url = new URL(req.url)
+		let isAuthenticated = false
 
-		if (req.headers.get("upgrade") === "websocket") // upgrade de la requete intiale vers websocket
-		{
-			if (!(await allowRequest(req, "")))	return new Response("Forbidden", { status: 403 })
+		await fetch(`https://server:3000/get_payload`, {
+			method: req.method,
+			headers: req.headers
+		})
+			.then(res => res.json())
+			.then(res => {
+				isAuthenticated = res !== null
+			})
+
+		if (req.headers.get('upgrade') === 'websocket') {
+			if (!(await allowRequest(req, ''))) return new Response('Forbidden', { status: 403 })
 			const backendUrl = `wss://server:3000${url.pathname}${url.search}`
 			const upgraded = server.upgrade(req, { data: { backendUrl } })
-			if (!upgraded) return new Response("Failed to upgrade WS", { status: 500 })
+			if (!upgraded) return new Response('Failed to upgrade WS', { status: 500 })
 			return
 		}
 
@@ -206,7 +212,11 @@ Bun.serve({
 			return new Response('Forbidden', { status: 403 })
 		}
 
-		// console.log(url)
+		if (authOnly.includes(url.pathname) && !isAuthenticated) {
+			return new Response('Forbidden', { status: 403 })
+		}
+		console.log('New Path: ', url.pathname)
+
 		let result = await fetch(`https://server:3000${url.pathname}${url.search}`, {
 			method: req.method,
 			headers: req.headers,
@@ -227,7 +237,7 @@ Bun.serve({
 				}
 			})
 		return new Response(result.blob, { status: result.status, headers: result.headers })
-	},
+	}
 }) as Bun.Server<WAFWebSocketData>
 
 log('Bun WAF running on port 443', 'info')
