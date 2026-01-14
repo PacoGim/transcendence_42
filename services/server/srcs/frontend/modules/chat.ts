@@ -1,68 +1,91 @@
-import { v4 as uuidv4 } from 'uuid'
 import { ChatStore } from '../stores/chat.store'
-import { StateStore } from '../stores/state.store'
 import { UserStore } from '../stores/user.store'
+import { MessageType } from '../../types/chat.type'
 
 const $page: HTMLElement = document.querySelector('page[type=chat]')!
+const $chatInput: HTMLInputElement = document.getElementById('chatInput') as HTMLInputElement
 
-let chats = [
+function sendMessage() {
+	const chatValue = $chatInput?.value
+	if (chatValue === '') return
+
+	const message: MessageType = {
+		user: UserStore.getUserName(),
+		msg: chatValue,
+		type: 'global',
+		timestamp: Date.now(),
+		to: undefined
+	}
+	ChatStore.send(message)
+	$chatInput.value = ''
+}
+
+$chatInput.addEventListener('keydown', evt => {
+	if (evt.code === 'Enter') sendMessage()
+})
+
+document.querySelector('chat-input button')?.addEventListener('click', sendMessage)
+
+let chats: MessageType[] = [
 	{
-		time: '09:50',
+		timestamp: Date.now() - 60000 * 10,
 		user: 'Bob',
-		message: 'Hello Alice!',
+		msg: 'Hello Alice!',
 		to: 'Alice',
-		id: uuidv4()
+		type: 'global'
 	},
 	{
-		time: '09:52',
+		timestamp: Date.now() - 60000 * 9,
 		user: 'Alice',
-		message: 'General message',
+		msg: 'General message',
 		to: undefined,
-		id: uuidv4()
+		type: 'global'
 	},
 	{
-		time: '09:53',
+		timestamp: Date.now() - 60000 * 8,
 		user: 'Bob',
-		message: 'General message',
+		msg: 'General message',
 		to: undefined,
-		id: uuidv4()
+		type: 'global'
 	},
 	{
-		time: '09:54',
+		timestamp: Date.now() - 60000 * 8,
 		user: 'Alice',
-		message: 'Hi Bob!',
+		msg: 'Hi Bob!',
 		to: 'Bob',
-		id: uuidv4()
+		type: 'global'
 	},
 	{
-		time: '09:55',
+		timestamp: Date.now() - 60000 * 6,
 		user: 'Pedro',
-		message: 'General message',
+		msg: 'General message',
 		to: undefined,
-		id: uuidv4()
+		type: 'global'
 	},
 	{
-		time: '09:56',
+		timestamp: Date.now() - 60000 * 5,
 		user: 'Maria',
-		message: 'General message',
+		msg: 'General message',
 		to: undefined,
-		id: uuidv4()
+		type: 'global'
 	},
 	{
-		time: '09:57',
+		timestamp: Date.now() - 60000 * 4,
 		user: 'Alice',
-		message: 'General message',
+		msg: 'General message',
 		to: undefined,
-		id: uuidv4()
+		type: 'global'
 	}
 ]
 
 const $chatWindow = document.querySelector('chat-window') as HTMLElement
-const $chatInput = document.querySelector('chat-input input')
 const user = 'Bob'
 
 const unsubChatStore = ChatStore.subscribe(message => {
-	// console.log(message)
+	console.log('New Upcoming message: ', message)
+
+	if (message.type === 'system') return
+
 	chats.push(message)
 	refreshChat()
 })
@@ -77,22 +100,27 @@ function refreshChat() {
 		let $user = document.createElement('chat-user')
 		let $message = document.createElement('chat-message')
 
-		// if (chat.to === undefined) {
-		// 	$line.classList.add('g')
-		// 	$user.innerText = `${chat.user}`
-		// } else {
-		// 	$line.classList.add('mp')
-		// 	if (chat.user === user) {
-		// 		$user.innerText = `To ${chat.to}`
-		// 	} else {
-		// 		$user.innerText = `From ${chat.user}`
-		// 	}
-		// }
+		if (chat.to === undefined) {
+			$line.classList.add('g')
+			$user.innerText = `${chat.user}`
+		} else {
+			$line.classList.add('mp')
+			if (chat.user === user) {
+				$user.innerText = `To ${chat.to}`
+			} else {
+				$user.innerText = `From ${chat.user}`
+			}
+		}
 
-		// $time.innerText = chat.time
+		const time = new Date(chat.timestamp).toLocaleTimeString([], {
+			hour: '2-digit',
+			minute: '2-digit'
+		})
+
+		$time.innerText = String(time)
 		$message.innerText = chat.msg
 
-		// $line.appendChild($time)
+		$line.appendChild($time)
 		$line.appendChild($user)
 		$line.appendChild($message)
 
@@ -100,24 +128,6 @@ function refreshChat() {
 		$chatWindow.scrollTop = $chatWindow.scrollHeight
 	})
 }
-
-document.querySelector('chat-input button')?.addEventListener('click', evt => {
-	const chatValue = $chatInput?.value
-
-	// const foo = {
-	// 	time: '20:00',
-	// 	user: 'Alice',
-	// 	message: chatValue,
-	// 	to: undefined,
-	// 	id: uuidv4()
-	// }
-
-	// chats.push(foo)
-	ChatStore.send({
-		msg: chatValue,
-		type: 'global'
-	})
-})
 
 document.querySelectorAll<HTMLElement>('user-line').forEach(($userLine: HTMLElement) => {
 	if ($userLine.innerText === user) $userLine.classList.add('current-user')

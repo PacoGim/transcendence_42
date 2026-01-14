@@ -1,6 +1,7 @@
 import { CurrentButtonStore } from '../stores/current_button.store'
 import { KeyboardStore } from '../stores/keyboard.store'
 import { UserStore, type UserType } from '../stores/user.store'
+import { navigate } from "../js/routing";
 
 type LoginButtonValues = {
 	[key: string]: {
@@ -29,16 +30,17 @@ const loginButtonValues: LoginButtonValues = {
 const $page: HTMLElement = document.querySelector('page[type=index]')!
 const $loginButton: HTMLElement = document.querySelector('nav-button[data-route="login"]')!
 const $logoutButton: HTMLElement = document.getElementById('logout_btn')!
-// nav-button data-route="login"
-// nav-button data-route="logout"
+const $loginButtonParent: HTMLElement = $loginButton.parentElement!
+const $logoutButtonParent: HTMLElement = $logoutButton.parentElement!
 let currentButton: HTMLElement
 
 $logoutButton.addEventListener('click', async () => {
-  await fetch('/logout', {
-    method: 'POST',
-    credentials: 'include'
-  })
-  UserStore.clear()
+	await fetch('/logout', {
+		method: 'POST',
+		credentials: 'include'
+	})
+	UserStore.clear()
+	navigate('')
 })
 
 const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButton = el))
@@ -66,11 +68,19 @@ const unsubKeyStore = KeyboardStore.subscribe(key => {
 	}
 })
 
+let $elementBackup: HTMLElement | null = null
+
 const unsubUserStore = UserStore.subscribe((user: UserType) => {
-	console.log(user)
+	console.log('UserStore subscribe home user: ', user)
 	if (user.isValid) {
+		console.log('Removing Login button')
+		if ($elementBackup) $logoutButtonParent.appendChild($elementBackup)
+		$elementBackup = $loginButton
 		$loginButton.remove()
 	} else {
+		console.log('Removing Logout button')
+		if ($elementBackup) $loginButtonParent.appendChild($elementBackup)
+		$elementBackup = $logoutButton
 		$logoutButton.remove()
 	}
 })

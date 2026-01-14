@@ -39,15 +39,19 @@ function createUserStore() {
 	}
 
 	function clear() {
-		  UserStore.emit({
+		UserStore.emit({
 			email: '',
 			username: '',
 			id: undefined,
 			isValid: false
-		  })
+		})
 	}
 
-	return { subscribe, emit, clear }
+	function getUserName() {
+		return user.username
+	}
+
+	return { subscribe, emit, getUserName, clear }
 }
 
 declare global {

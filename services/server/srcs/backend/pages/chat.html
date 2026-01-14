@@ -77,11 +77,11 @@
 		}
 
 		chat-time::before {
-			content: '[';
+			content: '';
 		}
 
 		chat-time::after {
-			content: ']';
+			content: ' ';
 		}
 
 		chat-user::after {
@@ -94,13 +94,28 @@
 
 		user-line {
 			display: flex;
-			cursor: pointer;
+			justify-content: space-between;
+			align-items: center;
 		}
 
 		user-line img {
+			cursor: pointer;
 			display: inline-block;
 			width: 4px;
 			height: auto;
+			transform: scale(0.75);
+			transition-property: transform;
+			transition-duration: 300ms;
+			transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+		}
+
+		user-line img:hover {
+			transform: scale(1);
+		}
+
+		.user-icon img {
+			width: 24px;
+			/* height: 16px; */
 		}
 	</style>
 </head>
@@ -112,30 +127,71 @@
 		<chat-users>
 			<user-line>
 				<user-name>Alice</user-name>
-				<user-duel>
+				<user-duel class="user-icon">
 					<img src="/images/duel.svg" alt="" />
 				</user-duel>
-				<user-mp>
+				<user-mp class="user-icon">
 					<img src="/images/mp.svg" alt="" />
 				</user-mp>
-				<user-block>
+				<user-block class="user-icon">
 					<img src="/images/block.svg" alt="" />
 				</user-block>
-				<user-add-friend>
+				<user-add-friend class="user-icon">
 					<img src="/images/add_friend.svg" alt="" />
 				</user-add-friend>
 			</user-line>
-			<user-line> Bob </user-line>
-			<user-line>Pedro</user-line>
-			<user-line>Maria</user-line>
+			<user-line>
+				<user-name>Bob</user-name>
+				<user-duel class="user-icon">
+					<img src="/images/duel.svg" alt="" />
+				</user-duel>
+				<user-mp class="user-icon">
+					<img src="/images/mp.svg" alt="" />
+				</user-mp>
+				<user-block class="user-icon">
+					<img src="/images/block.svg" alt="" />
+				</user-block>
+				<user-add-friend class="user-icon">
+					<img src="/images/add_friend.svg" alt="" />
+				</user-add-friend>
+			</user-line>
+			<user-line>
+				<user-name>Pedro</user-name>
+				<user-duel class="user-icon">
+					<img src="/images/duel.svg" alt="" />
+				</user-duel>
+				<user-mp class="user-icon">
+					<img src="/images/mp.svg" alt="" />
+				</user-mp>
+				<user-block class="user-icon">
+					<img src="/images/block.svg" alt="" />
+				</user-block>
+				<user-add-friend class="user-icon">
+					<img src="/images/add_friend.svg" alt="" />
+				</user-add-friend>
+			</user-line>
+			<user-line>
+				<user-name>Maria</user-name>
+				<user-duel class="user-icon">
+					<img src="/images/duel.svg" alt="" />
+				</user-duel>
+				<user-mp class="user-icon">
+					<img src="/images/mp.svg" alt="" />
+				</user-mp>
+				<user-block class="user-icon">
+					<img src="/images/block.svg" alt="" />
+				</user-block>
+				<user-add-friend class="user-icon">
+					<img src="/images/add_friend.svg" alt="" />
+				</user-add-friend>
+			</user-line>
 		</chat-users>
 		<chat-input>
-			<input type="text" />
+			<input type="text" id="chatInput" tabindex="1" />
 			<button>Send</button>
 		</chat-input>
 	</chat-container>
 	<menu-buttons>
-		<nav-button data-route="game" tabindex="1" class="button text-3xl">game</nav-button>
 		<nav-button data-route="" tabindex="2" class="button text-3xl">Back</nav-button>
 	</menu-buttons>
 </page>

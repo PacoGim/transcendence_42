@@ -22,7 +22,9 @@ function showBGVideo() {
 	$bgVideo.removeEventListener('play', showBGVideo)
 	$bgImg.style.opacity = '0'
 }
+
 PageUpdateStore.emit('')
+
 const selectedElement: HTMLElement = document.querySelector('*[data-selected=true]') as HTMLElement
 if (selectedElement) CurrentButtonStore.emit(selectedElement)
 
