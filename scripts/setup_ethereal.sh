@@ -33,7 +33,7 @@ echo $ETHEREAL_PORT $ETHEREAL_HOST $ETHEREAL_FROM $ETHEREAL_AUTH_USER $ETHEREAL_
 echo "Updating ${ENV_FILE} with Ethereal credentials..."
 
 if [ "$(uname)" = "Darwin" ]; then
-    SED="sed -i ''"
+    SED="gsed -i"
 else
     SED="sed -i"
 fi

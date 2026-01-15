@@ -20,7 +20,7 @@ MINIO_ROOT_PASSWORD="miniorootpwd"
 ELASTICSEARCH_PWD="elasticpwd"
 
 if [ "$(uname)" = "Darwin" ]; then
-    SED="sed -i ''"
+    SED="gsed -i"
 else
     SED="sed -i"
 fi
