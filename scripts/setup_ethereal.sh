@@ -32,11 +32,17 @@ ETHEREAL_AUTH_PASS=$(echo $RES | jq -r '.pass')
 echo $ETHEREAL_PORT $ETHEREAL_HOST $ETHEREAL_FROM $ETHEREAL_AUTH_USER $ETHEREAL_AUTH_PASS $ETHEREAL_TO
 echo "Updating ${ENV_FILE} with Ethereal credentials..."
 
-sed -i "s|^\(ETHEREAL_PORT=\).*|\1${ETHEREAL_PORT}|" $ENV_FILE
-sed -i "s|^\(ETHEREAL_HOST=\).*|\1${ETHEREAL_HOST}:${ETHEREAL_PORT}|" $ENV_FILE
-sed -i "s|^\(ETHEREAL_TO=\).*|\1${ETHEREAL_TO}|" $ENV_FILE
-sed -i "s|^\(ETHEREAL_FROM=\).*|\1${ETHEREAL_FROM}|" $ENV_FILE
-sed -i "s|^\(ETHEREAL_AUTH_USER=\).*|\1${ETHEREAL_AUTH_USER}|" $ENV_FILE
-sed -i "s|^\(ETHEREAL_AUTH_PWD=\).*|\1${ETHEREAL_AUTH_PASS}|" $ENV_FILE
+if [ "$(uname)" = "Darwin" ]; then
+    SED="sed -i ''"
+else
+    SED="sed -i"
+fi
+
+$SED "s|^\(ETHEREAL_PORT=\).*|\1${ETHEREAL_PORT}|" $ENV_FILE
+$SED "s|^\(ETHEREAL_HOST=\).*|\1${ETHEREAL_HOST}:${ETHEREAL_PORT}|" $ENV_FILE
+$SED "s|^\(ETHEREAL_TO=\).*|\1${ETHEREAL_TO}|" $ENV_FILE
+$SED "s|^\(ETHEREAL_FROM=\).*|\1${ETHEREAL_FROM}|" $ENV_FILE
+$SED "s|^\(ETHEREAL_AUTH_USER=\).*|\1${ETHEREAL_AUTH_USER}|" $ENV_FILE
+$SED "s|^\(ETHEREAL_AUTH_PWD=\).*|\1${ETHEREAL_AUTH_PASS}|" $ENV_FILE
 
 echo "Ethereal setup completed."
