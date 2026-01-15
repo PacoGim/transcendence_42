@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt'
 import { userRegisterType, userLoginType } from '../../types/user.type.js'
 import { checkIfAlreadyLoggedIn, generateAndSendToken, userTokenCookieOptions } from '../crud/auth.crud.js'
 import { dbPostQuery } from '../crud/dbQuery.crud.js'
-import { vaultPostQuery } from '../crud/vaultQuery.crud.js'
+import { vaultPostQuery } from '../services/vault.service.js'
 import {
 	isUsernameFormatInvalid,
 	isEmailFormatInvalid,

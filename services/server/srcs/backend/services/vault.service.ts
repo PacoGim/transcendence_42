@@ -1,10 +1,10 @@
-export async function getSecret(name: string) {
-    const response = await fetch(`http://vault:6988/vault/getSecret`, {
+export async function vaultPostQuery(endpoint: string, body: object) {
+    const res = await fetch(`http://vault:6988/vault/${endpoint}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name })
-    });
-    return response.text();
+        body: JSON.stringify(body)
+    })
+    return res.json();
 }

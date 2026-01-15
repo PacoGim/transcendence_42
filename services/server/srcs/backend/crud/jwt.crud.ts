@@ -1,10 +1,10 @@
 import { SignJWT, jwtVerify, jwtDecrypt, EncryptJWT, importJWK, CryptoKey, JWK } from 'jose';
-import { getSecret } from '../services/vault.service.js';
+import { vaultPostQuery } from '../services/vault.service.js';
 import { log } from '../logs.js';
 import { userInfoType } from '../../types/user.type.js';
 
 export async function getJwsSecret() {
-    const jwkObject = JSON.parse(await getSecret('jws_secret'));
+    const jwkObject = await vaultPostQuery('getSecret', { name: 'jws_secret' });
     const jwk: JWK = JSON.parse(jwkObject.message.value);
     const secretKey: CryptoKey = await importJWK(jwk, 'HS256') as CryptoKey;
     return secretKey;
@@ -12,7 +12,7 @@ export async function getJwsSecret() {
 
 
 export async function getJweSecret() {
-    const jwkObject = JSON.parse(await getSecret('jwe_secret'));
+    const jwkObject = await vaultPostQuery('getSecret', { name: 'jwe_secret' });
     const jwk: JWK = JSON.parse(jwkObject.message.value);
     const secretKey: CryptoKey = await importJWK(jwk, 'A256GCM') as CryptoKey;
     return secretKey;
