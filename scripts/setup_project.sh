@@ -50,4 +50,48 @@ bash ./scripts/generate_yml_conf_files.sh
 echo "Setting up Thanos Store volume"
 bash ./services/metrics/thanosStore/init_volume.sh
 
+echo "Setting up .env.vault"
+ENV_VAULT="./services/vault/.env.vault"
+
+KEYS=(CLIENT_ID
+CLIENT_SECRET
+VAULT_CERT_PATH
+VAULT_KEY_PATH
+PASSPHRASE
+VAULT_APPROLE_ROLE_ID_FILE
+VAULT_APPROLE_SECRET_ID_FILE
+GF_ADMIN_USER
+GF_ADMIN_PWD
+GF_CERT_PATH
+GF_KEY_PATH
+GF_USER_NAME
+GF_USER_MAIL
+GF_USER_PWD
+MINIO_ROOT_USER
+MINIO_ROOT_PASSWORD
+ETHEREAL_TO
+ETHEREAL_FROM
+ETHEREAL_AUTH_USER
+ETHEREAL_AUTH_PWD
+KIBANA_CERT_PATH
+KIBANA_KEY_PATH
+ELASTICSEARCH_PWD)
+
+echo "Creating or empty $ENV_VAULT if already exists"
+> $ENV_VAULT
+
+echo "Extracting sensitive keys to $ENV_VAULT"
+for key in "${KEYS[@]}"; do
+    if ! grep -q "^${key}=" $ENV; then
+        echo "Error: Key ${key} not found in ${ENV}."
+        exit 1
+    fi
+    grep "^${key}=" $ENV >> $ENV_VAULT
+done
+
+echo "Removing sensitive keys from $ENV"
+for key in "${KEYS[@]}"; do
+    $SED "/^${key}=/d" $ENV
+done
+
 echo "Project setup completed successfully."
