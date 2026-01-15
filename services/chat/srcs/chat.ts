@@ -59,10 +59,11 @@ const server = Bun.serve({
 					clientFound.socket.send(message)
 					ws.send(message)
 					console.log(data)
-				}
-				else{
+				} else {
 					console.log(data)
-					ws.send(message)
+					data.msg = 'Client not found'
+					data.type = 'Error'
+					ws.send(JSON.stringify(data))
 				}
 			}
 		},

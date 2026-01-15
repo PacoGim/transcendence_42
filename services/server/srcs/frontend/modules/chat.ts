@@ -7,18 +7,35 @@ const $chatInput: HTMLInputElement = document.getElementById('chatInput') as HTM
 
 function sendMessage() {
 	const chatValue = $chatInput?.value
+	let errorMsg = ''
 	if (chatValue === '') return
 
 	const message: MessageType = {
 		user: UserStore.getUserName(),
 		msg: chatValue,
-		type: 'mp',
+		type: 'global',
 		timestamp: Date.now(),
-		to: 'username'
+		to: undefined
 	}
-	console.log(message)
-	ChatStore.send(message)
-	$chatInput.value = ''
+
+	let splitMsg = chatValue.split(' ')
+
+	if (splitMsg[0] === '/mp') {
+		if (splitMsg[2]) {
+			console.log('Private message')
+			message.to = splitMsg[1]
+			message.msg = splitMsg[2]
+			message.type = 'mp'
+		} else {
+			errorMsg = 'Missing message to send'
+		}
+	}
+
+	if (errorMsg) {
+	} else {
+		ChatStore.send(message)
+		$chatInput.value = ''
+	}
 }
 
 $chatInput.addEventListener('keydown', evt => {
@@ -42,7 +59,7 @@ function refreshChat(newChat: MessageType[]) {
 			$user.innerText = `${chat.user}`
 		} else {
 			$line.classList.add('mp')
-			console.log("Chat: ", chat)
+			console.log('Chat: ', chat)
 			if (chat.user === UserStore.getUserName()) {
 				$user.innerText = `To ${chat.to}`
 			} else {
@@ -75,10 +92,8 @@ refreshChat(ChatStore.getChats())
 
 document.querySelectorAll<HTMLElement>('user-line').forEach(($userLine: HTMLElement) => {
 	// if ($userLine.innerText === user) $userLine.classList.add('current-user')
-
 	// $userLine.addEventListener('click', evt => {
 	// 	const $target = evt.target as HTMLElement
-
 	// 	console.log($target.innerText)
 	// })
 })
