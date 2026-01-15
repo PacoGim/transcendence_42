@@ -12,10 +12,11 @@ function sendMessage() {
 	const message: MessageType = {
 		user: UserStore.getUserName(),
 		msg: chatValue,
-		type: 'global',
+		type: 'mp',
 		timestamp: Date.now(),
-		to: undefined
+		to: 'username'
 	}
+	console.log(message)
 	ChatStore.send(message)
 	$chatInput.value = ''
 }
@@ -27,7 +28,6 @@ $chatInput.addEventListener('keydown', evt => {
 document.querySelector('chat-input button')?.addEventListener('click', sendMessage)
 
 const $chatWindow = document.querySelector('chat-window') as HTMLElement
-const user = 'Bob'
 
 function refreshChat(newChat: MessageType[]) {
 	$chatWindow.innerText = ''
@@ -42,7 +42,8 @@ function refreshChat(newChat: MessageType[]) {
 			$user.innerText = `${chat.user}`
 		} else {
 			$line.classList.add('mp')
-			if (chat.user === user) {
+			console.log("Chat: ", chat)
+			if (chat.user === UserStore.getUserName()) {
 				$user.innerText = `To ${chat.to}`
 			} else {
 				$user.innerText = `From ${chat.user}`
@@ -73,13 +74,13 @@ const unsubChatStore = ChatStore.subscribe(chat => {
 refreshChat(ChatStore.getChats())
 
 document.querySelectorAll<HTMLElement>('user-line').forEach(($userLine: HTMLElement) => {
-	if ($userLine.innerText === user) $userLine.classList.add('current-user')
+	// if ($userLine.innerText === user) $userLine.classList.add('current-user')
 
-	$userLine.addEventListener('click', evt => {
-		const $target = evt.target as HTMLElement
+	// $userLine.addEventListener('click', evt => {
+	// 	const $target = evt.target as HTMLElement
 
-		console.log($target.innerText)
-	})
+	// 	console.log($target.innerText)
+	// })
 })
 
 const cleanPage = () => {

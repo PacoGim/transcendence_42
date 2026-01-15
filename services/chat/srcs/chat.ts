@@ -6,7 +6,9 @@ type MessageType = {
 	msg: string
 }
 
-const clientsList = new Set()
+type ClientType = { username: string; socket: WebSocket }
+
+const clientsList: Set<ClientType> = new Set<ClientType>()
 
 const server = Bun.serve({
 	port: 4444,
@@ -33,19 +35,34 @@ const server = Bun.serve({
 		message(ws, message) {
 			const data = JSON.parse(message)
 
-			console.log(data)
+			console.log('New Message: ', data)
 			if (data.type === 'auth') {
 				clientsList.add({
 					socket: ws,
-					id: data.userId
+					username: data.username
 				})
-			}
-
-			if (data.type === 'global') {
+			} else if (data.type === 'global') {
 				for (const client of clients) {
 					if (client.readyState === WebSocket.OPEN) {
 						client.send(message)
 					}
+				}
+			} else if (data.type === 'mp') {
+				let clientFound
+				for (let client of clientsList) {
+					if (client.username === data.to) {
+						console.log('Client: ', client)
+						clientFound = client
+					}
+				}
+				if (clientFound) {
+					clientFound.socket.send(message)
+					ws.send(message)
+					console.log(data)
+				}
+				else{
+					console.log(data)
+					ws.send(message)
 				}
 			}
 		},
