@@ -1,3 +1,5 @@
+Redirect to 403 instead of returning 403 error
+
 Match History:
 	1 vs 1 -> dates, players, score, winner
 
