@@ -30,6 +30,11 @@ Friends:
 	Create (current) friends page
 	Create remove and mp buttons (friends page)
 
+Friends request:
+	User "A" send a friends request to "B" by clicking the add friend button
+	User "B" gets a notification
+	The friends list shows the request and the user can click it
+
 Player Stats:
 	Shows other players' match history
 
