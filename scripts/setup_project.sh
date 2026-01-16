@@ -4,6 +4,13 @@ set -e
 
 echo "Starting project setup..."
 
+if [ -f ".env" ]; then
+    if ! grep -q "<CHANGE-ME>" .env; then
+        echo ".env file already exists and is configured. Skipping setup."
+        exit 0
+    fi
+fi
+
 echo "Generating .env file from .env.tpl"
 ENV=".env"
 cp .env.tpl $ENV
