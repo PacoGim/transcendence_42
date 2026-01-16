@@ -50,14 +50,3 @@ for i in "${!KEYS[@]}"; do
     echo "Storing ${KVPATH}=${VALUE} in Vault..."
     vault kv put $KVPATH value="${VALUE}"
 done
-
-# echo "here are the secrets stored in vault:"
-# vault kv get secret/grafana_admin_user
-# vault kv get secret/grafana_admin_pwd
-
-# echo "correct?"
-# TODO:
-## - move some .env values to vault
-## - test some secrets retrieval from vault in application
-## - remove some .env values that are now in vault
-## - test again will full secrets retrieval from vault in application
