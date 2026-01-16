@@ -1,38 +1,64 @@
 #!/bin/bash
+
 set -e
+unset HISTFILE
 
 vault server -config=./conf/config.hcl &
 VAULT_PID=$!
 
-bash ./scripts/vault_init.sh
+echo "Waiting for Vault to be ready..."
+until curl -ks ${VAULT_HEALTH_URL} >/dev/null; do
+  sleep 1
+done
+echo "Vault is ready."
 
-### Unseal Vault ###
-UNSEAL_FILE="${VAULT_SECURE_DIR}/unseal_key.txt"
+ENV_FILE="./.env.vault"
 
-echo "Using passphrase ${UNSEAL_PASSPHRASE} to decrypt unseal keys..."
+FIRST_INIT=false
+
+export VAULT_SEALED_FILE="${VAULT_SECURE_DIR}/sealed_keys.gpg"
+export VAULT_UNSEAL_FILE="${VAULT_SECURE_DIR}/unseal_key.txt"
+export VAULT_ROOT_TOKEN_FILE="${VAULT_SECURE_DIR}/root_token.txt"
+
+if ! vault status | grep -q 'Initialized.*true'; then
+  FIRST_INIT=true
+  set -a
+  source ${ENV_FILE}
+  set +a
+  bash ./scripts/vault_init.sh
+fi
+
+echo "Using passphrase ${VAULT_UNSEAL_PASSPHRASE} to decrypt unseal keys..."
 gpg --batch --yes \
-  --passphrase "${UNSEAL_PASSPHRASE}" \
-  --output ${UNSEAL_FILE} \
+  --passphrase "${VAULT_UNSEAL_PASSPHRASE}" \
+  --output ${VAULT_UNSEAL_FILE} \
   --decrypt ${VAULT_SEALED_FILE}
 
 echo "Unsealing Vault..."
 while IFS= read -r key; do
   vault operator unseal "${key}"
-done < ${UNSEAL_FILE}
+done < ${VAULT_UNSEAL_FILE}
 
-shred -u ${UNSEAL_FILE} 2>/dev/null || rm -f ${UNSEAL_FILE}
+shred -u ${VAULT_UNSEAL_FILE} 2>/dev/null || rm -f ${VAULT_UNSEAL_FILE}
 
-echo "Vault unsealed. Logging in as root with token from ${VAULT_ROOT_TOKEN_FILE}..."
-cat ${VAULT_ROOT_TOKEN_FILE} | vault login -
+echo "Vault unsealed."
 
-echo "Enabling KV secrets engine at path 'secret'..."
-if [ "$(vault secrets list -format=json | jq -r '."secret/"?.type')" = "kv" ]; then
-  echo "KV secrets engine already enabled at path. Continuing..."
-else
+if [ "$FIRST_INIT" = true ]; then
+  echo "Logging in as root with token from ${VAULT_ROOT_TOKEN_FILE}..."
+  cat ${VAULT_ROOT_TOKEN_FILE} | vault login -
+
+  echo "Enabling KV secrets engine at path 'secret'..."
   vault secrets enable -version=2 -path=secret kv
-fi
 
-bash ./scripts/approle_init.sh
+  echo "Setting up AppRole authentication method..."
+  bash ./scripts/approle_init.sh
+
+  echo "Setting up Vault secrets..."
+  bash ./scripts/setup_vault_secrets.sh
+
+  echo "Removing .env.vault file for security."
+  shred -u ${ENV_FILE} 2>/dev/null || rm -f ${ENV_FILE}
+fi
 
 echo "Unsetting VAULT_TOKEN for security."
 export VAULT_TOKEN=""

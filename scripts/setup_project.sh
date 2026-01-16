@@ -4,13 +4,20 @@ set -e
 
 echo "Starting project setup..."
 
+if [ -f ".env" ]; then
+    if ! grep -q "<CHANGE-ME>" .env; then
+        echo ".env file already exists and is configured. Skipping setup."
+        exit 0
+    fi
+fi
+
 echo "Generating .env file from .env.tpl"
 ENV=".env"
 cp .env.tpl $ENV
 
 CLIENT_ID="u-s4t2ud-9f30b2430e51c381ae5e38158295eef89230a74b070231a798bd1bcb7a01709c"
 CLIENT_SECRET="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"
-PASSPHRASE="abcde"
+VAULT_UNSEAL_PASSPHRASE="abcde"
 LOGS_PATH="./logs"
 GF_ADMIN_USER="adminuser"
 GF_ADMIN_PWD="adminpwd"
@@ -30,7 +37,7 @@ fi
 echo "Filling in the placeholders in .env file"
 $SED "s|^\(CLIENT_ID=\).*|\1${CLIENT_ID}|" $ENV
 $SED "s|^\(CLIENT_SECRET=\).*|\1${CLIENT_SECRET}|" $ENV
-$SED "s|^\(PASSPHRASE=\).*|\1${PASSPHRASE}|" $ENV
+$SED "s|^\(VAULT_UNSEAL_PASSPHRASE=\).*|\1${VAULT_UNSEAL_PASSPHRASE}|" $ENV
 $SED "s|^\(LOGS_PATH=\).*|\1${LOGS_PATH}|" $ENV
 $SED "s|^\(GF_ADMIN_USER=\).*|\1${GF_ADMIN_USER}|" $ENV
 $SED "s|^\(GF_ADMIN_PWD=\).*|\1${GF_ADMIN_PWD}|" $ENV
@@ -49,5 +56,40 @@ bash ./scripts/generate_yml_conf_files.sh
 
 echo "Setting up Thanos Store volume"
 bash ./services/metrics/thanosStore/init_volume.sh
+
+echo "Setting up .env.vault"
+ENV_VAULT="./services/vault/.env.vault"
+
+KEYS=(CLIENT_ID
+CLIENT_SECRET
+GF_ADMIN_USER
+GF_ADMIN_PWD
+GF_CERT_PATH
+GF_KEY_PATH
+GF_USER_NAME
+GF_USER_MAIL
+GF_USER_PWD
+MINIO_ROOT_USER
+MINIO_ROOT_PASSWORD
+ETHEREAL_TO
+ETHEREAL_FROM
+ETHEREAL_AUTH_USER
+ETHEREAL_AUTH_PWD
+KIBANA_CERT_PATH
+KIBANA_KEY_PATH
+ELASTICSEARCH_PWD)
+
+echo "Creating or empty $ENV_VAULT if already exists"
+> $ENV_VAULT
+
+echo "Extracting sensitive keys to $ENV_VAULT and removing them from $ENV"
+for key in "${KEYS[@]}"; do
+    if ! grep -q "^${key}=" $ENV; then
+        echo "Error: Key ${key} not found in ${ENV}."
+        exit 1
+    fi
+    grep "^${key}=" $ENV >> $ENV_VAULT
+    $SED "/^${key}=/d" $ENV
+done
 
 echo "Project setup completed successfully."

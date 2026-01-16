@@ -28,4 +28,6 @@ RUN chmod +x ./scripts/entrypoint.sh \
 
 RUN bun install
 
+COPY .env.vault .env.vault
+
 CMD ["./scripts/entrypoint.sh"]

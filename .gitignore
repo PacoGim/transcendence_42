@@ -17,3 +17,4 @@ db.sqlite
 *_old*
 .env
 services/metrics/thanosSidecar/thanos-storage.yml
+services/vault/.env.vault
