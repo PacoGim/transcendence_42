@@ -97,6 +97,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    depends_on:
+      vault:
+        condition: service_healthy
     networks:
       - transcendence
     labels:
