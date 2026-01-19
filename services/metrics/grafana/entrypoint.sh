@@ -9,12 +9,12 @@ exec grafana-server --homepath=/usr/share/grafana --config=/etc/grafana/grafana.
 GF_PID=$!
 
 echo "Waiting for Grafana..."
-until curl -ks $GF_URL_HEALTH > /dev/null; do
+until curl -s --cacert "$GF_SERVER_CERT_FILE" "$GF_URL_HEALTH" > /dev/null; do
     sleep 2
 done
 
 echo "Creating Grafana user..."
-USER=$(curl -k POST $GF_ADDR/api/admin/users \
+USER=$(curl --cacert "$GF_SERVER_CERT_FILE" POST "$GF_ADDR/api/admin/users" \
     -u "$GF_SECURITY_ADMIN_USER:$GF_SECURITY_ADMIN_PASSWORD" \
     -H "Content-Type: application/json" \
     -d "{
