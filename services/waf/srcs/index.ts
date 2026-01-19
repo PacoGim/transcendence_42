@@ -151,14 +151,9 @@ interface WAFWebSocketData {
 
 const authOnly = ['/chat', '/update_profile', '/users']
 
-const cert_crt = await getVaultSecret<string>('services_crt', (value) =>
-	value.replace(/\\n/g, '\n').trim()
-)
-const cert_key = await getVaultSecret<string>('services_key', (value) =>
-	value.replace(/\\n/g, '\n').trim()
-)
-if (!cert_crt || !cert_key)
-	console.error('Failed to load TLS certificates from Vault service.')
+const cert_crt = await getVaultSecret<string>('services_crt', value => value.replace(/\\n/g, '\n').trim())
+const cert_key = await getVaultSecret<string>('services_key', value => value.replace(/\\n/g, '\n').trim())
+if (!cert_crt || !cert_key) console.error('Failed to load TLS certificates from Vault service.')
 
 Bun.serve({
 	port: 443,
@@ -193,13 +188,12 @@ Bun.serve({
 		}
 	},
 	fetch: async (req, server) => {
-		console.log(`from bun: ${new Date().toLocaleString()} ${req.method} ${req.url} ${server.url.protocol}`)
+		// console.log(`from bun: ${new Date().toLocaleString()} ${req.method} ${req.url} ${server.url.protocol}`)
 
 		const url = new URL(req.url)
 		let isAuthenticated = false
 
-		if (url.pathname === '/health')
-			return new Response('OK', { status: 200 })
+		if (url.pathname === '/health') return new Response('OK', { status: 200 })
 
 		await fetch(`https://server:3000/get_payload`, {
 			method: req.method,
@@ -226,7 +220,7 @@ Bun.serve({
 		}
 
 		if (authOnly.includes(url.pathname) && !isAuthenticated) {
-			return new Response('Forbidden', { status: 403 })
+			return Response.redirect('/forbidden', 302)
 		}
 		console.log('New Path: ', url.pathname)
 
