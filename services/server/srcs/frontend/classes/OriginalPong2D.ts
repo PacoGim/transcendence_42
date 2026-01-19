@@ -145,12 +145,18 @@ export class GameView
 	private arena : Arena;
     private offsetX = 0;
     private offsetY = 0;
+    private controller : GameController | undefined;
     private ctx : CanvasRenderingContext2D
 
     constructor(private canvas: HTMLCanvasElement)
     {
         this.ctx = canvas.getContext('2d')!
 		this.arena = new Arena()
+    }
+
+    setController(controller : GameController)
+    {
+        this.controller = controller;
     }
 
     resize(): void
@@ -202,7 +208,8 @@ export class GameView
         ctx.textAlign = 'right'
         ctx.fillText(model.rightPaddle.upKey, rightKeyPos, topKeyPos)
         ctx.fillText(model.rightPaddle.downKey, rightKeyPos, height - topKeyPos)
-        ctx.fillText(model.rightPlayerName.slice(0, 10), width - topKeyPos, topKeyPos)
+        const rightName = this.controller?.aiEnabled ? "🤖" : model.rightPlayerName.slice(0, 10);
+        ctx.fillText(rightName, width - topKeyPos, topKeyPos);
         ctx.textAlign = 'center'
         ctx.fillText(`${model.leftScore} : ${model.rightScore}`, width * 0.5, topKeyPos);
 		switch (model.state)
@@ -251,10 +258,45 @@ export class GameView
     }
 }
 
+function predictBallRightWallIntersection(ball: Ball, arena: Arena): number
+{
+    // La balle ne va pas vers la droite
+    if (ball.velocity.x <= 0) return arena.height / 2;
+
+    // Distance à parcourir jusqu'au mur droit
+    const targetX = arena.width - ball.radius;
+    const dx = targetX - ball.position.x;
+
+    // Temps pour atteindre le mur droit
+    const t = dx / ball.velocity.x;
+
+    // Projection Y brute
+    const rawY = ball.position.y + ball.velocity.y * t;
+
+    // Limites verticales
+    const minY = ball.radius;
+    const maxY = arena.height - ball.radius;
+    const height = maxY - minY;
+
+    // Gestion des rebonds (pliage)
+    let y = rawY - minY;
+    const period = 2 * height;
+    y = ((y % period) + period) % period;
+
+    if (y > height) {
+        y = period - y;
+    }
+
+    return y + minY;
+}
+
+
 export class GameController
 {
     private keys = new Set<string>();
-    private lastTime = 0;
+    private aiIntervalId : number = 0;
+    private aiTargetY : number = 0;
+    aiEnabled : boolean = false;
     private onGameOver = ()=>{};
     private intervalId : number = 0;
     private handleKeyDown = (e: KeyboardEvent) => this.onKey(e, true);
@@ -266,6 +308,8 @@ export class GameController
     ) {
         window.addEventListener("keydown", this.handleKeyDown);
         window.addEventListener("keyup", this.handleKeyUp);
+        this.aiTargetY = this.model.arena.height / 2;
+        view.setController(this)
     }
 
     private cleanup() : void
@@ -276,6 +320,7 @@ export class GameController
             clearInterval(this.intervalId);
             this.intervalId = 0;
         }
+        this.aiStop();
         this.keys.clear();
     }
 
@@ -288,18 +333,93 @@ export class GameController
 
     start(): void
     {
-        const hertz = 1/ 60
+        const hertz = 1 / 60
         if (this.intervalId === 0)
             this.intervalId = setInterval(()=>{
                 this.update(hertz);
-                this.view.render(this.model);
+                this.view.render(this.model)
             },  1000 * hertz)
     }
+
+    private aiToggle(): void
+    {
+        this.aiEnabled = !this.aiEnabled;
+
+        if (this.aiEnabled)
+        {
+            console.log("IA activée");
+            this.aiStart();
+        }
+        else
+        {
+            console.log("IA désactivée");
+            this.aiStop();
+        }
+    }
+
+    private aiThink(): void
+    {
+        if ( !this.aiEnabled || this.model.state !== GameState.PLAYING ) return;
+        this.aiTargetY = predictBallRightWallIntersection(this.model.ball,  this.model.arena)
+    }
+
+
+    private aiStart(): void
+    {
+        if (this.aiIntervalId !== 0) return;
+        this.aiIntervalId = setInterval(() => { this.aiThink(); }, 1000); // 1 Hz
+    }
+
+    private aiStop(): void
+    {
+        if (this.aiIntervalId !== 0)
+        {
+            clearInterval(this.aiIntervalId);
+            this.aiIntervalId = 0;
+        }
+
+        // relâcher les touches IA
+        this.aiTargetY = this.model.arena.height / 2;
+        this.keys.delete(this.model.rightPaddle.upKey);
+        this.keys.delete(this.model.rightPaddle.downKey);
+    }
+
+    private aiApplyDecision(): void
+    {
+        if (!this.aiEnabled) return;
+
+        const paddle = this.model.rightPaddle;
+
+        // Nettoyage
+        this.keys.delete(paddle.upKey);
+        this.keys.delete(paddle.downKey);
+
+        const paddleCenter = paddle.position.y + paddle.height / 2;
+        const error = this.aiTargetY - paddleCenter;
+
+        const deadZone = paddle.height * 0.15;
+
+        if (error > deadZone)
+        {
+            this.keys.add(paddle.downKey);
+        }
+        else if (error < -deadZone)
+        {
+            this.keys.add(paddle.upKey);
+        }
+    }
+
 
     private onKey(e: KeyboardEvent, down: boolean): void
     {
         const key = e.key.toLowerCase();
-		if (key === " " && !down) {
+        if (key === "i" && !down)
+        {
+            this.aiToggle();
+            return ;
+        }
+		if (key === " " && !down)
+        {
 			if (this.model.state === GameState.NEW_GAME)
             {
 				this.model.state = GameState.PLAYING;
@@ -328,6 +448,7 @@ export class GameController
     private update(dt: number): void
     {
         if (this.model.state !== GameState.PLAYING) return;
+        this.aiApplyDecision();
 
         const { leftPaddle, rightPaddle, ball } = this.model;
 
