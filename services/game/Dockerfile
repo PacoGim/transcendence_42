@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN apt-get update
 
-RUN apt-get install -y curl build-essential ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y curl build-essential && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://deb.nodesource.com/setup_25.x | bash -
 
