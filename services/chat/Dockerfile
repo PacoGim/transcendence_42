@@ -13,7 +13,6 @@ ENV PATH="/root/.bun/bin:${PATH}"
 
 COPY package.json ./
 COPY srcs ./srcs
-COPY certs ./certs
 COPY tsconfig.json ./
 
 # CMD ["sleep", "infinity"]
