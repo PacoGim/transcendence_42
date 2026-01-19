@@ -6,22 +6,23 @@ import type { TournamentMatch } from "./tournament/tournament.type.js";
 import { GameModel, GameView, GameController } from "../classes/OriginalPong2D.js";
 import { navigate } from "../js/routing.js";
 
-const $pageTournamentMatch = document.querySelector("page[tournament_match]")!;
+const $pageTournamentMatch = document.querySelector("page[type=tournament_match]")!;
 const $canvas = document.querySelector("#canvas2D") as HTMLCanvasElement;
+// Création de l'arène et du Pong
+const gameModel = new GameModel();
+const gameView = new GameView($canvas);
+const gameController = new GameController(gameModel, gameView);
 
-// Abonnement au store
-const unsub = TournamentStore.subscribe((tournament: TournamentModel | null) => {
+/* =========================
+   Store subscription
+========================= */
+
+const unsubscribe = TournamentStore?.subscribe((tournament: TournamentModel | null) => {
 	if (!tournament) {
 		// Aucun tournoi => retour à l'écran de sélection
 		navigate("tournament_select");
 		return;
 	}
-
-	// Création de l'arène et du Pong
-	const gameModel = new GameModel();
-	const gameView = new GameView($canvas);
-	const gameController = new GameController(gameModel, gameView);
-
 	// Pour gérer le jeu en cours
 	let lastMatchIndex = -1;
 	let gameStarted = false;
@@ -41,7 +42,7 @@ const unsub = TournamentStore.subscribe((tournament: TournamentModel | null) => 
 		const score = gameController.getCurrentScore();
 		const tournamentController = new TournamentController(tournament, TournamentStore);
 		tournamentController.finishMatch(score);
-		gameController.cleanup();
+		gameController.destroy();
 		// Naviguer vers l'arbre du tournoi
 		navigate("tournament_tree");
 	});
@@ -53,21 +54,27 @@ const unsub = TournamentStore.subscribe((tournament: TournamentModel | null) => 
 		gameController.start();
 	}
 	gameView.resize();
-	$pageTournamentMatch?.addEventListener("cleanup", () => {
-		gameController.cleanup();
-		unsub();
-		window.removeEventListener("beforeunload", beforeunload)
-	});
 });
 
-document.addEventListener("DOMContentLoaded", ()=>{
-    console.log("tournament_match loaded..")
-})
 
-function beforeunload(event : any){
-    console.log("tournament_match unload")
+function beforeunloadTournamentMatch(event : any){
     event.preventDefault()
-    window.removeEventListener("beforeunload", beforeunload)
 }
 
-window.addEventListener("beforeunload", beforeunload)
+window.addEventListener("beforeunload", beforeunloadTournamentMatch)
+window.addEventListener("popstate", beforeunloadTournamentMatch);
+
+/* =========================
+Cleanup SPA
+========================= */
+
+const cleanupTournamentMatch = () => {
+	console.log("tournament_match cleanup: ")
+	unsubscribe()
+	gameController.destroy()
+	window.removeEventListener("beforeunload", beforeunloadTournamentMatch)
+	window.removeEventListener("popstate", beforeunloadTournamentMatch)
+	$pageTournamentMatch.removeEventListener("cleanup", cleanupTournamentMatch)
+}
+
+$pageTournamentMatch.addEventListener("cleanup", cleanupTournamentMatch)

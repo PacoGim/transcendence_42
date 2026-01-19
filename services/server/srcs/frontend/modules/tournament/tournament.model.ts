@@ -19,13 +19,13 @@ export class TournamentModel
 
 	setScore(score: number[]): void
 	{
+		if (!this.matches[this.currentMatch]) return
 		this.matches[this.currentMatch].score = score;
 	}
 
 	nextMatch(): void
 	{
 		this.currentMatch++;
-
 		if (this.currentMatch === 2) {
 			this.matches[2] = this.createFinal();
 		}
@@ -35,7 +35,6 @@ export class TournamentModel
 	{
 		const win = (m: TournamentMatch) =>
 			m.score[0] > m.score[1] ? m.playerLeft : m.playerRight;
-
 		return {
 			playerLeft: win(this.matches[0]),
 			playerRight: win(this.matches[1]),

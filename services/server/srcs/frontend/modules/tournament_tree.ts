@@ -2,7 +2,7 @@ import { navigate } from "../js/routing.js";
 import { TournamentStore } from "./tournament/tournament.store.js";
 import { TournamentModel } from "./tournament/tournament.model.js";
 
-const $page = document.querySelector('page[type="tournament_tree"]')!;
+const $pageTournamentTree = document.querySelector('page[type="tournament_tree"]')!;
 const $container = document.getElementById("tournament-tree")!;
 
 /* =========================
@@ -17,21 +17,6 @@ const unsubscribe = TournamentStore.subscribe((tournament: TournamentModel | nul
 	}
 	render(tournament);
 });
-
-/* =========================
-   Cleanup SPA
-========================= */
-
-const cleanup = () => {
-	unsubscribe();
-	$page.removeEventListener("cleanup", cleanup);
-};
-
-$page.addEventListener("cleanup", cleanup);
-
-/* =========================
-   Rendering
-========================= */
 
 function render(model: TournamentModel) {
 	const semi1 = model.matches[0];
@@ -68,10 +53,6 @@ function render(model: TournamentModel) {
 		</div>
 	`;
 }
-
-/* =========================
-   Components
-========================= */
 
 function renderMatch(
 	label: string,
@@ -110,13 +91,25 @@ function renderAction(model: TournamentModel) {
 	`;
 }
 
-/* =========================
-   Actions
-========================= */
-
-$container.addEventListener("click", (e) => {
-	const target = e.target as HTMLElement;
+function nextMatch(event : any)
+{
+	const target = event.target as HTMLElement;
 	if (target.id === "play-match") {
 		navigate("tournament_match");
 	}
-});
+}
+
+$container.addEventListener("click", nextMatch);
+
+/* =========================
+   Cleanup SPA
+========================= */
+
+const cleanupTournamentTree = () => {
+    console.log("tournament_tree cleanup: ")
+	unsubscribe();
+	$container.removeEventListener("click", nextMatch)
+	$pageTournamentTree.removeEventListener("cleanup", cleanupTournamentTree);
+};
+
+$pageTournamentTree.addEventListener("cleanup", cleanupTournamentTree);

@@ -4,15 +4,14 @@ import { TournamentModel } from "./tournament/tournament.model.js";
 import { TournamentController } from "./tournament/tournament.controller.js";
 import type { TournamentPlayer } from "./tournament/tournament.type.js";
 
-console.log('tournament_select.ts charged')
-
+const $pageTournamentSelect = document.querySelector("page[type=tournament_select]")!
 const $username1 = document.getElementById("username1") as HTMLInputElement;
 const $username2 = document.getElementById("username2") as HTMLInputElement;
 const $username3 = document.getElementById("username3") as HTMLInputElement;
 const $username4 = document.getElementById("username4") as HTMLInputElement;
 
 const model = new TournamentModel([]);
-const controller = new TournamentController(model, TournamentStore);
+const tournamentController = new TournamentController(model, TournamentStore);
 
 document.querySelector("#go")?.addEventListener("click", (e) => {
 	e.preventDefault();
@@ -24,7 +23,7 @@ document.querySelector("#go")?.addEventListener("click", (e) => {
 		{ id: "player4", color: "purple", alias: $username4.value }
 	]);
 
-	controller.start(players);
+	tournamentController.start(players);
 
 	navigate("tournament_tree");
 });
@@ -39,6 +38,16 @@ function shuffle<T>(array: T[]): T[] {
 		const j = Math.floor(Math.random() * (i + 1));
 		[result[i], result[j]] = [result[j], result[i]];
 	}
-
 	return result;
 }
+
+/* =========================
+   Cleanup SPA
+========================= */
+
+const cleanupTournamentSelect = () => {
+	console.log("tournament_select cleanup: ")
+	$pageTournamentSelect.removeEventListener("cleanup", cleanupTournamentSelect)
+}
+
+$pageTournamentSelect.addEventListener("cleanup", cleanupTournamentSelect)

@@ -120,6 +120,7 @@ export class GameModel
     constructor()
 	{
 		this.arena = new Arena()
+        this.state = GameState.NEW_GAME;
 	}
 
     init(leftPlayerName:string = 'left', rightPlayerName:string = 'right', isTournament = false): void
@@ -154,6 +155,7 @@ export class GameView
 
     resize(): void
     {
+        if (!this.arena) return;
         const w = Math.max(this.arena.minPixelWidth, window.innerWidth);
         const h = Math.max(this.arena.minPixelHeight, window.innerHeight);
 
@@ -255,16 +257,18 @@ export class GameController
     private lastTime = 0;
     private onGameOver = ()=>{};
     private intervalId : number = 0;
+    private handleKeyDown = (e: KeyboardEvent) => this.onKey(e, true);
+    private handleKeyUp   = (e: KeyboardEvent) => this.onKey(e, false);
 
     constructor(
         private model: GameModel,
         private view: GameView
     ) {
-        window.addEventListener("keydown", e => this.onKey(e, true));
-        window.addEventListener("keyup", e => this.onKey(e, false));
+        window.addEventListener("keydown", this.handleKeyDown);
+        window.addEventListener("keyup", this.handleKeyUp);
     }
 
-    cleanup() : void
+    private cleanup() : void
     {
         if (this.intervalId !== 0)
         {
@@ -272,22 +276,29 @@ export class GameController
             clearInterval(this.intervalId);
             this.intervalId = 0;
         }
+        this.keys.clear();
+    }
+
+    destroy() : void
+    {
+        this.cleanup();
+        window.removeEventListener("keydown", this.handleKeyDown);
+        window.removeEventListener("keyup", this.handleKeyUp);
     }
 
     start(): void
     {
-        this.cleanup();
         const hertz = 1/ 60
-        this.intervalId = setInterval(()=>{
-            this.update(hertz);
-            this.view.render(this.model);
-        },  1000 * hertz)
+        if (this.intervalId === 0)
+            this.intervalId = setInterval(()=>{
+                this.update(hertz);
+                this.view.render(this.model);
+            },  1000 * hertz)
     }
 
     private onKey(e: KeyboardEvent, down: boolean): void
     {
         const key = e.key.toLowerCase();
-
 		if (key === " " && !down) {
 			if (this.model.state === GameState.NEW_GAME)
             {
@@ -340,7 +351,6 @@ export class GameController
     private handleGameOver():void
     {
         this.model.state = GameState.GAME_OVER;
-        this.cleanup()
         this.onGameOver()
     }
 

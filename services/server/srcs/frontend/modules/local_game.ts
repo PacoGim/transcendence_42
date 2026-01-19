@@ -1,7 +1,8 @@
 import { GameModel, GameView, GameController } from "../classes/OriginalPong2D.ts";
 
-const $pageLocalGame = document.querySelector("page[local_game]")!;
+const $pageLocalGame = document.querySelector("page[type=local_game]")!;
 const $canvas = document.querySelector("#canvas2D") as HTMLCanvasElement
+// Création de l'arène et du Pong
 const model = new GameModel();
 model.init();
 const view = new GameView($canvas);
@@ -9,23 +10,28 @@ const controller = new GameController(model, view);
 
 window.onresize = view.resize
 view.resize();
-console.log("view: ", view)
-console.log("model: ", model)
 view.render(model)
 
-document.addEventListener("DOMContentLoaded", ()=>{
-    console.log("local_game loaded..")
-})
-
-function beforeunload(event : any){
-    console.log("local_game unload")
+function popUpDefault(event : any)
+{
     event.preventDefault()
-    window.removeEventListener("beforeunload", beforeunload)
+    console.log("local_game popup: ", event)
 }
 
-window.addEventListener("beforeunload", beforeunload)
+window.addEventListener("beforeunload", popUpDefault)
+window.addEventListener("popstate", popUpDefault);
 
-$pageLocalGame?.addEventListener("cleanup", () => {
-    controller.cleanup();
-    window.removeEventListener("beforeunload", beforeunload)
-});
+/* =========================
+   Cleanup SPA
+========================= */
+
+const cleanupLocalGame = () => {
+    console.log("local_game cleanup: ")
+    controller.destroy();
+    window.removeEventListener("beforeunload", popUpDefault)
+    window.removeEventListener("popstate", popUpDefault)
+    $pageLocalGame.removeEventListener("cleanup", cleanupLocalGame)
+}
+
+$pageLocalGame.addEventListener("cleanup", cleanupLocalGame);
+

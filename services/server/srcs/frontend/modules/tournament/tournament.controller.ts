@@ -9,7 +9,7 @@ export class TournamentController
 		private store: typeof TournamentStore
 	) {}
 
-	start(players: TournamentPlayer[])
+	private start(players: TournamentPlayer[])
 	{
 		this.model.players = players;
 		this.model.init();
