@@ -380,8 +380,12 @@ export class GameController
 
         // relâcher les touches IA
         this.aiTargetY = this.model.arena.height / 2;
-        this.keys.delete(this.model.rightPaddle.upKey);
-        this.keys.delete(this.model.rightPaddle.downKey);
+        const paddle = this.model?.rightPaddle
+        if (paddle)
+        {
+            this.keys.delete(paddle.upKey);
+            this.keys.delete(paddle.downKey);
+        }
     }
 
     private aiApplyDecision(): void

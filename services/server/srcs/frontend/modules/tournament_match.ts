@@ -70,8 +70,8 @@ Cleanup SPA
 
 const cleanupTournamentMatch = () => {
 	console.log("tournament_match cleanup: ")
-	unsubscribe()
-	gameController.destroy()
+	gameController.destroy();
+	unsubscribe();
 	window.removeEventListener("beforeunload", beforeunloadTournamentMatch)
 	window.removeEventListener("popstate", beforeunloadTournamentMatch)
 	$pageTournamentMatch.removeEventListener("cleanup", cleanupTournamentMatch)
