@@ -3,6 +3,7 @@
 }
 
 html {
+	user-select: none;
 	font-size: var(--text-size);
 	transition-property: font-size;
 	transition-duration: 250ms;
@@ -43,7 +44,9 @@ notification-wrapper {
 
 notification-container {
 	grid-area: stack;
-	transition: transform 0.3s ease, opacity 0.3s ease;
+	transition:
+		transform 0.3s ease,
+		opacity 0.3s ease;
 	transform: translateX(100px);
 	opacity: 0;
 }
@@ -111,7 +114,7 @@ video {
 
 img,
 video {
-	height: 100% !important;
+	height: 100%;
 	object-fit: cover;
 	grid-column: 1 / 2;
 	grid-row: 1 / 2;
