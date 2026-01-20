@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { logoutUser, logUser, registerUser } from './auth.route.js'
-import { deleteUser, getUsers, updateUser, userDashboard } from './user.route.js'
+import { deleteUser, getUsers ,getUserProfile, updateUser, userDashboard } from './user.route.js'
 import { getMetrics } from './metrics.route.js'
 import { handlePOSTApiAuthRegister, handlePOSTApiAuthLogin, getClientID } from './api.route.js'
 import { getPayload } from '../crud/auth.crud.js'
@@ -48,22 +48,27 @@ export async function userRoutes(fastify: FastifyInstance) {
 		method: 'GET',
 		url: '/dashboard',
 		handler: userDashboard
-	}),
-		fastify.route({
-			method: 'GET',
-			url: '/users',
-			handler: getUsers
-		}),
-		fastify.route({
-			method: 'PUT',
-			url: '/update_user',
-			handler: updateUser
-		}),
-		fastify.route({
-			method: 'DELETE',
-			url: '/users',
-			handler: deleteUser
-		})
+	})
+	fastify.route({
+		method: 'GET',
+		url: '/users',
+		handler: getUsers
+	})
+	fastify.route({
+		method: 'POST',
+		url: '/user_profile',
+		handler: getUserProfile
+	})
+	fastify.route({
+		method: 'PUT',
+		url: '/update_user',
+		handler: updateUser
+	})
+	fastify.route({
+		method: 'DELETE',
+		url: '/users',
+		handler: deleteUser
+	})
 }
 
 export async function metricsRoutes(fastify: FastifyInstance) {

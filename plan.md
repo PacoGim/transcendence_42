@@ -1,15 +1,15 @@
+menu button Profile : error console when press left or right navigation
 Chat Click Block User:
 	User B bloque user A, donc user A ne peut pas friend_requests user B, par contre il peut encore le bloquer de son coté
 
 	User blocking is notified if user properly blocked or error
 	Add row in blocks DB
 	
-	
 	If a blocked user is in User Blocking blocked list, prevent message to User Blocking socket altogether
 	If the Blocked user send an mp to User Blocking, send a notification that the user has blocked him/her
-	
+
 	When clicking un block user again, unblock user and send notification to one or both (?)
-	
+
 	When Loading chat room, show the blocked user as blocked in user list
 
 	Blocking a user should also:
@@ -23,7 +23,7 @@ Chat Click Unblock User:
 Chat click add friend:
 	(Done) Add friendship row in DB
 	(Done) Notify user requesting that friendship is sent
-	
+
 Chat click remove friend:
 	Remove friendship row in DB
 	Notify user requesting that friendship is now removed
@@ -57,7 +57,7 @@ Friends request:
 	User "A" send a friends request to "B" by clicking the add friend button
 	User "B" gets a notification
 	The friends list shows the request and the user can click it
-	
+
 	Logic:
 		User clicks on add friends
 		Goes to websocket
