@@ -29,9 +29,9 @@ Match History:
 	1 vs 1 -> dates, players, score, winner
 
 Login:
-	When login in with 42 auth and not in db -> Interface is messed up and error in terminal
-	After trying to login in with 42 auth and fail and reload the page, we get a forbidden error
+	When login in with 42 auth and not in db -> Interface is messed up
 	When pressing login with the form and not registered, add a notification stating that the user isn't registered
+	Add notif when login in with 42Oauth and not in db (codeParam line 47 in login.ts (frontend))
 
 Register:
 	Registering doesn't set the token cookie
@@ -92,3 +92,13 @@ BLOQUER ACCES USER (a faire):
 	+ friends
 	+ others' match history
 + dans le waf
+
+
+DB_ALED:
+- friend_requests:
+	+ bloquer -> faut enlever de friend_requests
+	+ friendships -> faut enlever de friend_requests
+- blocks:
+	+ debloquer -> faut enlever de blocks
+- friendships:
+	+ bloquer -> faut enlever de friendship
