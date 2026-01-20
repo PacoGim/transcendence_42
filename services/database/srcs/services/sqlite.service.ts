@@ -14,7 +14,7 @@ export default function initDb() {
 				pwd TEXT,
 				avatar TEXT,
 				is_oauth INTEGER NOT NULL DEFAULT 0
-        	);
+			);
 
 			CREATE TABLE IF NOT EXISTS queries_log (
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,7 +25,7 @@ export default function initDb() {
 				error_message TEXT,
 				latency_seconds REAL,
 				executed_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        	);
+			);
 
 			CREATE TABLE IF NOT EXISTS friend_requests (
 				from_username TEXT NOT NULL,
@@ -59,7 +59,22 @@ export default function initDb() {
 				FOREIGN KEY (blocked_username) REFERENCES users(username) ON DELETE CASCADE,
 				CHECK (blocker_username != blocked_username)
 			);
+			
+			CREATE TABLE matches (
+				id INTEGER PRIMARY KEY NOT NULL,
+				created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			);
 
+			CREATE TABLE match_players (
+				match_id INTEGER NOT NULL,
+				username TEXT NOT NULL,
+				result TEXT NOT NULL CHECK (result IN ('win', 'lose')),
+				PRIMARY KEY (match_id, username),
+				FOREIGN KEY (match_id) REFERENCES matches(id),
+				FOREIGN KEY (username) REFERENCES users(id)
+			);
+
+			
 			CREATE INDEX IF NOT EXISTS idx_friendships_user1 ON friendships(username_1);
 			CREATE INDEX IF NOT EXISTS idx_friendships_user2 ON friendships(username_2);
 			CREATE INDEX IF NOT EXISTS idx_blocks_blocked ON blocks(blocked_username);
