@@ -510,7 +510,14 @@ export class GameController
             if (ball.position.y > leftPaddle.position.y && ball.position.y < leftPaddle.position.y + leftPaddle.height)
             {
                 ball.position.x = leftPaddle.x + ball.radius;
-                ball.velocity.x *= -1;
+                const hitPos = (ball.position.y - (leftPaddle.position.y + leftPaddle.height / 2)) / (leftPaddle.height / 2);
+                const speedMultiplier = 1.03;
+                const speed = Math.hypot(ball.velocity.x, ball.velocity.y) * speedMultiplier;
+                const maxAngle = Math.PI / 3;
+                const randomFactor = (Math.random() - 0.5) * 0.2;
+                const angle = hitPos * maxAngle + randomFactor;
+                ball.velocity.x = Math.abs(Math.cos(angle) * speed);
+                ball.velocity.y = Math.sin(angle) * speed;
                 return;
             }
             else
@@ -527,7 +534,14 @@ export class GameController
             if (ball.position.y > rightPaddle.position.y && ball.position.y < rightPaddle.position.y + rightPaddle.height)
             {
                 ball.position.x = rightPaddle.x - ball.radius;
-                ball.velocity.x *= -1;
+                const hitPos = (ball.position.y - (rightPaddle.position.y + rightPaddle.height / 2)) / (rightPaddle.height / 2);
+                const speedMultiplier = 1.03;
+                const speed = Math.hypot(ball.velocity.x, ball.velocity.y) * speedMultiplier;
+                const maxAngle = Math.PI / 3;
+                const randomFactor = (Math.random() - 0.5) * 0.2;
+                const angle = hitPos * maxAngle + randomFactor;
+                ball.velocity.x = -1 * Math.abs(Math.cos(angle) * speed);
+                ball.velocity.y = Math.sin(angle) * speed;
                 return;
             }
             else

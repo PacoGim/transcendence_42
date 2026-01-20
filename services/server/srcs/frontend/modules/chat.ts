@@ -70,6 +70,12 @@ function blockUser(username: string) {
 	ChatStore.send(message)
 }
 
+function duelUser(username: string) {
+	confirm(
+`${UserStore.getUserName()}
+Do you want to duel ${username}?`)
+}
+
 function updateUserList(users: string[]) {
 	$chatUsers.querySelectorAll('user-line').forEach(el => {
 		el.remove()
@@ -125,6 +131,9 @@ function updateUserList(users: string[]) {
 
 			$userBlock.addEventListener('click', _ => {
 				blockUser(user)
+			})
+			$userDuel.addEventListener('click', _ => {
+				duelUser(user)
 			})
 		}
 		$chatUsers.appendChild($userLine)
