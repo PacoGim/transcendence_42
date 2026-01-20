@@ -29,14 +29,8 @@ Match History:
 	1 vs 1 -> dates, players, score, winner
 
 Login:
-	When login in with 42 auth and not in db -> Interface is messed up
-	When pressing login with the form and not registered, add a notification stating that the user isn't registered
-	Add notif when login in with 42Oauth and not in db (codeParam line 47 in login.ts (frontend))
-
-Register:
-	Registering doesn't set the token cookie
-	First ever register (after empty db) no id is returned and no token is set
-	When registering with 42 Auth after being already registered, goes back to home
+	When login in with 42 auth and not in db -> Interface is messed up (shows user form and block to log in 42oauth at the same time)
+	When pressing login with the form or 42oauth and not registered, add a notification stating that the user isn't registered
 
 Lobby:
 	Player clicks on join game
