@@ -18,4 +18,4 @@ COPY tsconfig.json ./
 # CMD ["sleep", "infinity"]
 RUN bun install
 
-CMD ["bun", "--watch", "./srcs/chat.ts"]
+CMD ["bun", "--watch", "./srcs/chat.index.ts"]
