@@ -2,7 +2,7 @@ import { dbPostQuery } from '../services/db.service'
 import { BunSocketType } from '../types/bunSocket.type'
 import { SocketDataType } from '../types/socketData.type'
 
-export async function isClientBlocked(ws: BunSocketType, blocked_user: string, data: SocketDataType): Promise<boolean> {
+export async function isAtLeastOneBlocked(ws: BunSocketType, blocked_user: string, data: SocketDataType): Promise<boolean> {
 	const res = await dbPostQuery({
 		endpoint: 'dbGet',
 		query: {
@@ -11,7 +11,7 @@ export async function isClientBlocked(ws: BunSocketType, blocked_user: string, d
 			data: [ws.data.username, blocked_user, blocked_user, ws.data.username]
 		}
 	})
-	console.log('INSERT FRIEND REQUEST --- isClientBlocked: ', res)
+	console.log('INSERT FRIEND REQUEST --- isAtLeastOneBlocked: ', res)
 	if (res.status >= 400 && res.status !== 404)
 	{
 		data.msg = res.message

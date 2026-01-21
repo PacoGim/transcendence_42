@@ -2,7 +2,7 @@ import { clientsList } from '../state/clients.state'
 import { BunSocketType } from '../types/bunSocket.type'
 import { ClientType } from '../types/client.type'
 import { SocketDataType } from '../types/socketData.type'
-import { isClientBlocked } from '../crud/block.crud'
+import { isAtLeastOneBlocked } from '../crud/block.crud'
 import { isFriend, insertFriendship } from '../crud/friend.crud'
 import { insertFriendRequest, isDoubleFriendRequest, isInFriendRequests, removeFromFriendRequests } from '../crud/request.crud'
 
@@ -16,7 +16,7 @@ export async function reqFriendChannel(ws: BunSocketType, data: SocketDataType) 
 	}
 	console.log('Client Found: ', clientFound)
 	if (clientFound) {
-		if (await isClientBlocked(ws, clientFound.username, data)) return
+		if (await isAtLeastOneBlocked(ws, clientFound.username, data)) return
 		console.log('User not blocked, check if friends')
 
 		if (await isFriend(ws, clientFound.username, data)) return
