@@ -29,7 +29,7 @@ export default function initDb() {
 		if (!salt) process.exit(1)
 		bcrypt.hash('pwd', salt).then(pass => {
 			db.exec(`
-			INSERT INTO users (id, username, email, pwd, avatar, is_oauth) VALUES
+			INSERT OR IGNORE INTO users (id, username, email, pwd, avatar, is_oauth) VALUES
 				(1,  'alice',  'alice@test.com',  '${pass}',  NULL, 0),
 				(2,  'bob',    'bob@test.com',    '${pass}',  NULL, 0),
 				(3,  'carol',  'carol@test.com',  '${pass}',  NULL, 0),
@@ -132,7 +132,7 @@ export default function initDb() {
 			CREATE INDEX IF NOT EXISTS idx_friend_requests_to ON friend_requests(to_username);
 			
 			
-			INSERT INTO friend_requests (from_username, to_username) VALUES
+			INSERT OR IGNORE INTO friend_requests (from_username, to_username) VALUES
 			('alice','bob'),
 			('bob','carol'),
 			('carol','dave'),
@@ -155,13 +155,13 @@ export default function initDb() {
 			('trent','alice');
 
 
-			INSERT INTO matches (id) VALUES
+			INSERT OR IGNORE INTO matches (id) VALUES
 			(1),(2),(3),(4),(5),
 			(6),(7),(8),(9),(10),
 			(11),(12),(13),(14),(15),
 			(16),(17),(18),(19),(20);
 
-			INSERT INTO match_players (match_id, username, result) VALUES
+			INSERT OR IGNORE INTO match_players (match_id, username, result) VALUES
 			(1,'alice','win'),   (1,'bob','lose'),
 			(2,'alice','win'),   (2,'bob','lose'),
 			(3,'alice','win'),   (3,'bob','lose'),
