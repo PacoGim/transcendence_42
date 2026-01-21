@@ -1,4 +1,6 @@
-import { dbPostQuery } from '../services/db.service'
+import { blockUser, deblockUser, isDoubleBlock } from '../crud/block.crud'
+import { removeFromFriendships } from '../crud/friend.crud'
+import { removeFromFriendRequests } from '../crud/request.crud'
 import { clientsList } from '../state/clients.state'
 import { BunSocketType } from '../types/bunSocket.type'
 import { ClientType } from '../types/client.type'
@@ -14,18 +16,21 @@ export async function blockUserChannel(ws: BunSocketType, data: SocketDataType) 
 	}
 	console.log('Client Found: ', clientFound)
 	if (clientFound) {
-		// if client already blocked, deblock
-		// if client is in friendships or friend_requests, delete those entries and block
-		const res = await dbPostQuery({
-			endpoint: 'dbRun',
-			query: {
-				verb: 'INSERT',
-				sql: 'INSERT INTO blocks (blocker_username, blocked_username) VALUES (?, ?)',
-				data: [ws.data.username, clientFound.username]
-			}
-		})
-		if (res.status >= 400) console.log('status: ', res.status, 'message: ', res.message)
-		console.log('Blocked user added to DB: ', res)
+		const doubleBlockStatus = await isDoubleBlock(ws, clientFound.username, data)
+		if (doubleBlockStatus === 'error') return
+		else if (doubleBlockStatus === 'true') {
+			await deblockUser(ws, clientFound.username, data)
+			return
+		}
+		console.log('User not already blocked, continue to block')
+
+		const blockUserStatus = await blockUser(ws, clientFound.username, data)
+		if (blockUserStatus === 'error') return
+		if (blockUserStatus === 'true') {
+			removeFromFriendRequests(ws, clientFound.username, data)
+			removeFromFriendships(ws, clientFound.username, data)
+		}
+
 		data.msg = `User ${clientFound.username} has been blocked`
 		data.type = 'notification'
 		data.notificationLevel = 'error'
