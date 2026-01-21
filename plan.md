@@ -31,6 +31,8 @@ Friends:
 
 2FA:
 	Implement email based 2FA
+	5 numbers random from base of 0-9
+	expiration 2 minutes
 
 BLOQUER ACCES USER (a faire):
 - pas registered:
