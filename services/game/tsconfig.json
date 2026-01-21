@@ -21,7 +21,7 @@
 		"skipLibCheck": true
 	},
 	"include": [
-		"srcs/game.ts",
+		"srcs/game.index.ts",
 		"srcs/logs.ts"
 	],
 	"exclude": [

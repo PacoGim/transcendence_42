@@ -43,7 +43,7 @@ export async function verifyToken(token: string) {
 export async function signJWS(userInfo: userInfoType, secretKey: CryptoKey) {
     const jws = await new SignJWT({ userInfo })
         .setProtectedHeader({ alg: 'HS256' })
-        .setExpirationTime('1h')
+        .setExpirationTime('12h')
         .sign(secretKey)
     return jws
 }

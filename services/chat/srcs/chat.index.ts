@@ -8,9 +8,21 @@ import { SocketDataType } from './types/socketData.type'
 import { BunSocketType } from './types/bunSocket.type'
 import { sendUserList } from './functions/sendUserList.fn'
 import { blockUserChannel } from './channels/block_user.channel'
+import { getVaultSecret } from './services/vault.service.js'
+
+const cert_crt = await getVaultSecret<string>('services_crt', (value) =>
+	value.replace(/\\n/g, '\n').trim()
+)
+const cert_key = await getVaultSecret<string>('services_key', (value) =>
+	value.replace(/\\n/g, '\n').trim()
+)
+if (!cert_crt || !cert_key)
+	console.error('Failed to load TLS certificates from Vault service.')
 
 const server = Bun.serve({
 	port: 4444,
+	// key: cert_key,
+	// cert: cert_crt,
 	fetch(req, server) {
 		if (req.url === '/health') return new Response('OK', { status: 200 })
 		if (

@@ -2,18 +2,18 @@
 	"name": "ssr_spa",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "game.index.js",
 	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "concurrently \"npm run tailwind\" \"npm run tsc:watch\" \"npm run build\" \"npm run nodemon\"",
 		"tsc:watch": "tsc -watch",
 		"build": "node ./build.ts",
-		"nodemon": "sleep 5 && nodemon ./dist/game.js",
+		"nodemon": "sleep 5 && nodemon ./dist/game.index.js",
 		"tailwind": "tailwindcss -o ./dist/public/styles/tailwind.css --watch",
 		"prod": "npm run build && npm run start",
 		"_build": "tsc && tailwindcss -o ./dist/public/styles/tailwind.css",
-		"_start": "node ./dist/game.js"
+		"_start": "node ./dist/game.index.js"
 	},
 	"keywords": [],
 	"author": "",

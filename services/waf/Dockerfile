@@ -22,4 +22,4 @@ COPY bun.lock ./
 RUN bun install
 
 # CMD ["sleep", "infinity"]
-CMD ["bun", "--watch", "./srcs/index.ts"]
+CMD ["bun", "--watch", "./srcs/waf.index.ts"]
