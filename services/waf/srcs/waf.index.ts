@@ -149,7 +149,7 @@ interface WAFWebSocketData {
 	ws_backend?: WebSocket
 }
 
-const authOnly = ['/chat', '/update_profile', '/users']
+const authOnly = ['/chat', '/update_profile', '/users', '/profile', '/friends']
 
 const cert_crt = await getVaultSecret<string>('services_crt', value => value.replace(/\\n/g, '\n').trim())
 const cert_key = await getVaultSecret<string>('services_key', value => value.replace(/\\n/g, '\n').trim())

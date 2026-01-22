@@ -112,6 +112,7 @@ export default function initDb() {
 			
 			CREATE TABLE IF NOT EXISTS matches (
 				id INTEGER PRIMARY KEY NOT NULL,
+				type TEXT NOT NULL,
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 			);
 
@@ -121,7 +122,7 @@ export default function initDb() {
 				result TEXT NOT NULL CHECK (result IN ('win', 'lose')),
 				PRIMARY KEY (match_id, username),
 				FOREIGN KEY (match_id) REFERENCES matches(id),
-				FOREIGN KEY (username) REFERENCES users(id)
+				FOREIGN KEY (username) REFERENCES users(username)
 			);
 
 			
@@ -175,13 +176,27 @@ export default function initDb() {
 			('sybil','trent'),
 			('alice','trent');
 
-
-
-			INSERT OR IGNORE INTO matches (id) VALUES
-			(1),(2),(3),(4),(5),
-			(6),(7),(8),(9),(10),
-			(11),(12),(13),(14),(15),
-			(16),(17),(18),(19),(20);
+			INSERT  OR IGNORE INTO matches (id, type) VALUES
+			(1,  'duel'),
+			(2,  'classic'),
+			(3,  'tournament'),
+			(4,  'duel'),
+			(5,  'classic'),
+			(6,  'tournament'),
+			(7,  'duel'),
+			(8,  'classic'),
+			(9,  'tournament'),
+			(10, 'duel'),
+			(11, 'classic'),
+			(12, 'tournament'),
+			(13, 'duel'),
+			(14, 'classic'),
+			(15, 'tournament'),
+			(16, 'duel'),
+			(17, 'classic'),
+			(18, 'tournament'),
+			(19, 'duel'),
+			(20, 'classic');
 
 			INSERT OR IGNORE INTO match_players (match_id, username, result) VALUES
 			(1,'alice','win'),   (1,'bob','lose'),

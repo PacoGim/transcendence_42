@@ -1,4 +1,3 @@
-import { navigate } from '../js/routing'
 import { StateStore } from '../stores/state.store'
 import { UserStore } from '../stores/user.store'
 
@@ -16,8 +15,6 @@ const unsubStateStore = StateStore.subscribe(async data => {
 
 	document.title = `${selectedProfile} Profile`
 	$pageTitle.innerText = selectedProfile
-
-	// console.log('Fetching user: ', selectedProfile)
 
 	fetch('https://localhost:443/user_profile', {
 		method: 'POST',
@@ -38,20 +35,11 @@ const unsubStateStore = StateStore.subscribe(async data => {
 		})
 })
 
-document.querySelector('#profileNavWithMockUser')?.addEventListener('click', () => {
-	StateStore.update({ selectedProfile: 'ivan' })
-	navigate('profile')
-})
-
-document.querySelector('#profileNavWithoutMockUser')?.addEventListener('click', () => {
-	StateStore.update({ selectedProfile: undefined })
-	navigate('profile')
-})
-
 type MatchType = {
 	created_at: string
 	match_id: number
 	players: string
+	type: 'tournament' | 'classic' | 'duel'
 	winner: string
 }
 
@@ -77,7 +65,7 @@ function setMatches(matches: MatchType[]) {
 		const $tdWinner = document.createElement('td')
 
 		$tdDate.innerText = match.created_at
-		$tdType.innerText = 'Classic'
+		$tdType.innerText = match.type
 		$tdPlayers.innerText = match.players
 		$tdWinner.innerText = match.winner
 
@@ -92,7 +80,6 @@ function setMatches(matches: MatchType[]) {
 
 const cleanPage = () => {
 	$page.removeEventListener('cleanup', cleanPage)
-	// StateStore.update({ selectedProfile: undefined })
 	unsubStateStore()
 }
 

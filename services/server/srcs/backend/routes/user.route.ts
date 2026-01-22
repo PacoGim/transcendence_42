@@ -32,6 +32,7 @@ export async function getUserProfile(req: FastifyRequest, reply: FastifyReply) {
 SELECT
   m.id AS match_id,
   m.created_at,
+  m.type,
 
   -- all players in the match
   GROUP_CONCAT(mp_all.username, ', ') AS players,

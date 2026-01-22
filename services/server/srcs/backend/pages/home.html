@@ -2,8 +2,10 @@
 <head>
 	<title>Home</title>
 	<style module>
-		.wave span {
+		.wave {
 			font-size: 5.5rem;
+		}
+		.wave span {
 			display: inline-block;
 			width: 24px;
 			user-select: none;
@@ -37,6 +39,20 @@
 		}
 		.wave span:nth-child(8) {
 			animation-delay: 0.7s;
+		}
+
+		state {
+			display: block;
+			text-align: center;
+			font-size: 3rem;
+		}
+
+		state::before {
+			content: 'Welcome ';
+		}
+
+		state::after {
+			content: '!';
 		}
 
 		@keyframes bounce {
