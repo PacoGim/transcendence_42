@@ -4,6 +4,7 @@ import { deleteUser, getUsers ,getUserProfile, updateUser, userDashboard, getUse
 import { getMetrics } from './metrics.route.js'
 import { handlePOSTApiAuthRegister, handlePOSTApiAuthLogin, getClientID } from './api.route.js'
 import { getPayload } from '../crud/auth.crud.js'
+import { send2FACode, validate2FACode } from './2fa.route.js'
 
 export async function authRoutes(fastify: FastifyInstance) {
 	fastify.route({
@@ -40,6 +41,16 @@ export async function authRoutes(fastify: FastifyInstance) {
 		method: 'POST',
 		url: '/logout',
 		handler: logoutUser
+	})
+	fastify.route({
+		method: 'POST',
+		url: '/2fa/send_code',
+		handler: send2FACode
+	})
+	fastify.route({
+		method: 'POST',
+		url: '/2fa/validate_code',
+		handler: validate2FACode
 	})
 }
 
