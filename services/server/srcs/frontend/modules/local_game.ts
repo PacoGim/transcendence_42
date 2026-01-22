@@ -1,12 +1,21 @@
 import { GameModel, GameView, GameController } from "../classes/OriginalPong2D.ts";
+import { StateStore } from "../stores/state.store.ts";
 
 const $pageLocalGame = document.querySelector("page[type=local_game]")!;
 const $canvas = document.querySelector("#canvas2D") as HTMLCanvasElement
 // Création de l'arène et du Pong
+const createdGame = StateStore.getCreatedGame()
 const model = new GameModel();
-model.init();
+if (createdGame){
+    model.init(createdGame.pseudo1, createdGame.pseudo2, false);
+}
+else
+{
+    model.init()
+}
 const view = new GameView($canvas);
-const controller = new GameController(model, view);
+const aiActivated = createdGame?.ai || false
+const controller = new GameController(model, view, aiActivated);
 
 window.onresize = view.resize
 view.resize();

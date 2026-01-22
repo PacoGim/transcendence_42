@@ -11,7 +11,7 @@ const $canvas = document.querySelector("#canvas2D") as HTMLCanvasElement;
 // Création de l'arène et du Pong
 const gameModel = new GameModel();
 const gameView = new GameView($canvas);
-const gameController = new GameController(gameModel, gameView);
+const gameController = new GameController(gameModel, gameView, false);
 
 /* =========================
    Store subscription

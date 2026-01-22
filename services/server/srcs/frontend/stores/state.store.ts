@@ -10,7 +10,8 @@ let state = {
 	email: undefined,
 	id: undefined,
 	uuid: uuidv4(),
-	selectedProfile: undefined
+	selectedProfile: undefined,
+	createdGame : {}
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -54,7 +55,11 @@ function createStateStore() {
 		return state.uuid
 	}
 
-	return { subscribe, emit, update, getStateUUID }
+	function getCreatedGame(){
+		return state.createdGame
+	}
+
+	return { subscribe, emit, update, getStateUUID, getCreatedGame }
 }
 
 declare global {

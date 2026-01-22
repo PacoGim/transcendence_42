@@ -1,3 +1,5 @@
+import { NotificationStore } from "../stores/notification.store.ts";
+
 enum GameState
 {
     NEW_GAME,   //0
@@ -304,8 +306,10 @@ export class GameController
 
     constructor(
         private model: GameModel,
-        private view: GameView
+        private view: GameView,
+        readonly aiActivated : boolean
     ) {
+        if (aiActivated) { this.aiToggle() }
         window.addEventListener("keydown", this.handleKeyDown);
         window.addEventListener("keyup", this.handleKeyUp);
         this.aiTargetY = this.model.arena.height / 2;
@@ -347,12 +351,12 @@ export class GameController
 
         if (this.aiEnabled)
         {
-            console.log("IA activée");
+            NotificationStore.notify("AI activated", "SUCCESS")
             this.aiStart();
         }
         else
         {
-            console.log("IA désactivée");
+            NotificationStore.notify("AI desactivated", "INFO")
             this.aiStop();
         }
     }
@@ -417,7 +421,7 @@ export class GameController
     private onKey(e: KeyboardEvent, down: boolean): void
     {
         const key = e.key.toLowerCase();
-        if (key === "i" && !down)
+        if (key === "i" && !down && this.aiActivated)
         {
             this.aiToggle();
             return ;

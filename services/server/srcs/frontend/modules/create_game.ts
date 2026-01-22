@@ -1,3 +1,8 @@
+import { navigate } from "../js/routing.ts"
+import { NotificationStore } from "../stores/notification.store.ts"
+import { StateStore } from "../stores/state.store.ts"
+import { UserStore } from "../stores/user.store.ts"
+
 const minPlayers: number = 2
 const maxRemotePlayers: string = '8'
 const maxLocalPlayers: string = '2'
@@ -53,6 +58,15 @@ $createGame.addEventListener('click', () => {
 			errorMessage = 'Too few players/com for local play'
 		} else if (comCount + playersCount > Number(maxLocalPlayers)) {
 			errorMessage = 'Too many players/com for local play'
+		}
+		else {
+			StateStore.update({createdGame: {
+				ai:comCount === 1,
+				pseudo1: UserStore.getUserName() || "Left",
+				pseudo2: "Marvin"
+			}})
+			NotificationStore.notify("local game created", "INFO")
+			navigate("local_game");
 		}
 	}
 
