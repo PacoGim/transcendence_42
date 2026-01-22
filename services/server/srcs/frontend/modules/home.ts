@@ -1,7 +1,8 @@
 import { CurrentButtonStore } from '../stores/current_button.store'
 import { KeyboardStore } from '../stores/keyboard.store'
 import { UserStore, type UserType } from '../stores/user.store'
-import { navigate } from "../js/routing";
+import { navigate } from '../js/routing'
+import { StateStore } from '../stores/state.store'
 
 type LoginButtonValues = {
 	[key: string]: {
@@ -48,7 +49,7 @@ const unsubCurrentButtonStore = CurrentButtonStore.subscribe(el => (currentButto
 const unsubKeyStore = KeyboardStore.subscribe(key => {
 	if (['ArrowLeft', 'ArrowRight'].includes(key.value)) {
 		const nextValue = loginButtonValues[loginButtonValues[currentButton.id]?.next]
-		
+
 		if (nextValue) {
 			const $navLeft = document.createElement('nav-left')
 			const $navRight = document.createElement('nav-right')
@@ -78,6 +79,8 @@ const unsubUserStore = UserStore.subscribe((user: UserType) => {
 		if ($elementBackup) $logoutButtonParent.appendChild($elementBackup)
 		$elementBackup = $loginButton
 		$loginButton.remove()
+
+		StateStore.update({ username: user.username })
 	} else {
 		console.log('Removing Logout button')
 		if ($elementBackup) $loginButtonParent.appendChild($elementBackup)
