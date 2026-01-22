@@ -21,34 +21,54 @@ function close2FAModal(modal: HTMLDivElement, overlay: HTMLDivElement) {
 	overlay.classList.add('hidden')
 }
 
-function send2FACode(): boolean {
-	// fake for testing purposes
-	const success = Math.random() > 0.2
-	if (success) {
-		console.log('2FA code sent successfully')
-		return true
+async function send2FACode(): Promise<boolean> {
+	const code = '123456';
+	const res = await fetch('https://localhost:443/2fa/send_code', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ code })
+	})
+	if (res.status >= 400) {
+		console.log('Failed to send 2FA code', res.status)
+		return false
 	}
-	console.log('Failed to send 2FA code')
-	return false
+	console.log('2FA code sent successfully')
+	return true
+}
+
+async function check2FACodeWithServer(code: string): Promise<boolean> {
+	const res = await fetch('https://localhost:443/2fa/validate_code', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ code })
+	})
+	if (res.status >= 400) {
+		console.log('2FA code validation failed', res.status)
+		return false
+	}
+	console.log('2FA code validated successfully with server')
+	return true
 }
 
 function validate2FACode(codeInput: HTMLInputElement) {
-	// fake for testing purposes
 	const validate2FABtn = $page.querySelector('#twofa-validate-btn') as HTMLButtonElement
 	const modalError = $page.querySelector('#twofa-error') as HTMLDivElement
 	const $toggle2FABtn = $page.querySelector('#twofa') as HTMLInputElement
 	const modal = $page.querySelector('#twofa-modal') as HTMLDivElement
 	const overlay = $page.querySelector('#twofa-modal-overlay') as HTMLDivElement
 
-	validate2FABtn.addEventListener('click', e => {
+	validate2FABtn.addEventListener('click', async (e) => {
 		const code = codeInput.value.trim()
 		if (!/^\d{6}$/.test(code)) {
 			console.log('Invalid 2FA code format')
 			displayModalError(modalError, 'Invalid code format. Please enter a 6-digit code.')
 			return
 		}
-		// fake validation
-		const isValid = Math.random() > 0.2
+		const isValid = await check2FACodeWithServer(code)
 		if (!isValid) {
 			console.log('Incorrect 2FA code')
 			displayModalError(modalError, 'Incorrect code. Please try again.')
@@ -84,15 +104,18 @@ function toggle2FA(
 	codeInput: HTMLInputElement,
 	modalError: HTMLDivElement
 ) {
-	toggle2FABtn.addEventListener('change', e => {
+	toggle2FABtn.addEventListener('change', async e => {
 		e.preventDefault()
 		toggle2FABtn.checked = !toggle2FABtn.checked
 		console.log('toggle2FABtn checked AT START:', toggle2FABtn.checked)
 
 		open2FAModal(modal, overlay, codeInput, modalError)
-		const success = send2FACode()
+		const success = await send2FACode()
 		if (!success) {
 			displayModalError(modalError, 'Error sending 2FA code. Please try again.')
+			setTimeout(() => {
+				close2FAModal(modal, overlay)
+			}, 2000)
 			// what should happen when failing to send code?
 			return
 		}

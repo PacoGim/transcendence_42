@@ -16,6 +16,7 @@ import { publicWatcher } from './services/publicWatcher.service.js'
 /********************** Services **********************/
 import { log } from './logs.js'
 import { totalHttpRequests } from './services/prometheus.service.js'
+import { createAccount, createTransporter } from './services/ethereal.service.js'
 
 /********************** Routes **********************/
 import { authRoutes, metricsRoutes, userRoutes } from './routes/handler.route.js'
@@ -60,6 +61,9 @@ fastify.register(multipart, {
 		parts: 6
 	}
 })
+
+// createAccount()
+createTransporter()
 
 fastify.register(cookie)
 await fastify.register(fastifyWebsocket)
