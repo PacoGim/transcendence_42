@@ -1,51 +1,36 @@
 import nodemailer from 'nodemailer';
 import { getVaultSecret } from './vault.service.js';
+import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 
-let transporter: nodemailer.Transporter | null = null
-const accountUser = getVaultSecret<string>("sender_user", (value) => value);
+let transporter: nodemailer.Transporter<SMTPTransport.Options> | null = null
+const gmailUser = await getVaultSecret<string>("gmail_user", (value) => value);
 
-// export function createAccount() {
-//     nodemailer.createTestAccount((err, account) => {
-//         if (err) {
-//             console.error('Failed to create a testing account. ' + err.message)
-//             return
-//         }
-//         console.log('Created a testing account: ' + JSON.stringify(account))
-//         createTransporter(account)
-//     })
-// }
-
-export function createTransporter() {
-    const accountPass = getVaultSecret<string>("sender_pwd", (value) => value)
-    transporter = nodemailer.createTransport({
-        host: "smtp.office365.com",
-        port: 587,
-        secure: false,
+export async function createTransporter() {
+    const gmailPwd = await getVaultSecret<string>("gmail_pwd", (value) => value)
+    transporter = nodemailer.createTransport<SMTPTransport.Options>({
+        service: "gmail",
         auth: {
-            user: accountUser,
-            pass: accountPass
+            user: gmailUser,
+            pass: gmailPwd
         }
     })
-    console.log('Nodemailer transporter created.')
+    transporter.verify()
+    .then(() => console.log('Nodemail transporter is ready for Gmail.'))
+    .catch(error => console.error('Error verifying transporter: ', error))
 }
 
-export function sendEmail(recipient: string, code: string) {
-    if (!transporter)
-    {
+export async function sendEmail(recipient: string, code: string) {
+    if (!transporter) {
         console.error('Transporter not initialized. Call createTransporter() first.')
         return
     }
-    transporter.sendMail({
-        from: `2FA Service <${accountUser}>`,
+    await transporter.sendMail({
+        from: `2FA Service <${gmailUser}>`,
         to: recipient,
         subject: "Your 2FA Code",
         text: `Your 2FA code is: ${code}`,
+        html: `<p>Your 2FA code is: <code>${code}</code></p>`
     })
-    .then((info) => {
-        console.log('Message sent: %s', info.messageId)
-        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info))
-    })
-    .catch((error) => {
-        console.error('Error sending email: ', error)
-    })
+    .then(info => console.log('Message sent to %s: %s', recipient, info.messageId))
+    .catch(error => console.error('Error sending email: ', error))
 }
