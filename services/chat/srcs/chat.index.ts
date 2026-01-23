@@ -9,21 +9,11 @@ import { BunSocketType } from './types/bunSocket.type'
 import { sendUserList } from './functions/sendUserList.fn'
 import { blockUserChannel } from './channels/block_user.channel'
 import { getVaultSecret } from './services/vault.service.js'
+import { updateUsername } from './channels/change_username'
 
 const cert_crt = await getVaultSecret<string>('services_crt', value => value.replace(/\\n/g, '\n').trim())
 const cert_key = await getVaultSecret<string>('services_key', value => value.replace(/\\n/g, '\n').trim())
 if (!cert_crt || !cert_key) console.error('Failed to load TLS certificates from Vault service.')
-
-function updateUsername(ws: BunSocketType, data: SocketDataType) {
-	console.log('Update username data: ', data, '\n\n\n\n\n\n')
-	console.log('Websocket name: ', ws.data.username, data.msg)
-	ws.data.username = data.msg
-	console.log('Websocket name: ', ws.data.username)
-
-	clientsSocket.forEach(client => {
-		console.log('Client: ', client.data.username)
-	})
-}
 
 const server = Bun.serve({
 	port: 4444,

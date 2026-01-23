@@ -15,5 +15,6 @@ export function sendUserList() {
 
 	clientsSocket.forEach(ws => {
 		ws.send(JSON.stringify(message))
+		console.log('Client name: ', ws.data.username)
 	})
 }

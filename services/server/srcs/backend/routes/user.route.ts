@@ -86,8 +86,6 @@ export async function updateUser(req: FastifyRequest, reply: FastifyReply) {
 	const userInfo = token.userInfo
 	const { id } = userInfo
 
-	console.log('User Info: ', userInfo)
-
 	const username = data['username']
 	const avatar = data['avatar']
 
@@ -132,7 +130,6 @@ export async function updateUser(req: FastifyRequest, reply: FastifyReply) {
 
 	query += ')'
 
-	console.log('query', query, '\n\n\n\n')
 	let body = await dbPostQuery({ endpoint: 'dbRun', query: { verb: 'update', sql: query, data: paramsValue } })
 	if (body.data?.changes === 0) return reply.status(200).send({ message: 'No changes made' })
 
