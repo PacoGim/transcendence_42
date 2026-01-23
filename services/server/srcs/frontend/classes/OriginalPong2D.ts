@@ -5,10 +5,11 @@ enum GameState
     NEW_GAME,   //0
     PLAYING,    //1
     PAUSED,     //2
-    GAME_OVER   //3
+    COUNTDOWN,  //3
+    GAME_OVER   //4
 }
 
-const GameStateStr = [ "NEW_GAME", "PLAYING", "PAUSED", "GAME_OVER"]
+const GameStateStr = [ "NEW_GAME", "PLAYING", "PAUSED", "COUNTDOWN", "GAME_OVER"]
 
 class Arena
 {
@@ -108,13 +109,17 @@ class Ball
 export class GameModel
 {
     state = GameState.NEW_GAME;
+    showGo: boolean = false;
+    countdown : number = 0;
+    readonly countdownDuration : number = 3; // secondes
+    lastScorerDirection : number = 1;
 	arena : Arena;
     isTournament: boolean = false;
-    leftScore = 0;
-    rightScore = 0;
-    readonly maxScore = 5;
-    leftPlayerName = ''
-    rightPlayerName = ''
+    leftScore : number = 0;
+    rightScore : number = 0;
+    readonly maxScore : number = 5;
+    leftPlayerName : string = ''
+    rightPlayerName : string = ''
     leftPaddle!: Paddle;
     rightPaddle!: Paddle;
     ball!: Ball;
@@ -138,6 +143,8 @@ export class GameModel
         this.rightPaddle = new Paddle(this.arena.width - 0.5, this.arena, "j", "n");
 
         this.ball = new Ball(this.arena);
+        this.countdown = 0;
+        this.lastScorerDirection = Math.random() < 0.5 ? 1 : -1;
     }
 }
 
@@ -195,13 +202,32 @@ export class GameView
 		const height = ctx.canvas.height;
 
         ctx.clearRect(0, 0, width, height);
-
         ctx.fillStyle = "white";
         // UI (score, playersname) hors scaling
         const scaleFont = 0.64 * this.scale;
         const leftKeyPos = model.leftPaddle.position.x + model.leftPaddle.width + scaleFont;
         const rightKeyPos = width - leftKeyPos;
         const topKeyPos = 2 * scaleFont;
+
+        if (model.state === GameState.COUNTDOWN)
+        {
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            if (model.showGo)
+            {
+                ctx.font = `${5 * this.scale}px Arial Black`;
+                ctx.fillText("GO", width * 0.5, height * 0.5);
+            }
+            else
+            {
+                const t = model.countdown;
+                const value = Math.ceil(t);
+                const anim = 1 + (t - Math.floor(t)) * 0.4;
+                ctx.font = `${4 * anim * this.scale}px Arial`;
+                ctx.fillText(value.toString(), width * 0.5, height * 0.5);
+            }
+        }
         ctx.font = `${scaleFont}px Arial`;
         ctx.textAlign = 'left'
         ctx.fillText(model.leftPaddle.upKey, leftKeyPos, topKeyPos)
@@ -247,15 +273,18 @@ export class GameView
             model.rightPaddle.height
         );
         // ball
-        ctx.beginPath();
-        ctx.arc(
-            model.ball.position.x,
-            model.ball.position.y,
-            model.ball.radius,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
+        if (model.state === GameState.PLAYING || model.state === GameState.PAUSED)
+        {
+            ctx.beginPath();
+            ctx.arc(
+                model.ball.position.x,
+                model.ball.position.y,
+                model.ball.radius,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
         ctx.restore();
     }
 }
@@ -336,7 +365,7 @@ export class GameController
 
     start(): void
     {
-        const hertz = 1 / 60
+        const hertz = 1.0 / 60
         if (this.intervalId === 0)
             this.intervalId = setInterval(()=>{
                 this.update(hertz);
@@ -429,7 +458,7 @@ export class GameController
         {
 			if (this.model.state === GameState.NEW_GAME)
             {
-				this.model.state = GameState.PLAYING;
+				this.startCountdown(Math.random() < 0.5 ? 1 : -1);
                 this.start()
 			}
             else if (this.model.state === GameState.GAME_OVER)
@@ -452,17 +481,50 @@ export class GameController
         down ? this.keys.add(key) : this.keys.delete(key);
     }
 
+    private launchBall(): void
+    {
+        const ball = this.model.ball;
+        const dir = this.model.lastScorerDirection;
+
+        ball.velocity.x = dir * this.model.arena.width * 0.5;
+        ball.velocity.y = (Math.random() - 0.5) * this.model.arena.height * 0.6;
+
+        this.model.state = GameState.PLAYING;
+    }
+
     private update(dt: number): void
     {
+        // paddles TOUJOURS actifs sauf GAME_OVER
+        if (this.model.state !== GameState.GAME_OVER)
+        {
+            this.aiApplyDecision();
+            this.model.leftPaddle.update(dt, this.keys);
+            this.model.rightPaddle.update(dt, this.keys);
+        }
+
+        if (this.model.state === GameState.COUNTDOWN)
+        {
+            this.model.countdown -= dt;
+
+            if (this.model.countdown <= 0 && !this.model.showGo)
+            {
+                this.model.showGo = true;
+                this.model.countdown = 0.5; // durée du "GO"
+                return;
+            }
+
+            if (this.model.showGo && this.model.countdown <= 0)
+            {
+                this.model.showGo = false;
+                this.launchBall();
+            }
+            return;
+        }
+
+
         if (this.model.state !== GameState.PLAYING) return;
-        this.aiApplyDecision();
 
-        const { leftPaddle, rightPaddle, ball } = this.model;
-
-        leftPaddle.update(dt, this.keys);
-        rightPaddle.update(dt, this.keys);
-        ball.update(dt);
-
+        this.model.ball.update(dt);
         this.handleCollisions();
         this.checkGameOver();
     }
@@ -491,6 +553,23 @@ export class GameController
             this.handleGameOver()
         }
     }
+
+    private startCountdown(direction: number): void
+    {
+        const { ball, leftPaddle, rightPaddle } = this.model;
+
+        leftPaddle.init();
+        rightPaddle.init();
+
+        ball.reset(direction);
+        ball.velocity.x = 0;
+        ball.velocity.y = 0;
+
+        this.model.lastScorerDirection = direction;
+        this.model.countdown = this.model.countdownDuration;
+        this.model.state = GameState.COUNTDOWN;
+    }
+
 
     private handleCollisions(): void
     {
@@ -525,10 +604,8 @@ export class GameController
             }
             else
             {
+                this.startCountdown(1)
                 this.model.rightScore++;
-                leftPaddle.init();
-                rightPaddle.init();
-                ball.reset(1);
                 return;
             }
         }
@@ -549,10 +626,8 @@ export class GameController
             }
             else
             {
+                this.startCountdown(-1)
                 this.model.leftScore++;
-                leftPaddle.init();
-                rightPaddle.init();
-                ball.reset(-1);
                 return;
             }
         }
