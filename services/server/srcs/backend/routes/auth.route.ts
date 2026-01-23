@@ -1,7 +1,7 @@
 import fastify, { FastifyReply, FastifyRequest } from 'fastify'
 import httpErrors from 'http-errors'
 import bcrypt from 'bcrypt'
-import { userRegisterType, userLoginType } from '../../types/user.type.js'
+import { UserRegisterType, UserLoginType } from '../../types/user.type.js'
 import { checkIfAlreadyLoggedIn, generateAndSendToken, userTokenCookieOptions } from '../crud/auth.crud.js'
 import { dbPostQuery } from '../services/db.service.js'
 import { getVaultSecret } from '../services/vault.service.js'
@@ -46,7 +46,7 @@ export async function registerUser(req: FastifyRequest, reply: FastifyReply) {
 
 	console.log('--BACK-- avatar:', avatar)
 
-	const { username, email, checkmail, pwd, checkpwd } = data as userRegisterType
+	const { username, email, checkmail, pwd, checkpwd } = data as UserRegisterType
 
 	console.log('--BACK-- Registering user with data:', {
 		username: username,
@@ -106,7 +106,7 @@ export async function registerUser(req: FastifyRequest, reply: FastifyReply) {
 
 export async function logUser(req: FastifyRequest, reply: FastifyReply) {
 	const data = await getMultipartFormData(req)
-	const { username, pwd } = (await data) as userLoginType
+	const { username, pwd } = (await data) as UserLoginType
 
 	console.log('--BACK-- Logging in user with data:', { username: username, pwd: pwd })
 

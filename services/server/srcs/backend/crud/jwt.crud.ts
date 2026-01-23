@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify, jwtDecrypt, EncryptJWT, importJWK, CryptoKey, JWK } from 'jose';
 import { getVaultSecret } from '../services/vault.service.js';
 import { log } from '../logs.js';
-import { userInfoType } from '../../types/user.type.js';
+import { UserInfoType } from '../../types/user.type.js';
 
 export async function getJwsSecret() {
     const jwk = await getVaultSecret<JWK>('jws_secret', JSON.parse)
@@ -18,7 +18,7 @@ export async function getJweSecret() {
     return secretKey
 }
 
-export async function createToken(userInfo: userInfoType) {
+export async function createToken(userInfo: UserInfoType) {
     const jwsSecretKey: CryptoKey | null = await getJwsSecret()
     if (!jwsSecretKey) return null
     const signed = await signJWS(userInfo, jwsSecretKey)
@@ -40,7 +40,7 @@ export async function verifyToken(token: string) {
     return verifiedPayload
 }
 
-export async function signJWS(userInfo: userInfoType, secretKey: CryptoKey) {
+export async function signJWS(userInfo: UserInfoType, secretKey: CryptoKey) {
     const jws = await new SignJWT({ userInfo })
         .setProtectedHeader({ alg: 'HS256' })
         .setExpirationTime('12h')

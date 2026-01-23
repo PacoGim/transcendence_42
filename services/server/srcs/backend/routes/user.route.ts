@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { dbPostQuery } from '../services/db.service.js'
 import { generateAndSendToken, getPayload } from '../crud/auth.crud.js'
-import { userUpdateType } from '../../types/user.type.js'
+import { UserUpdateType } from '../../types/user.type.js'
 import { getMultipartFormData } from '../crud/multipartForm.js'
 import { isUsernameFormatInvalid } from '../../frontend/functions/formValidation.js'
 
@@ -91,7 +91,7 @@ export async function updateUser(req: FastifyRequest, reply: FastifyReply) {
 
 	if (!username && !avatar) return reply.status(400).send({ message: 'No fields to update' })
 
-	let updateQuery: userUpdateType = {}
+	let updateQuery: UserUpdateType = {}
 	if (username) {
 		if (isUsernameFormatInvalid(username)) return reply.status(400).send({ message: 'Invalid username format' })
 		updateQuery.username = username
