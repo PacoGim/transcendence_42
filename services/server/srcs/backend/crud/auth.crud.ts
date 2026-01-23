@@ -30,6 +30,7 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 		.then(res => res.json())
 		.then(res => res?.access_token)
 
+	console.log('TOKEN: ', token)
 	let userId: number
 	let body
 
@@ -46,6 +47,8 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 			Authorization: `Bearer ${token}`
 		}
 	}).then(res => res.json())
+
+	console.log('User Info: ', user42Info)
 
 	if (!user42Info)
 		return {
@@ -74,8 +77,16 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 				data: [user42Info.login]
 			}
 		})
-		userId = body.data.id
-		if (body.data.is_oauth !== 1) {
+		if (body.status >= 400) {
+			return {
+				info: {
+					status: 404,
+					message: 'User not found'
+				}
+			}
+		}
+
+		if (body?.data?.is_oauth !== 1) {
 			return {
 				info: {
 					status: 403,
@@ -83,7 +94,9 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 				}
 			}
 		}
+		userId = body.data.id
 	}
+
 	if (body.status >= 400) {
 		return {
 			info: {
