@@ -22,16 +22,15 @@ function close2FAModal(modal: HTMLDivElement, overlay: HTMLDivElement) {
 }
 
 async function send2FACode(): Promise<boolean> {
-	const $toggle2FABtn = $page.querySelector('#twofa') as HTMLInputElement
-	const type = $toggle2FABtn.checked ? 'disable' : 'enable'
-	console.log('2FA purpose type when sending 2fa code:', type)
+	const purposeType = UserStore.getUser2FAStatus() ? 'disable' : 'enable'
+	console.log('2FA purpose type when sending 2fa code:', purposeType)
 
 	const res = await fetch('https://localhost:443/2fa/send_code', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({ purpose: type })
+		body: JSON.stringify({ purpose: purposeType })
 	})
 	if (res.status >= 400) {
 		console.log('Failed to send 2FA code. Retry later.', res.status, res.statusText)
@@ -42,16 +41,15 @@ async function send2FACode(): Promise<boolean> {
 }
 
 async function check2FACodeWithServer(code: string): Promise<boolean> {
-	const $toggle2FABtn = $page.querySelector('#twofa') as HTMLInputElement
-	const type = $toggle2FABtn.checked ? 'disable' : 'enable'
-	console.log('2FA purpose type when validating 2fa code:', type)
+	const purposeType = UserStore.getUser2FAStatus() ? 'disable' : 'enable'
+	console.log('2FA purpose type when validating 2fa code:', purposeType)
 
 	const res = await fetch('https://localhost:443/2fa/validate_code', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({ code, purpose: type })
+		body: JSON.stringify({ code, purpose: purposeType })
 	})
 	if (res.status >= 400) {
 		console.log('2FA code validation failed. Retry later.', res.status, res.statusText)
@@ -61,7 +59,7 @@ async function check2FACodeWithServer(code: string): Promise<boolean> {
 	return true
 }
 
-function validate2FACode(toggle2FABtn: HTMLInputElement, modal: HTMLDivElement, overlay: HTMLDivElement, codeInput: HTMLInputElement, modalError: HTMLDivElement) {
+function validate2FACode(toggle2FABtn: HTMLButtonElement, modal: HTMLDivElement, overlay: HTMLDivElement, codeInput: HTMLInputElement, modalError: HTMLDivElement) {
 	const validate2FABtn = $page.querySelector('#twofa-validate-btn') as HTMLButtonElement
 
 	validate2FABtn.addEventListener('click', async e => {
@@ -80,11 +78,8 @@ function validate2FACode(toggle2FABtn: HTMLInputElement, modal: HTMLDivElement, 
 
 		console.log('2FA code validated successfully')
 
-		toggle2FABtn.checked = !toggle2FABtn.checked
-		console.log('toggle2FABtn checked IF CODE VALIDATED:', toggle2FABtn.checked)
-		toggle2FAState(toggle2FABtn)
-		console.log('toggle2FABtn checked IF CODE VALIDATED x2:', toggle2FABtn.checked)
-
+		UserStore.setUser2FAStatus(!UserStore.getUser2FAStatus())
+		render2FAState(toggle2FABtn, UserStore.getUser2FAStatus())
 		close2FAModal(modal, overlay)
 	})
 }
@@ -94,24 +89,18 @@ function displayModalError(modalError: HTMLDivElement, message: string) {
 	modalError.classList.remove('hidden')
 }
 
-function toggle2FAState(toggle2FABtn: HTMLInputElement) {
-	toggle2FABtn.textContent = toggle2FABtn.checked ? '2FA enabled' : '2FA disabled'
-	console.log('toggle2FABtn checked AFTER CODE VALIDATED (from x2):', toggle2FABtn.checked)
+function render2FAState($toggle2FABtn: HTMLButtonElement, enabled: boolean) {
+	$toggle2FABtn.textContent = enabled ? '2FA Enabled' : '2FA Disabled'
 }
 
-function toggle2FA() {
-	const $toggle2FABtn = $page.querySelector('#twofa') as HTMLInputElement
+function toggle2FA($toggle2FABtn: HTMLButtonElement) {
 	const $modal = $page.querySelector('#twofa-modal') as HTMLDivElement
 	const $overlay = $page.querySelector('#twofa-modal-overlay') as HTMLDivElement
 	const $closeModalBtn = $page.querySelector('#twofa-modal-close') as HTMLButtonElement
 	const $codeInput = $page.querySelector('#twofa-code-input') as HTMLInputElement
 	const $modalError = $page.querySelector('#twofa-error') as HTMLDivElement
 
-	$toggle2FABtn.addEventListener('change', async e => {
-		e.preventDefault()
-		$toggle2FABtn.checked = !$toggle2FABtn.checked
-		console.log('toggle2FABtn checked AT START:', $toggle2FABtn.checked)
-
+	$toggle2FABtn.addEventListener('click', async e => {
 		open2FAModal($modal, $overlay, $codeInput, $modalError)
 		const success = await send2FACode()
 		if (!success) {
@@ -144,11 +133,14 @@ function handleUpdateProfile() {
 	const $avatarInput = $page.querySelector('input[name="avatar"]') as HTMLInputElement
 	const $avatarPreview = $page.querySelector('#avatarPreview') as HTMLImageElement
 	const $resetAvatarBtn = $page.querySelector('#resetAvatarButton') as HTMLButtonElement
+	const $toggle2FABtn = $page.querySelector('#twofa') as HTMLButtonElement
 
 	resetAvatarButton($resetAvatarBtn, $avatarInput, $avatarPreview)
 
+	console.log('Initial 2FA status from UserStore:', UserStore.getUser2FAStatus())
+	render2FAState($toggle2FABtn, UserStore.getUser2FAStatus())
 	// checkbox dependant de l'etat 2fa de l'user coté front a l'ouverture de la page
-	toggle2FA()
+	toggle2FA($toggle2FABtn)
 	// double msg in front console
 	// weird bug when code validation to disable 2fa: code validated but checkbox true, sometimes false
 	// in 'on change' if 2fa checked/unchecked -> modif user from table to enable/disable 2fa

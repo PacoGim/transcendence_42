@@ -54,7 +54,16 @@ function createUserStore() {
 		return user.username
 	}
 
-	return { subscribe, emit, getUserName, clear }
+	function getUser2FAStatus() {
+		return user.has_2fa
+	}
+
+	function setUser2FAStatus(status: boolean) {
+		user.has_2fa = status
+		StateStore.update({ has_2fa: user.has_2fa })
+	}
+
+	return { subscribe, emit, getUserName, getUser2FAStatus, setUser2FAStatus, clear }
 }
 
 declare global {
