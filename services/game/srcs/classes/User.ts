@@ -2,7 +2,8 @@ import { json_stringify } from '../functions/json_wrapper.js'
 import { KeyType, StatusType } from '../types/message.type.js'
 import { BunSocketType } from '../types/bunSocket.type.js'
 
-export default class User {
+export default class User
+{
 	public pseudo: string
 	public socket: BunSocketType
 	public status: StatusType = 'chat'
@@ -10,30 +11,36 @@ export default class User {
 	public key: KeyType = 'none'
 	constructor(public readonly id: string, pseudo: string | undefined)
 	{
-		this.navigate = "game"
+		this.navigate = "remote_game"
 		this.pseudo = pseudo?.trim() || `Player-${Math.floor(Math.random() * 1000)}`
 		this.socket = undefined
 	}
 
-	send(data: any) {
-		if (this.isConnected()) {
+	send(data: any)
+	{
+		if (this.isConnected())
+		{
 			this.socket?.send(json_stringify(data))
 		}
 	}
 
-	close(reason?: string) {
+	close(reason?: string)
+	{
 		this.socket?.close(1000, reason)
 	}
 
-	isConnected() {
+	isConnected()
+	{
 		return (this.socket?.readyState === WebSocket.OPEN)
 	}
 
-	isInGame() {
-		return (this.isConnected() && this.navigate === "game")
+	isInGame()
+	{
+		return (this.isConnected() && this.navigate === "remote_game")
 	}
 
-	toJSON() {
+	toJSON()
+	{
 		return {
 			pseudo: this.pseudo,
 			connected: this.isConnected(),

@@ -40,7 +40,7 @@ function playRemote()
 {
 	ws = GameStore.getSocket()
 	if (!ws) return NotificationStore.notify("websocket unavailable", "INFO")
-	ws.send(json_stringify({type:"navigate", navigate:"game"}))
+	ws.send(json_stringify({type:"navigate", navigate:"remote_game"}))
 	const pseudo = UserStore.getUserName()
 	launchGame(ws, pseudo);
 }

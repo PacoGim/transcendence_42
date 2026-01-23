@@ -102,6 +102,7 @@ private checkDisconnection() : boolean
 		{
 			disconnect = true;
 			text += ` | ${p.user.pseudo} has left the game`
+			console.log(`${p.user.pseudo} is not ingame : ${p.user.navigate}`)
 		}
 	})
 	if (text)
