@@ -50,7 +50,7 @@ export async function send2FACode(req: FastifyRequest, reply: FastifyReply) {
         email = token.userInfo.email
         userId = token.userInfo.id
     }
-    if (!email || !purpose || !userId) return reply.status(400).send({ message: 'Bad Request' })
+    if (!email || !purpose || userId == null) return reply.status(400).send({ message: 'Bad Request. Missing required fields.' })
     console.log('email: ', email, ' purpose: ', purpose, ' userId: ', userId)
 
     console.log('Insert 2FA challenge into db.')
@@ -96,7 +96,7 @@ export async function validate2FACode(req: FastifyRequest, reply: FastifyReply):
         email = token.userInfo.email
         username = token.userInfo.username
     }
-    if (!inputCode || !purpose || !userId || !has_2fa || !email || !username) return reply.status(400).send({ message: 'Bad Request' })
+    if (!inputCode || !purpose || userId == null || has_2fa == null || !email || !username) return reply.status(400).send({ message: 'Bad Request. Missing required fields.' })
 
     console.log('Check challenge validity for userId:', userId)
     // also check purpose matches to avoid login/enable/disable confusion
