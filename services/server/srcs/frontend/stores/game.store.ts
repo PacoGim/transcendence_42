@@ -15,10 +15,10 @@ if (!ws) {
 			ws = new WebSocket(`wss://${location.host}/gamews`)
 			// ws = new WebSocket('ws://localhost:3333')
 			if (!ws) return NotificationStore.notify("Network error, websocket shutdown", "ERROR");
-			console.log("gamesocket created")
+			console.log("gamesocket created");
 			ws.onopen = e => {
 				if (!ws) return NotificationStore.notify("Network error, websocket shutdown", "ERROR");
-				ws.send(JSON.stringify({type: 'auth',username: UserStore.getUserName()}))
+				ws.send(JSON.stringify({type: 'auth',username: UserStore.getUserName()}));
 			}
 			ws.onmessage = e => {
 				const message: FrontType = json_parse(e.data) as FrontType
@@ -38,6 +38,11 @@ if (!ws) {
 						console.warn('received:', message.text)
 					}
 					return ;
+					case 'start-game':
+					{
+						NotificationStore.notify("start_remote_game", "SUCCESS");
+						return navigate('remote_game');
+					}
 					case 'duel':
 					{
 						if (!ws) return
@@ -46,7 +51,7 @@ if (!ws) {
 							case 'accept':
 								NotificationStore.notify(`${message.from} accept you duel`, "INFO")
 								LobbyStore.addDuel(message)
-								return navigate('game')
+								return navigate('remote_game')
 							case 'decline':
 								LobbyStore.addDuel(message)
 								return NotificationStore.notify(`duel has been declined from ${message.from}`, "INFO")
@@ -57,7 +62,7 @@ if (!ws) {
 								if (confirm(`${message?.from} send you a duel, do you accept?`))
 								{
 									ws.send(json_stringify({ type: 'duel', to: message?.from, action: 'accept' }));
-									return navigate('game');
+									return navigate('remote_game');
 								} else return ws.send(json_stringify({ type: 'duel', to: message?.from, action: 'decline' }))
 							}
 						}
@@ -85,7 +90,7 @@ function createGameStore() {
 
 	function send(message: MessageType) {
 		if (!ws || ws.readyState >= WebSocket.CLOSING) return NotificationStore.notify("Network error, websocket shutdown", "ERROR")
-		ws.send(JSON.stringify(message))
+		ws.send(json_stringify(message))
 	}
 
 	function closeSocket() {

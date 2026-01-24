@@ -5,9 +5,9 @@ import { UserStore } from '../stores/user.store'
 
 const $pageTournamentSelect = document.querySelector('page[type=tournament_select]')!
 const $username1 = document.querySelector('player input#playerHost') as HTMLInputElement
-const $username2 = document.getElementById('username2') as HTMLInputElement
-const $username3 = document.getElementById('username3') as HTMLInputElement
-const $username4 = document.getElementById('username4') as HTMLInputElement
+const $username2 = document.getElementById('player2') as HTMLInputElement
+const $username3 = document.getElementById('player3') as HTMLInputElement
+const $username4 = document.getElementById('player4') as HTMLInputElement
 
 const unsubUserStore = UserStore.subscribe(user => {
 	if (user.isValid) {
