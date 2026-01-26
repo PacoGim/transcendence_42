@@ -15,7 +15,7 @@ let user: any = {
 	username: '',
 	id: undefined,
 	get isValid() {
-		return Boolean(this.email && this.username && this.id)
+		return Boolean(this.username && this.id)
 	}
 }
 

@@ -10,7 +10,7 @@ export function authChannel(ws: BunSocketType, data: AuthType, lobby : Lobby) {
 	user.socket = ws
 	ws.data.user = user
 	const info : InfoType = {
-		msg : `Player ${data.username} has connected`,
+		msg : `Player ${data.username} has connected to game`,
 		type: 'info'
 	}
 	for (let client of clientsList) {
