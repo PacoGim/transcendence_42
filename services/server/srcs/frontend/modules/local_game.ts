@@ -6,7 +6,8 @@ const $canvas = document.querySelector("#canvas2D") as HTMLCanvasElement
 // Création de l'arène et du Pong
 const createdGame = StateStore.getCreatedGame()
 const model = new GameModel();
-if (createdGame){
+if (createdGame)
+{
     model.init(createdGame.pseudo1, createdGame.pseudo2, false);
 }
 else
@@ -17,7 +18,6 @@ const view = new GameView($canvas);
 const aiActivated = createdGame?.ai || false
 const controller = new GameController(model, view, aiActivated);
 
-window.onresize = view.resize
 view.resize();
 view.render(model)
 
@@ -36,7 +36,8 @@ window.addEventListener("popstate", popUpDefault);
 
 const cleanupLocalGame = () => {
     console.log("local_game cleanup: ")
-    controller.destroy();
+    view.destroy()
+    controller.destroy()
     window.removeEventListener("beforeunload", popUpDefault)
     window.removeEventListener("popstate", popUpDefault)
     $pageLocalGame.removeEventListener("cleanup", cleanupLocalGame)

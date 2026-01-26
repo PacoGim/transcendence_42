@@ -156,16 +156,23 @@ export class GameView
     private offsetY = 0;
     private controller : GameController | undefined;
     private ctx : CanvasRenderingContext2D
+    private resizeHandler = () => this.resize();
 
     constructor(private canvas: HTMLCanvasElement)
     {
         this.ctx = canvas.getContext('2d')!
 		this.arena = new Arena()
+        window.addEventListener("resize", this.resizeHandler);
     }
 
     setController(controller : GameController)
     {
         this.controller = controller;
+    }
+
+    destroy(): void
+    {
+        window.removeEventListener("resize", this.resizeHandler);
     }
 
     resize(): void
