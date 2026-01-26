@@ -8,42 +8,6 @@ let ws: WebSocket | null = null
 
 const chats: MessageType[] = []
 
-if (ws === null) {
-	UserStore.subscribe(userStore => {
-		if (userStore.isValid && ws === null) {
-			ws = new WebSocket(`wss://${location.host}/chatws`)
-			if (ws === null) return
-			ws.addEventListener('open', () => {
-				if (ws === null) return
-				ws.send(
-					JSON.stringify({
-						type: 'auth',
-						username: UserStore.getUserName()
-					})
-				)
-			})
-			ws.onmessage = event => {
-				const msg = JSON.parse(event.data)
-				if (msg.type === 'system') return
-				if (msg.type === 'req-friend') {
-					console.log(event.data)
-					return
-				}
-				if (msg.type === 'notification') {
-					NotificationStore.notify(msg.msg, 'INFO')
-					return
-				}
-				chats.push(msg)
-				ChatStore.emit(chats)
-			}
-			ws.onclose = event => {
-				console.log('Closing socket!!!')
-				console.log(event)
-			}
-		}
-	})
-}
-
 function createChatStore() {
 	const subscribers = new Set<Subscriber>()
 
@@ -61,11 +25,54 @@ function createChatStore() {
 		ws.send(JSON.stringify(message))
 	}
 
+	function addWebsocket(username: string) {
+		console.log('Username: ', username)
+		if (ws !== null) return
+		console.log('New Websocket')
+		ws = new WebSocket(`wss://${location.host}/chatws`)
+		console.log('New Socket created')
+		console.log('Message: ', {
+			type: 'auth',
+			username
+		})
+		ws.addEventListener('open', () => {
+			if (ws === null) return
+			ws.send(
+				JSON.stringify({
+					type: 'auth',
+					username
+				})
+			)
+		})
+		ws.onmessage = event => {
+			const msg = JSON.parse(event.data)
+			if (msg.type === 'system') return
+			if (msg.type === 'req-friend') {
+				console.log(event.data)
+				return
+			}
+			if (msg.type === 'notification') {
+				NotificationStore.notify(msg.msg, 'INFO')
+				return
+			}
+			chats.push(msg)
+			ChatStore.emit(chats)
+		}
+		ws.onclose = event => {
+			console.log('Closing socket!!!')
+			console.log(event)
+		}
+	}
+
+	function removeWebsocket() {
+		ws?.close()
+	}
+
 	function getChats() {
 		return chats
 	}
 
-	return { subscribe, emit, send, getChats }
+	return { subscribe, emit, send, getChats, addWebsocket, removeWebsocket }
 }
 
 declare global {
