@@ -36,6 +36,10 @@ if (ws === null) {
 				chats.push(msg)
 				ChatStore.emit(chats)
 			}
+			ws.onclose = event => {
+				console.log('Closing socket!!!')
+				console.log(event)
+			}
 		}
 	})
 }
