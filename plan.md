@@ -11,9 +11,6 @@ Send proper constraint message from backend
 When updating profile name, chat gets messed up
 	Fix, close previous socket, and refresh front edn socket
 
-Chat Click Block User:
-	When Loading chat room, show the blocked user as blocked in user list
-
 Login:
 	Still a bunch of visual issues showing the wrong elements
 	When login in with 42 auth and not in db -> Interface is messed up (shows user form and block to log in 42oauth at the same time)
