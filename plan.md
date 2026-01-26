@@ -16,7 +16,6 @@ Chat Click Block User:
 Login:
 	Still a bunch of visual issues showing the wrong elements
 	When login in with 42 auth and not in db -> Interface is messed up (shows user form and block to log in 42oauth at the same time)
-	When pressing login with the form or 42oauth and not registered, add a notification stating that the user isn't registered
 
 Remote 1v1
 
