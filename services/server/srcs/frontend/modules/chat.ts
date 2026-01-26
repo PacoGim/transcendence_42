@@ -77,57 +77,68 @@ function duelUser(username: string) {
 	// NotificationStore.notify(`Do you want to duel ${UserStore.getUserName()}`, "INFO")
 	const choice = confirm(
 		`${UserStore.getUserName()}
-		Do you want to duel ${username}?`)
-	if (choice)
-	{
-		LobbyStore.addDuel({type: 'duel', to: username, action: 'propose'})
-		GameStore.send({type: 'duel', to: username, action: 'propose'})
+		Do you want to duel ${username}?`
+	)
+	if (choice) {
+		LobbyStore.addDuel({ type: 'duel', to: username, action: 'propose' })
+		GameStore.send({ type: 'duel', to: username, action: 'propose' })
 	}
 }
 
-async function isBlocked(blocker: string, blocked: string): Promise<boolean> {
-	try {
-		const blockedUser = await fetch('/get_blocked_user', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ blocker, blocked })
-		})
-		if (!blockedUser.ok) return false
-		const body = await blockedUser.json()
-		console.log('body.isBlocked: ', body.isBlocked)
-		return body.isBlocked
-	} catch (error) {
-		return false
-	}
+function isBlocked(blocker: string, blocked: string): Promise<boolean> {
+	return new Promise(async (resolve, reject) => {
+		try {
+			const blockedUser = await fetch('/get_blocked_user', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ blocker, blocked })
+			})
+			if (!blockedUser.ok) return false
+			const body = await blockedUser.json()
+			console.log('body.isBlocked: ', body.isBlocked)
+			resolve(body.isBlocked)
+		} catch (error) {
+			reject()
+		}
+	})
 }
 
-async function isFriend(user1: string, user2: string): Promise<boolean> {
-	try {
-		const friendUser = await fetch('/get_friend_user', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ user1, user2 })
-		})
-		if (!friendUser.ok) return false
-		const body = await friendUser.json()
-		console.log('body.isFriend: ', body.isFriend)
-		return body.isFriend
-	} catch (error) {
-		return false
-	}
+function isFriend(user1: string, user2: string): Promise<boolean> {
+	return new Promise(async (resolve, reject) => {
+		try {
+			const friendUser = await fetch('/get_friend_user', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ user1, user2 })
+			})
+			if (!friendUser.ok) return false
+			const body = await friendUser.json()
+			console.log('body.isFriend: ', body.isFriend)
+			// return body.isFriend
+			resolve(body.isFriend)
+		} catch (error) {
+			reject()
+		}
+	})
 }
 
-function updateUserList(users: string[]) {
+let isRunning = false
+
+async function updateUserList(users: string[]) {
+	if (isRunning === true) return
+	isRunning = true
 	$chatUsers.querySelectorAll('user-line').forEach(el => {
 		el.remove()
 	})
-	users.forEach(async user => {
+
+	for (const user of users) {
+		const username = UserStore.getUserName()
 		const $userLine = document.createElement('user-line')
 		const $userName = document.createElement('user-name')
 
 		$userLine.appendChild($userName)
 		$userName.innerText = user
-		if (user !== UserStore.getUserName()) {
+		if (user !== username) {
 			const $userDuel = document.createElement('user-duel')
 			const $userDuelImg = document.createElement('img')
 			const $userMp = document.createElement('user-mp')
@@ -148,18 +159,14 @@ function updateUserList(users: string[]) {
 			$userMp.appendChild($userMpImg)
 
 			$userBlock.classList.add('user-icon')
-			if (await isBlocked(UserStore.getUserName(), user))
-				$userBlockImg.setAttribute('src', '/images/unblock.svg')
-			else
-				$userBlockImg.setAttribute('src', '/images/block.svg')
+			if (await isBlocked(UserStore.getUserName(), user)) $userBlockImg.setAttribute('src', '/images/unblock.svg')
+			else $userBlockImg.setAttribute('src', '/images/block.svg')
 			$userBlockImg.setAttribute('alt', '')
 			$userBlock.appendChild($userBlockImg)
 
 			$userAddFriend.classList.add('user-icon')
-			if (await isFriend(UserStore.getUserName(), user))
-				$userAddFriendImg.setAttribute('src', '/images/remove_friend.svg')
-			else
-				$userAddFriendImg.setAttribute('src', '/images/add_friend.svg')
+			if (await isFriend(UserStore.getUserName(), user)) $userAddFriendImg.setAttribute('src', '/images/remove_friend.svg')
+			else $userAddFriendImg.setAttribute('src', '/images/add_friend.svg')
 			$userAddFriendImg.setAttribute('alt', '')
 			$userAddFriend.appendChild($userAddFriendImg)
 
@@ -184,7 +191,8 @@ function updateUserList(users: string[]) {
 			})
 		}
 		$chatUsers.appendChild($userLine)
-	})
+	}
+	isRunning = false
 }
 
 function updateChat(newChat: MessageType[]) {
