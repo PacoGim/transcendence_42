@@ -1,5 +1,4 @@
 150 POINTS!!!!! 🥳🥳🥳🥳
-Add responsive
 Add SEO
 
 Send proper constraint message from backend
@@ -12,3 +11,6 @@ Login/Register:
 	Disable Login and Register with 42 while log in is ongoing with spinner
 	Spinner present en arrivant sur la page
 	Spinner reste si on quitte modal + btn back hidden
+
+Tournament tree module:
+ligne 42: ajouter la class winner-finale quand on a un winner (fin du jeu)
