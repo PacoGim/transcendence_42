@@ -73,15 +73,7 @@ function blockUser(username: string) {
 	ChatStore.send(message)
 }
 
-function duelUser(username: string) {
-	const choice = confirm(
-		`${UserStore.getUserName()}
-		Do you want to duel ${username}?`
-	)
-	if (choice)
-	{
-		GameStore.send({ type: 'duel', to: username, action: 'propose' })
-	}
+function duelUser(username: string) { GameStore.send({ type: 'duel', to: username, action: 'propose' })
 }
 
 function isBlocked(blocker: string, blocked: string): Promise<boolean> {
