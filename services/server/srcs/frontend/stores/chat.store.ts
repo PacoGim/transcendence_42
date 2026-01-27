@@ -26,15 +26,8 @@ function createChatStore() {
 	}
 
 	function addWebsocket(username: string) {
-		console.log('Username: ', username)
 		if (ws !== null) return
-		console.log('New Websocket')
 		ws = new WebSocket(`wss://${location.host}/chatws`)
-		console.log('New Socket created')
-		console.log('Message: ', {
-			type: 'auth',
-			username
-		})
 		ws.addEventListener('open', () => {
 			if (ws === null) return
 			ws.send(
@@ -59,13 +52,13 @@ function createChatStore() {
 			ChatStore.emit(chats)
 		}
 		ws.onclose = event => {
-			console.log('Closing socket!!!')
 			console.log(event)
 		}
 	}
 
 	function removeWebsocket() {
 		ws?.close()
+		ws = null
 	}
 
 	function getChats() {

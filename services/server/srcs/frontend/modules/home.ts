@@ -4,6 +4,7 @@ import { UserStore, type UserType } from '../stores/user.store'
 import { navigate } from '../js/routing'
 import { StateStore } from '../stores/state.store'
 import { PageUpdateStore } from '../stores/page_state'
+import { ChatStore } from '../stores/chat.store'
 
 type LoginButtonValues = {
 	[key: string]: {
@@ -41,6 +42,7 @@ $logoutButton.addEventListener('click', async () => {
 		method: 'POST',
 		credentials: 'include'
 	})
+	ChatStore.removeWebsocket()
 	UserStore.clear()
 	navigate('')
 })
@@ -86,7 +88,7 @@ const unsubUserStore = UserStore.subscribe((user: UserType) => {
 	} else {
 		console.log('Removing Logout button')
 		if ($elementBackup) $loginButtonParent.appendChild($elementBackup)
-			$elementBackup = $logoutButton
+		$elementBackup = $logoutButton
 		$logoutButton.remove()
 		PageUpdateStore.emit('user invalid')
 	}
