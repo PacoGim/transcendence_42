@@ -42,6 +42,10 @@ if (!ws) {
 						NotificationStore.notify("start_remote_game", "SUCCESS");
 						return navigate('remote_game');
 					}
+					case 'session-id':
+					{
+						return (LobbyStore.refreshSessionId(message.sessionId));
+					}
 					case 'list-game':
 					{
 						return (LobbyStore.setGamePendings(message.games))

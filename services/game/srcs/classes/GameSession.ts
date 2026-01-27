@@ -136,9 +136,9 @@ hasFreeSlot(): boolean
 	return this.humans.length < this.gameInit.humanCount
 }
 
-canJoin(): boolean
+canJoin(user: User): boolean
 {
-	return this.state === "waiting" && this.hasFreeSlot()
+	return this.state === "waiting" && this.hasFreeSlot() && !this.hasHuman(user)
 }
 
 

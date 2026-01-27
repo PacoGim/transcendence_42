@@ -21,6 +21,8 @@ export function joinGameChannel(
 	const user: User = ws.data.user
 	const session = lobby.gameManager.getSessionById(data.sessionId)
 
+	console.log(`${user.pseudo} try join ${data.sessionId}`)
+
 	if (!session)
 	{
 		return ws.send(json_stringify({
@@ -29,7 +31,7 @@ export function joinGameChannel(
 		}))
 	}
 
-	if (!session.canJoin())
+	if (!session.canJoin(user))
 	{
 		return ws.send(json_stringify({
 			type: "error",
@@ -38,6 +40,8 @@ export function joinGameChannel(
 	}
 
 	session.addHuman(user)
+
+	ws.send(json_stringify({type: "session-id", sessionId: session.id}));
 
 	lobby.broadcast({
 		type: "list-game",

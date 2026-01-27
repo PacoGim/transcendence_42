@@ -18,7 +18,6 @@ export function authChannel(ws: BunSocketType, data: SocketDataType) {
 	clientsSocket.add(ws)
 
 	for (const socket of clientsSocket) {
-		console.log('Socket: ', socket, '\n\n\n\n\n')
 		socket.send(
 			JSON.stringify({
 				type: 'info',

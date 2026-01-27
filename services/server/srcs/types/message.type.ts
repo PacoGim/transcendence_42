@@ -123,9 +123,14 @@ export type JoinGameType = {
 	sessionId: string
 }
 
+export type SessionId = {
+	type: "session-id",
+	sessionId: string
+}
+
 export type MessageType = InputType | DuelType | AuthType | InfoType | NavigateType | CreateGameType | LeaveGameType | JoinGameType
 
-export type FrontType = FrontErrorType | DuelResponse | ListGameType
+export type FrontType = FrontErrorType | DuelResponse | ListGameType | SessionId
 
 export type FrontErrorType = {
 	type: 'error' | 'system' | 'start-game'

@@ -45,7 +45,6 @@ const server = Bun.serve({
 		message(ws: BunSocketType, message) {
 			const data: SocketDataType = JSONParser(message)
 			if (data === undefined) return
-			console.log('New Incoming message: ', data)
 			if (data.type === 'auth') {
 				authChannel(ws, data)
 			} else if (data.type === 'global') {

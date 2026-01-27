@@ -22,6 +22,8 @@ export function leaveGameChannel(
 		}))
 	}
 
+	ws.send(json_stringify({type: "session-id", sessionId: ""}));
+
 	lobby.broadcast({
 		type: "list-game",
 		games: lobby.gameManager.getJoinableSessionsInfo()

@@ -7,6 +7,7 @@ import { CreateGameType } from '../types/message.type.js'
 export function createGameChannel(ws: BunSocketType, data: CreateGameType, lobby : Lobby)
 {
 	const currentUser : User = ws.data.user;
+	if (!currentUser) return;
 	const existingSession = lobby.gameManager.getSessionByUser(currentUser);
 	if (existingSession && existingSession.isWaiting())
 	{
@@ -24,6 +25,8 @@ export function createGameChannel(ws: BunSocketType, data: CreateGameType, lobby
 	const session = lobby.gameManager.createSession({humanCount, botCount})
 
 	session.addHuman(currentUser)
+
+	ws.send(json_stringify({type: "session-id", sessionId: session.id}));
 
 	lobby.broadcast({
 		type: "list-game",

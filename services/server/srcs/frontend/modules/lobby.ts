@@ -1,67 +1,77 @@
+import { GamePending } from "../../types/message.type.ts"
 import { GameStore } from "../stores/game.store.ts"
-import { LobbyStore } from "../stores/lobby.store.ts"
+import { LobbyDuel, LobbyStore } from "../stores/lobby.store.ts"
 
-const list = document.getElementById("game-list")!
-const duelDiv = document.getElementById("duels")!
+const $gameList = document.getElementById("game-list")!
+const $duelsDiv = document.getElementById("duels")!
+const $pageLobby = document.querySelector("page[type=lobby]")!
 
-LobbyStore.subscribe(({ gamePendings }) =>
+const refreshGamePendings = (gamePendings : GamePending[], sessionId : string)=>
 {
-	list.innerHTML = ""
+	$gameList.innerHTML = ""
 
 	for (const game of gamePendings)
 	{
-		const li = document.createElement("li")
-		li.textContent = `Game ${game.id} (${game.nbPlayerReady}/${game.nbPlayerMax})`
-		li.style.cursor = "pointer"
-
-		li.onclick = () =>
+		const row = document.createElement("div")
+		row.textContent = `Game ${game.id} (${game.nbPlayerReady}/${game.nbPlayerMax})`
+		const action = document.createElement("button")
+		if (sessionId === game.id)
 		{
-			GameStore.send({
-				type: "join-game",
-				sessionId: game.id
-			})
+			action.textContent = "leave"
+			action.onclick = ()=>{ GameStore.send({type: "leave-game"})}
 		}
-
-		list.appendChild(li)
+		if (sessionId === "")
+		{
+			action.textContent = "join"
+			action.onclick = () => { GameStore.send({type: "join-game", sessionId: game.id }); }
+		}
+		row.appendChild(action)
+		$gameList.appendChild(row)
 	}
-})
+}
 
-LobbyStore.subscribe(({ duels }) =>
+const refreshDuels = (duels: LobbyDuel[]) =>
 {
-	duelDiv.innerHTML = ""
+	$duelsDiv.innerHTML = ""
 
 	for (const duel of duels)
 	{
 		const row = document.createElement("div")
 		row.textContent = `${duel.from} wants to duel you `
-
 		const accept = document.createElement("button")
 		accept.textContent = "Accept"
 		accept.onclick = () =>
 		{
-			GameStore.send({
-				type: 'duel',
-				to: duel.from,
-				action: 'accept'
-			})
-			LobbyStore.removeDuel(duel.from)
+			GameStore.send({ type: 'duel', to: duel.from, action: 'accept' });
+			LobbyStore.removeDuel(duel.from);
 		}
-
 		const decline = document.createElement("button")
 		decline.textContent = "Decline"
 		decline.onclick = () =>
 		{
-			GameStore.send({
-				type: 'duel',
-				to: duel.from,
-				action: 'decline'
-			})
+			GameStore.send({ type: 'duel', to: duel.from, action: 'decline' })
 			LobbyStore.removeDuel(duel.from)
 		}
-
 		row.appendChild(accept)
 		row.appendChild(decline)
-		duelDiv.appendChild(row)
+		$duelsDiv.appendChild(row)
 	}
-})
+}
+
+const state = LobbyStore.getState();
+refreshGamePendings(state.gamePendings, state.sessionId);
+refreshDuels(state.duels);
+
+const unsubscribeGamePendings = LobbyStore.subscribe(({ gamePendings, sessionId }) => { refreshGamePendings(gamePendings, sessionId)})
+const unsubcribeLobbyDuels = LobbyStore.subscribe(({ duels }) => { refreshDuels(duels)})
+
+const cleanupLobbyPage = () =>
+{
+	unsubscribeGamePendings();
+	unsubcribeLobbyDuels();
+	$pageLobby.removeEventListener("cleanup", cleanupLobbyPage);
+}
+
+$pageLobby.addEventListener("cleanup", cleanupLobbyPage);
+
 

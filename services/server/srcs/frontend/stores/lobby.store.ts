@@ -2,22 +2,24 @@ import type { DuelResponse, DuelType, GamePending } from '../../types/message.ty
 
 type DuelStore = DuelResponse | DuelType
 
-type LobbyDuel = {
+export type LobbyDuel = {
 	from: string
 	status: 'pending'
 }
 
 
-type LobbyState = {
-	gamePendings: GamePending[]
-	duels: LobbyDuel[]
+export type LobbyState = {
+	gamePendings: GamePending[],
+	duels: LobbyDuel[],
+	sessionId : string
 }
 
 type Subscriber = (state: LobbyState) => void
 
 const state: LobbyState = {
 	gamePendings: [],
-	duels: []
+	duels: [],
+	sessionId: ""
 }
 
 function createLobbyStore()
@@ -59,6 +61,12 @@ function createLobbyStore()
 		emit()
 	}
 
+	function refreshSessionId(sessionId: string)
+	{
+		state.sessionId = sessionId
+		emit()
+	}
+
 	function clearGamePendings()
 	{
 		state.gamePendings = []
@@ -76,7 +84,8 @@ function createLobbyStore()
 		setGamePendings,
 		clearGamePendings,
 		addIncomingDuel,
-		removeDuel
+		removeDuel,
+		refreshSessionId
 	}
 }
 
