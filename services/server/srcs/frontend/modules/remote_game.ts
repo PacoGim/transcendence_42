@@ -6,12 +6,15 @@ import { GameStore } from '../stores/game.store.js'
 import { UserStore } from '../stores/user.store.js'
 import { NotificationStore } from '../stores/notification.store.js'
 import { navigate } from '../js/routing.js'
+import { LobbyStore } from '../stores/lobby.store.js'
 
 const $score = document.getElementById('score') as HTMLElement
 const $debug = document.getElementById('debug') as HTMLElement
 const $countdown = document.querySelector('countdown') as HTMLElement
 const $canvas3D = document.getElementById('canvas3D') as HTMLCanvasElement
 const $pageGameRemote = document.querySelector("page[type=game]")!
+
+if (!$canvas3D) navigate("/lobby")
 
 $canvas3D.width = 0
 $canvas3D.height = 0
@@ -54,7 +57,7 @@ function onMessage(e:any)
 		{
 			end = true
 			NotificationStore.notify(data.text, "INFO")
-			navigate('')
+			navigate('lobby')
 			break
 		}
 		case 'state':
@@ -119,8 +122,8 @@ function handleKeyUp(e:any) {
 
 function handlePlayerInput(webSocket: WebSocket)
 {
-	document.addEventListener('keydown', handleKeyDown)
-	document.addEventListener('keyup', handleKeyUp)
+	document?.addEventListener('keydown', handleKeyDown)
+	document?.addEventListener('keyup', handleKeyUp)
 	const idInterval = setInterval(async () => {
 		if (end) return clearInterval(idInterval)
 		if (keyState['s'] && !keyState['d']) webSocket?.send(json_stringify({ type: 'input', key: '-' }))
@@ -165,9 +168,10 @@ const cleanupGameRemote = () => {
 	renderer3D.destroy()
 	ws?.send(json_stringify({type:"navigate", navigate:"quit_game"}))
 	ws?.removeEventListener("message", onMessage)
-	$pageGameRemote.removeEventListener("cleanup", cleanupGameRemote);
-	document.removeEventListener("keydown", handleKeyDown)
-	document.removeEventListener("keyup", handleKeyUp)
+	$pageGameRemote?.removeEventListener("cleanup", cleanupGameRemote);
+	document?.removeEventListener("keydown", handleKeyDown)
+	document?.removeEventListener("keyup", handleKeyUp)
+	LobbyStore.refreshSessionId("")
 }
 
-$pageGameRemote.addEventListener("cleanup", cleanupGameRemote)
+$pageGameRemote?.addEventListener("cleanup", cleanupGameRemote)
