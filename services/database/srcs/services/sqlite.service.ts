@@ -160,49 +160,6 @@ export default function initDb() {
 			('grace','heidi'),
 			('heidi','ivan');
 
-			INSERT  OR IGNORE INTO matches (id, type) VALUES
-			(1,  'duel'),
-			(2,  'classic'),
-			(3,  'tournament'),
-			(4,  'duel'),
-			(5,  'classic'),
-			(6,  'tournament'),
-			(7,  'duel'),
-			(8,  'classic'),
-			(9,  'tournament'),
-			(10, 'duel'),
-			(11, 'classic'),
-			(12, 'tournament'),
-			(13, 'duel'),
-			(14, 'classic'),
-			(15, 'tournament'),
-			(16, 'duel'),
-			(17, 'classic'),
-			(18, 'tournament'),
-			(19, 'duel'),
-			(20, 'classic');
-
-			INSERT OR IGNORE INTO match_players (match_id, username, result) VALUES
-			(1,'alice','win'),   (1,'bob','lose'),
-			(2,'alice','win'),   (2,'bob','lose'),
-			(3,'alice','win'),   (3,'bob','lose'),
-			(4,'carol','lose'),   (4,'dave','lose'), (4,'alice','win'),
-			(5,'ivan','win'),    (5,'judy','lose'),
-			(6,'kate','win'),    (6,'leo','lose'),
-			(7,'mallory','win'), (7,'nancy','lose'),
-			(8,'oscar','win'),   (8,'peggy','lose'),
-			(9,'quentin','win'), (9,'ruth','lose'),
-			(10,'sybil','win'),  (10,'trent','lose'),
-			(11,'bob','win'),    (11,'alice','lose'),
-			(12,'dave','win'),   (12,'carol','lose'),
-			(13,'frank','win'),  (13,'eve','lose'),
-			(14,'heidi','win'),  (14,'grace','lose'),
-			(15,'judy','win'),   (15,'ivan','lose'),
-			(16,'leo','win'),    (16,'kate','lose'),
-			(17,'nancy','win'),  (17,'mallory','lose'),
-			(18,'peggy','win'),  (18,'oscar','lose'),
-			(19,'ruth','win'),   (19,'quentin','lose'),
-			(20,'trent','win'),  (20,'sybil','lose');
 			`)
 
 	console.log('\x1b[32m%s\x1b[0m', 'Tables created if not already exists')
