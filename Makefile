@@ -22,11 +22,11 @@ down-%:
 
 # Usage: make up-container, make up-vault, make up-server
 up-%:
-	- docker-compose up -d $*
+	- docker compose up -d $*
 	
 re-%:
 	- docker stop $* && docker rm $*
-	- docker-compose up -d $*
+	- docker compose up -d $*
 
 elk:
 	make -C . up FILEPATH=$(FILEPATH_ELK)
