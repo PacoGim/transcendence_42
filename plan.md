@@ -5,3 +5,4 @@ Login/Register:
 	Spinner reste si on quitte modal + btn back hidden
 
 Add to db match info, duel, tournament and 8vs
+Add ongoing matches to the lobby screen table
