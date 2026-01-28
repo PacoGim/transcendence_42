@@ -110,13 +110,13 @@ img {
 
 video {
 	z-index: -2;
+	width: 100%;
 }
 
 img,
 video {
 	height: 100%;
 	object-fit: cover;
-	width: 100%;
 	grid-column: 1 / 2;
 	grid-row: 1 / 2;
 }
@@ -165,6 +165,9 @@ span[type='spinner'] img {
 	page {
 		height: auto;
 		padding: 2rem 0;
+	}
+	page[type='error'] {
+		height: 100vh;
 	}
 	page-title {
 		font-size: 2.3rem;

@@ -34,6 +34,10 @@
 			align-items: center;
 		}
 
+		form-section.center-section img {
+			margin-right: 10px;
+		}
+
 		form-section input {
 			justify-self: center;
 			padding: 0.25rem 0.5rem;
@@ -73,6 +77,10 @@
 			form-section.center-section {
 				flex-direction: column;
 				margin-top: 1rem;
+			}
+			form-section.center-section img {
+				margin-bottom: 10px;
+				margin-right: 0;
 			}
 		}
 	</style>
@@ -124,7 +132,7 @@
 				src="/images/avatars/baseAvatar.jpg"
 				width="70px"
 				height="70px"
-				style="object-fit: cover; border-radius: 10%; margin-right: 10px"
+				style="object-fit: cover; border-radius: 10%"
 			/>
 			<input id="avatarInput" type="file" accept="image/*" name="avatar" tabindex="7" inert="true" />
 			<button type="button" id="resetAvatarButton" class="button text-2xl" style="margin-left: 10px" tabindex="8" inert="true">
