@@ -119,7 +119,7 @@ function handleUserForm(self: HTMLElement) {
 
 function selectRegisterType(registerType: string, self: HTMLElement) {
 	if (registerType === '42') {
-		start42OAuth(self, 'https://localhost/register')
+		start42OAuth(self, 'https://localhost:8443/register')
 		inertForm(true)
 	} else {
 		inertForm(false)

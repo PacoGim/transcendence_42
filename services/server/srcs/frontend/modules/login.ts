@@ -124,7 +124,7 @@ function handleUserForm(self: HTMLElement) {
 
 function selectloginType(loginType: string, self: HTMLElement) {
 	if (loginType === '42') {
-		start42OAuth(self, `https://localhost/login`)
+		start42OAuth(self, `https://localhost:8443/login`)
 	} else {
 		handleUserForm(self)
 	}
