@@ -6,76 +6,118 @@
 		module
 	/>
 	<style module>
-		lobby-container {
-			display: block;
-			height: 50%;
-			width: 80%;
-			background-color: rgba(0, 0, 0, 0.25);
-			padding: 1rem;
-			margin-bottom: 1rem;
-		}
+		/* Page layout */
+page[type="lobby"] {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 1rem;
+	gap: 1rem;
+}
 
-		grid-container {
-			display: flex;
-			flex-direction: column;
-		}
+/* Lobby container */
+lobby-container {
+	width: 100%;
+	max-width: 720px; /* desktop centered column */
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	background-color: rgba(0, 0, 0, 0.25);
+	padding: 1rem;
+	border-radius: 12px;
+}
 
-		grid-row {
-			display: flex;
-			flex-direction: row;
-			justify-content: space-around;
-			padding: 0 0.5rem;
-		}
+/* Panels */
+.panel {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
 
-		grid-row.grid-header {
-			font-size: 1.5rem;
-			border-bottom: 2px solid #fff;
-		}
+.panel h2 {
+	font-size: 1.2rem;
+	font-weight: bold;
+	opacity: 0.9;
+}
 
-		grid-row:not(.grid-header) {
-			background-color: rgba(255, 255, 255, 0.15);
-			margin-top: 0.5rem;
-			padding: 0.25rem 0.5rem;
-			cursor: pointer;
-		}
+/* Lists */
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
 
-		grid-col {
-			width: 100%;
-		}
+/* Row (game / duel) */
+.list > div {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding: 0.6rem 0.75rem;
+	background: rgba(255, 255, 255, 0.08);
+	border-radius: 8px;
+	font-size: 0.95rem;
+}
 
-		grid-col:not(:first-child) {
-			border-left: 2px solid #fff;
-			padding-left: 0.5rem;
-		}
+/* Buttons */
+button {
+	border: none;
+	border-radius: 6px;
+	padding: 0.4rem 0.75rem;
+	font-size: 0.9rem;
+	cursor: pointer;
+}
+
+/* Button variants */
+.join-game {
+	background: #4ade80;
+	color: #063;
+}
+
+.leave-game {
+	background: #f87171;
+	color: #400;
+}
+
+.accept {
+	background: #60a5fa;
+	color: #023;
+}
+
+.decline {
+	background: #fbbf24;
+	color: #432;
+}
+
+/* Mobile tweaks */
+@media (max-width: 480px) {
+	.list > div {
+		flex-direction: column;
+		align-items: stretch;
+		text-align: center;
+	}
+
+	.list > div button {
+		width: 100%;
+	}
+}
+
 	</style>
 </head>
 
 <page type="lobby">
 	<page-title>Lobby</page-title>
 	<lobby-container>
-		<grid-container>
-			<grid-row class="grid-header">
-				<grid-col>Type</grid-col>
-				<grid-col>Players</grid-col>
-			</grid-row>
-			<grid-row>
-				<grid-col>Normal</grid-col>
-				<grid-col>1/8</grid-col>
-			</grid-row>
-			<grid-row>
-				<grid-col>Tournament</grid-col>
-				<grid-col>2/2</grid-col>
-			</grid-row>
-			<grid-row>
-				<grid-col>Normal</grid-col>
-				<grid-col>4/5</grid-col>
-			</grid-row>
-		</grid-container>
+		<section class="panel">
+			<h2>Games available</h2>
+			<div id="game-list" class="list"></div>
+		</section>
+
+		<section class="panel">
+			<h2>Duels</h2>
+			<div id="duels" class="list"></div>
+		</section>
 	</lobby-container>
-
-	<div id="game-list"></div>
-	<div id="duels"></div>
-
 	<menu-buttons>
 		<nav-button data-route="tournament_select" tabindex="1" class="button text-3xl">Tournament</nav-button>
 		<nav-button data-route="local_game" tabindex="2" class="button text-3xl">Local-Game</nav-button>

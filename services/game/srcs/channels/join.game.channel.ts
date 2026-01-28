@@ -31,7 +31,15 @@ export function joinGameChannel(
 		}))
 	}
 
-	if (!session.canJoin(user))
+	if (session.hasHuman(user))
+	{
+		return ws.send(json_stringify({
+			type: "error",
+			text: "You've already join this game"
+		}))
+	}
+
+	if (!session.canJoin())
 	{
 		return ws.send(json_stringify({
 			type: "error",

@@ -3,16 +3,17 @@ import { duelChannel } from './channels/duel.channel.js'
 import { inputChannel } from './channels/input.channel.js'
 import { navigateChannel } from './channels/navigate.channel.js'
 import JSONParser from './functions/json_parser.fn'
-import { clientsList, clientsSocket } from './state/clients.state'
+// import { clientsList, clientsSocket } from './state/clients.state'
+// import { sendUserList } from './functions/sendUserList.fn'
 import { BunSocketType } from './types/bunSocket.type'
-import { sendUserList } from './functions/sendUserList.fn'
 import { getVaultSecret } from './services/vault.service.js'
 import Lobby from './classes/Lobby.js'
-import { MessageType } from './types/message.type.js'
+import { FrontSystemType, FrontInfoType, MessageType } from './types/message.type.js'
 import { createGameChannel } from './channels/create.game.channel.js'
 import { GameManager } from './classes/GameManager.js'
 import { joinGameChannel, listGamesChannel } from './channels/join.game.channel.js'
 import { leaveGameChannel } from './channels/leave.game.channel.js'
+import { json_stringify } from './functions/json_wrapper.js'
 
 const cert_crt = await getVaultSecret<string>('services_crt', (value) =>
 	value.replace(/\\n/g, '\n').trim()
@@ -46,13 +47,12 @@ const server = Bun.serve({
 	websocket: {
 		open(ws)
 		{
-			clientsSocket.add(ws)
-			ws.send(
-				JSON.stringify({
-					type: 'system',
-					message: 'Welcome to the game!'
-				})
-			)
+			const info : FrontSystemType = {
+				type: 'system',
+				text: 'ws open!'
+			}
+			// clientsSocket.add(ws)
+			ws.send(json_stringify(info))
 		},
 		message(ws: BunSocketType, message)
 		{
@@ -73,27 +73,9 @@ const server = Bun.serve({
 		close(ws: BunSocketType)
 		{
 			const user = ws.data.user
-			if (user)
-			{
-				lobby.gameManager.leaveSession(user)
-			}
-			const info = {
-				type: 'info',
-				msg: `Player ${ws.data.username} has disconnected`
-			}
-			for (const client of clientsList)
-			{
-				if (client.socket !== ws && client.socket.readyState === WebSocket.OPEN)
-				{
-					client.socket.send(JSON.stringify(info))
-				}
-				if (client.socket === ws)
-				{
-					clientsList.delete(client)
-				}
-			}
-			clientsSocket.delete(ws)
-			sendUserList()
+			if (!user) return ;
+			lobby.gameManager.leaveSession(user)
+			lobby.removeUser(user)
 		}
 	}
 })

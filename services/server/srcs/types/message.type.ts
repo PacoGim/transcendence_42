@@ -22,15 +22,6 @@ export type DuelType = {
 	action: 'propose' | 'accept' | 'decline'
 }
 
-// export type MessageType = ChatType | MpType | InputType | DuelType
-
-// export type FrontType = FrontErrorType | FrontChatType | FrontMpTypeFrom | FrontMpTypeTo | DuelResponse
-
-// export type FrontErrorType = {
-// 	type: 'error' | 'system',
-// 	text: string
-// }
-
 export type FrontChatType = {
 	type: 'chat',
 	from: string,
@@ -48,35 +39,6 @@ export type FrontMpTypeTo = {
 	to: string,
 	text: string
 }
-
-// export type DuelResponse = {
-// 	type: 'duel',
-// 	action: 'propose' | 'decline' | 'accept'
-// 	from: string
-// }
-
-// import { MessageOptionType } from './messageOption.type'
-
-// export type MessageType = {
-// 	type: MessageOptionType
-// 	to?: string
-// 	msg: string
-// }
-
-// export type InputType = {
-// 	type: 'input',
-// 	key: KeyType
-// }
-
-// export type StatusType = "chat" | "game"
-
-// export type KeyType = "none" | "+" | "-" | "space" | "chatGPT"
-
-// export type DuelType = {
-// 	type: 'duel',
-// 	to: string,
-// 	action: 'propose' | 'accept' | 'decline'
-// }
 
 export type AuthType = {
 	type: 'auth',
@@ -113,14 +75,40 @@ export type GamePending = {
 	nbPlayerMax: number
 }
 
-export type ListGameType = {
-	type: 'list-game',
-	games: GamePending[]
-}
-
 export type JoinGameType = {
 	type: "join-game"
 	sessionId: string
+}
+
+
+export type MessageType = InputType | DuelType | AuthType | InfoType | NavigateType | CreateGameType | LeaveGameType | JoinGameType
+
+export type FrontType = FrontInfoType | FrontErrorType | FrontSystemType | DuelResponse | ListGameType | SessionId | StartGame;
+
+export type FrontInfoType = {
+	type : 'info',
+	text : string
+}
+
+export type FrontErrorType = {
+	type: 'error',
+	text: string
+}
+
+export type FrontSystemType = {
+	type: "system",
+	text:string
+}
+
+export type DuelResponse = {
+	type: 'duel',
+	action: 'propose' | 'decline' | 'accept'
+	from: string
+}
+
+export type ListGameType = {
+	type: 'list-game',
+	games: GamePending[]
 }
 
 export type SessionId = {
@@ -128,17 +116,6 @@ export type SessionId = {
 	sessionId: string
 }
 
-export type MessageType = InputType | DuelType | AuthType | InfoType | NavigateType | CreateGameType | LeaveGameType | JoinGameType
-
-export type FrontType = FrontErrorType | DuelResponse | ListGameType | SessionId
-
-export type FrontErrorType = {
-	type: 'error' | 'system' | 'start-game'
-	text: string
-}
-
-export type DuelResponse = {
-	type: 'duel',
-	action: 'propose' | 'decline' | 'accept'
-	from: string
+export type StartGame = {
+	type: "start-game"
 }

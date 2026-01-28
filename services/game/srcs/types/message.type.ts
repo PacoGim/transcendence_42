@@ -18,11 +18,6 @@ export type AuthType = {
 	username : string
 }
 
-export type InfoType = {
-	type : 'info',
-	msg : string
-}
-
 export type NavigateType = {
 	type : 'navigate',
 	navigate : string
@@ -49,26 +44,46 @@ export type GamePending = {
 	nbPlayerMax: number
 }
 
-export type ListGameType = {
-	type: 'list-game',
-	games: GamePending[]
-}
 
 export type LeaveGameType = {
 	type: "leave-game"
 }
 
-export type MessageType = InputType | DuelType | AuthType | InfoType | NavigateType | CreateGameType | JoinGameType | ListGameType | LeaveGameType
+export type MessageType = InputType | DuelType | AuthType | FrontInfoType | NavigateType | CreateGameType | JoinGameType | ListGameType | LeaveGameType;
 
-export type FrontType = FrontErrorType | DuelResponse | ListGameType
+export type FrontType = FrontInfoType | FrontErrorType | FrontSystemType | DuelResponse | ListGameType | SessionId | StartGame;
+
+export type FrontInfoType = {
+	type : 'info',
+	text : string
+}
 
 export type FrontErrorType = {
-	type: 'error' | 'system',
+	type: 'error',
 	text: string
+}
+
+export type FrontSystemType = {
+	type: "system",
+	text:string
 }
 
 export type DuelResponse = {
 	type: 'duel',
 	action: 'propose' | 'decline' | 'accept'
 	from: string
+}
+
+export type ListGameType = {
+	type: 'list-game',
+	games: GamePending[]
+}
+
+export type SessionId = {
+	type: "session-id",
+	sessionId: string
+}
+
+export type StartGame = {
+	type: "start-game"
 }

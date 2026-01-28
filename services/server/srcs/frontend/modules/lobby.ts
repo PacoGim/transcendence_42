@@ -13,16 +13,18 @@ const refreshGamePendings = (gamePendings : GamePending[], sessionId : string)=>
 	for (const game of gamePendings)
 	{
 		const row = document.createElement("div")
-		row.textContent = `Game ${game.id} (${game.nbPlayerReady}/${game.nbPlayerMax})`
+		row.textContent = `Game ( ${game.nbPlayerReady} / ${game.nbPlayerMax} )`
 		const action = document.createElement("button")
 		if (sessionId === game.id)
 		{
 			action.textContent = "leave"
+			action.className = "leave-game"
 			action.onclick = ()=>{ GameStore.send({type: "leave-game"})}
 		}
 		if (sessionId === "")
 		{
 			action.textContent = "join"
+			action.className = "join-game"
 			action.onclick = () => { GameStore.send({type: "join-game", sessionId: game.id }); }
 		}
 		row.appendChild(action)
@@ -37,20 +39,20 @@ const refreshDuels = (duels: LobbyDuel[]) =>
 	for (const duel of duels)
 	{
 		const row = document.createElement("div")
-		row.textContent = `${duel.from} wants to duel you `
+		row.textContent = `${duel.from} wants to duel you`
 		const accept = document.createElement("button")
 		accept.textContent = "Accept"
+		accept.className = "accept"
 		accept.onclick = () =>
 		{
 			GameStore.send({ type: 'duel', to: duel.from, action: 'accept' });
-			LobbyStore.removeDuel(duel.from);
 		}
 		const decline = document.createElement("button")
 		decline.textContent = "Decline"
+		decline.className = "decline"
 		decline.onclick = () =>
 		{
 			GameStore.send({ type: 'duel', to: duel.from, action: 'decline' })
-			LobbyStore.removeDuel(duel.from)
 		}
 		row.appendChild(accept)
 		row.appendChild(decline)
@@ -63,7 +65,7 @@ refreshGamePendings(state.gamePendings, state.sessionId);
 refreshDuels(state.duels);
 
 const unsubscribeGamePendings = LobbyStore.subscribe(({ gamePendings, sessionId }) => { refreshGamePendings(gamePendings, sessionId)})
-const unsubcribeLobbyDuels = LobbyStore.subscribe(({ duels }) => { refreshDuels(duels)})
+const unsubcribeLobbyDuels = LobbyStore.subscribe(({ duels }) => { refreshDuels(duels)} )
 
 const cleanupLobbyPage = () =>
 {

@@ -1,8 +1,7 @@
 import { randomUUID } from 'crypto'
 
 import User from './User.js'
-import { RemoteGame } from './RemoteGame.js'
-import type { DuelType, FrontType, InputType, MessageType } from '../types/message.type.js'
+import type { DuelType, FrontInfoType, FrontType, InputType } from '../types/message.type.js'
 import { GameManager } from './GameManager.js'
 
 export default class Lobby
@@ -38,23 +37,25 @@ export default class Lobby
 		let user = this.getUserByPseudo(pseudo)
 		if (user) return user;
 		user = new User(randomUUID(), pseudo);
-		console.log(`🆕 ${user.pseudo} join the lobby`)
 		this.users.set(user.id, user);
+		console.log(`🆕 ${user.pseudo} join the lobby`)
+		const info : FrontInfoType = {type: 'info',text : `${pseudo} join the lobby`}
+		this.broadcast(info)
 		return user;
 	}
 
-	addUser(pseudo: string)
-	{
-		if (this.isPseudoTaken(pseudo)) return { id: '0', pseudo: '' }
-		const newUser = new User(randomUUID(), pseudo)
-		this.users.set(newUser.id, newUser)
-		console.log(`🆕 ${newUser.pseudo} join the lobby`)
-		this.broadcast({
-			type: 'system',
-			text: `${newUser.pseudo} join the lobby.`
-		})
-		return { userId: newUser.id, pseudo: newUser.pseudo }
-	}
+	// addUser(pseudo: string)
+	// {
+	// 	if (this.isPseudoTaken(pseudo)) return { id: '0', pseudo: '' }
+	// 	const newUser = new User(randomUUID(), pseudo)
+	// 	this.users.set(newUser.id, newUser)
+	// 	console.log(`🆕 ${newUser.pseudo} join the lobby`)
+	// 	this.broadcast({
+	// 		type: 'system',
+	// 		text: `${newUser.pseudo} join the lobby.`
+	// 	})
+	// 	return { userId: newUser.id, pseudo: newUser.pseudo }
+	// }
 
 	getUser(userId: string): User | undefined
 	{
@@ -65,45 +66,46 @@ export default class Lobby
 	{
 		if (!user) return
 		console.log(`❌ ${user.pseudo} left the lobby`)
-		this.broadcast({
-			type: 'system',
-			text: `${user.pseudo} left the lobby.`
-		})
+		const info : FrontInfoType = {type: 'info',text : `${user.pseudo} left the lobby`}
+		this.broadcast(info)
 	}
 
 	handleDuel(sender: User, msg: DuelType)
 	{
+		if (!sender) return ;
 		const destinataire = this.getUserByPseudo(msg.to)
-		if (!destinataire) return sender.send({ type: 'error', text: `${msg.to} can't be found` })
+		if (!destinataire) return sender.send({ type: 'error', text: `404 '${msg.to}' not found` })
 		switch (msg.action)
 		{
 			case 'propose':
 			{
-				if (sender.status === 'game') return sender.send({ type: 'error', text: `You're already in game` })
-				if (destinataire.status === 'game') return sender.send({ type: 'error', text: `${msg.to} is already in game` })
 				destinataire.send({ type: 'duel', from: sender.pseudo, action: 'propose' })
 				console.log(`${sender.pseudo} send a duel to ${destinataire.pseudo}`)
 				break
 			}
 			case 'accept':
 			{
-				console.log(`${sender.pseudo} create game`)
-				this.gameManager.createGame([destinataire, sender])
-				// new RemoteGame([destinataire, sender])
-				destinataire.send({ type: 'duel', from: sender.pseudo, action: 'accept' })
+				if (destinataire.status === "game")
+				{
+					sender.send({ type: 'info', text: `${destinataire.pseudo} is already in a game, please try again later`})
+					break;
+				}
 				console.log(`${sender.pseudo} accept a duel from ${destinataire.pseudo}`)
+				destinataire.send({ type: 'duel', from: sender.pseudo, action: 'accept' })
+				this.gameManager.createGame([destinataire, sender])
 				break
 			}
 			case 'decline':
 			{
 				destinataire.send({ type: 'duel', from: sender.pseudo, action: 'decline' })
-				console.log(`${sender.pseudo} refuse a duel from ${destinataire.pseudo}`)
+				console.log(`${sender.pseudo} decline a duel from ${destinataire.pseudo}`)
 			}
 		}
 	}
 
 	handleInputKey(sender: User, msg: InputType)
 	{
+		if (!sender || !msg) return ;
 		sender.key = msg.key
 	}
 
@@ -112,7 +114,7 @@ export default class Lobby
 		const now = Date.now()
 		for (const [id, user] of this.users.entries())
 		{
-			if (id !== exceptId) user.send({ ...payload, timestamp: now, lobby: { size: this.size, nb_active: this.nb_active() } })
+			if (id !== exceptId && user) user.send({ ...payload, timestamp: now, lobby: { size: this.size, nb_active: this.nb_active() } })
 		}
 	}
 

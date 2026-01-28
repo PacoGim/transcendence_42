@@ -9,10 +9,10 @@ export default class User
 	public status: StatusType = 'chat'
 	public navigate: string = ""
 	public key: KeyType = 'none'
-	constructor(public readonly id: string, pseudo: string | undefined)
+	constructor(public readonly id: string, pseudo: string)
 	{
 		this.navigate = "remote_game"
-		this.pseudo = pseudo?.trim() || `Player-${Math.floor(Math.random() * 1000)}`
+		this.pseudo = pseudo
 		this.socket = undefined
 	}
 

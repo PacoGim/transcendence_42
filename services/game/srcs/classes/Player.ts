@@ -35,7 +35,7 @@ export class Player
 			this.pseudo = this.user.pseudo
 			this.ai = false;
 		}
-		this.score = Math.round(10 / nbPlayer)
+		this.score = 5
 		const twoPiOverPlayers = (2 * Math.PI) / this.nbPlayer
 		this.minAngle = this.index * twoPiOverPlayers
 		this.maxAngle = (this.index + 1) * twoPiOverPlayers

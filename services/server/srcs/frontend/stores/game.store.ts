@@ -1,4 +1,4 @@
-import { DuelType, FrontType, type MessageType } from '../../types/message.type.ts'
+import { FrontType, MessageType } from '../../types/message.type.ts'
 import { UserStore } from './user.store'
 import { NotificationStore } from './notification.store'
 import { json_parse, json_stringify } from '../functions/json_wrapper.ts'
@@ -14,9 +14,9 @@ if (!ws) {
 		if (userStore.isValid) {
 			ws = new WebSocket(`wss://${location.host}/gamews`)
 			// ws = new WebSocket('ws://localhost:3333')
-			if (!ws) return NotificationStore.notify("Network error, websocket shutdown", "ERROR");
+			if (!ws) return NotificationStore.notify("Network error, websocket shutdown 1", "ERROR");
 			ws.onopen = e => {
-				if (!ws) return NotificationStore.notify("Network error, websocket shutdown", "ERROR");
+				if (!ws) return NotificationStore.notify("Network error, websocket shutdown 2", "ERROR");
 				ws.send(json_stringify({type: 'auth',username: UserStore.getUserName()}));
 			}
 			ws.onmessage = e => {
@@ -27,19 +27,23 @@ if (!ws) {
 					if (message.text && message.text != "undefined")
 					{
 						NotificationStore.notify(message.text, "ERROR")
-						console.warn('received:', message.text)
 					}
 					return ;
 					case 'system':
 					if (message.text && message.text != "undefined")
 					{
 						NotificationStore.notify(message.text, "INFO")
-						console.warn('received:', message.text)
+					}
+					return ;
+					case 'info':
+					if (message.text && message.text != "undefined")
+					{
+						NotificationStore.notify(message.text, "INFO")
 					}
 					return ;
 					case 'start-game':
 					{
-						NotificationStore.notify("start_remote_game", "SUCCESS");
+						NotificationStore.notify("START remote game", "SUCCESS");
 						return navigate('remote_game');
 					}
 					case 'session-id':
@@ -52,14 +56,12 @@ if (!ws) {
 					}
 					case 'duel':
 					{
-						if (!ws) return
 						switch (message.action)
 						{
 							case 'accept':
 							{
 								LobbyStore.removeDuel(message.from);
-								NotificationStore.notify(`${message.from} accept you duel`, "INFO")
-								return navigate('remote_game')
+								return NotificationStore.notify(`${message.from} accept you duel`, "INFO")
 							}
 							case 'decline':
 							{

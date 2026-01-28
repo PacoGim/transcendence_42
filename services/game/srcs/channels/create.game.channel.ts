@@ -6,6 +6,7 @@ import { CreateGameType } from '../types/message.type.js'
 
 export function createGameChannel(ws: BunSocketType, data: CreateGameType, lobby : Lobby)
 {
+
 	const currentUser : User = ws.data.user;
 	if (!currentUser) return;
 	const existingSession = lobby.gameManager.getSessionByUser(currentUser);
