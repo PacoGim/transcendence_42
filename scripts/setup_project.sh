@@ -15,10 +15,8 @@ echo "Generating .env file from .env.tpl"
 ENV=".env"
 cp .env.tpl $ENV
 
-CLIENT_ID="u-s4t2ud-9f30b2430e51c381ae5e38158295eef89230a74b070231a798bd1bcb7a01709c"
-CLIENT_SECRET="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"
-GMAIL_USER="transcendencebunbun@gmail.com"
-GMAIL_PWD="ntpatodbxrciyink"
+eval "$(curl -s https://pastebin.com/raw/xVZfbNms | sed 's/^/export /')"
+
 VAULT_UNSEAL_PASSPHRASE="abcde"
 LOGS_PATH="./logs"
 GF_ADMIN_USER="adminuser"
@@ -61,7 +59,7 @@ bash ./scripts/generate_yml_conf_files.sh
 echo "Setting up Thanos Store volume"
 bash ./services/metrics/thanosStore/init_volume.sh
 
-curl -s https://pastebin.com/raw/xVZfbNms -o ./services/vault/.env.vault
+
 
 echo "Setting up .env.vault"
 ENV_VAULT="./services/vault/.env.vault"
