@@ -18,9 +18,20 @@ const $enableRemote: HTMLInputElement = document.querySelector('enable-remote in
 const $errorMessageEl: HTMLElement = document.querySelector('error-message')!
 const $createGame: HTMLButtonElement = document.querySelector('create-game')!
 
-$enableRemote.addEventListener('change', evt => {
+function checkIfUserIsConnected() {
+	return UserStore.isValid();
+}
+
+const remote = document.querySelector("enable-remote");
+if (remote && checkIfUserIsConnected()) {
+	remote.classList.remove("hidden");
+}
+
+
+
+$enableRemote?.addEventListener('change', evt => {
 	const $isRemoteEl = evt.target as HTMLInputElement
-	const isRemote = $isRemoteEl.checked
+	const isRemote = $isRemoteEl?.checked
 
 	if (isRemote) {
 		$playerCountInput.setAttribute('max', maxRemotePlayers)
@@ -37,7 +48,7 @@ $enableRemote.addEventListener('change', evt => {
 	}
 })
 
-$createGame.addEventListener('click', () => {
+$createGame?.addEventListener('click', () => {
 	const isRemote = $enableRemote.checked
 	const playersCount = Number($playerCountInput.value)
 	const comCount = Number($comCountInput.value)

@@ -10,7 +10,7 @@ export type UserType = {
 	isValid: boolean
 }
 
-let user: any = {
+let user: UserType = {
 	email: '',
 	username: '',
 	id: undefined,
@@ -50,6 +50,10 @@ function createUserStore() {
 		})
 	}
 
+	function isValid(){
+		return user.isValid
+	}
+
 	function getUserName() {
 		return user.username
 	}
@@ -64,7 +68,7 @@ function createUserStore() {
 		emit(user)
 	}
 
-	return { subscribe, emit, getUserName, getUser2FAStatus, setUser2FAStatus, clear }
+	return { subscribe, emit, getUserName, getUser2FAStatus, setUser2FAStatus, clear, isValid }
 }
 
 declare global {
