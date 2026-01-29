@@ -3,20 +3,17 @@ import { GameStore } from "../stores/game.store.ts"
 import { LobbyDuel, LobbyStore } from "../stores/lobby.store.ts"
 import { UserStore } from "../stores/user.store.ts"
 
-const $pageLobby : Element | null = document.querySelector("page[type=lobby]")!
 const $gameList : HTMLElement | null = document.querySelector("#game-list")
 const $duelsDiv : HTMLElement | null = document.getElementById("game-duels")
+const $pageLobby : Element | null = document.querySelector("page[type=lobby]")!
 
-function checkIfUserIsConnected()
-{
-	return UserStore.isValid();
-}
-
-const $lobbyContainer = document.querySelector("lobby-container")
-if ($lobbyContainer && checkIfUserIsConnected())
-{
-	$lobbyContainer.classList.remove("hidden");
-}
+const unsubscribeUserStore = UserStore.subscribe(({ isValid })=>{
+	const $lobbyContainer = document.querySelector("lobby-container")
+	if ($lobbyContainer && isValid)
+	{
+		$lobbyContainer.classList.remove("hidden");
+	}
+})
 
 const refreshGamePendings = (gamePendings : GamePending[], sessionId : string)=>
 {
@@ -81,11 +78,12 @@ const unsubcribeLobbyDuels = LobbyStore.subscribe(({ duels }) => {refreshDuels(d
 
 const cleanupLobbyPage = () =>
 {
-	unsubscribeGamePendings();
-	unsubcribeLobbyDuels();
-	$pageLobby?.removeEventListener("cleanup", cleanupLobbyPage);
+	unsubscribeGamePendings()
+	unsubcribeLobbyDuels()
+	unsubscribeUserStore()
+	$pageLobby?.removeEventListener("cleanup", cleanupLobbyPage)
 }
 
-$pageLobby?.addEventListener("cleanup", cleanupLobbyPage);
+$pageLobby?.addEventListener("cleanup", cleanupLobbyPage)
 
 

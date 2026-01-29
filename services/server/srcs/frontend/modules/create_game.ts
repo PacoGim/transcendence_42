@@ -17,17 +17,15 @@ const $comCountMaxValue: HTMLInputElement = document.querySelector('com-count ma
 const $enableRemote: HTMLInputElement = document.querySelector('enable-remote input')!
 const $errorMessageEl: HTMLElement = document.querySelector('error-message')!
 const $createGame: HTMLButtonElement = document.querySelector('create-game')!
+const $pageCreateGame = document.querySelector("page[type=create_game]")!
 
-function checkIfUserIsConnected()
-{
-	return UserStore.isValid();
-}
-
-const $remote = document.querySelector("enable-remote");
-if ($remote && checkIfUserIsConnected())
-{
-	$remote.classList.remove("hidden");
-}
+const unsubscribeUserStore = UserStore.subscribe(({ isValid })=>{
+	const $remote = document.querySelector("enable-remote");
+	if ($remote && isValid)
+	{
+		$remote.classList.remove("hidden");
+	}
+})
 
 $enableRemote?.addEventListener('change', evt => {
 	const $isRemoteEl = evt.target as HTMLInputElement
@@ -99,3 +97,11 @@ $createGame?.addEventListener('click', () => {
 		$errorMessageEl.innerText = errorMessage
 	}
 })
+
+const cleanupCreateGamePage = () =>
+{
+	unsubscribeUserStore()
+	$pageCreateGame.removeEventListener("cleanup", cleanupCreateGamePage)
+}
+
+$pageCreateGame?.addEventListener("cleanup", cleanupCreateGamePage)
