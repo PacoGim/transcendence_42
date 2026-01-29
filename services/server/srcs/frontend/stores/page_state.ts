@@ -1,5 +1,9 @@
 type Subscriber = (key: string) => void
 
+let state = {
+	pageName: ''
+}
+
 function createPageUpdateStore() {
 	const subscribers = new Set<Subscriber>()
 
@@ -9,10 +13,15 @@ function createPageUpdateStore() {
 	}
 
 	function emit(key: string) {
+		state.pageName = key
 		for (const fn of subscribers) fn(key)
 	}
 
-	return { subscribe, emit }
+	function getPageName() {
+		return state.pageName
+	}
+
+	return { subscribe, emit, getPageName }
 }
 
 function createPageDestroyStore() {
