@@ -69,6 +69,10 @@ export type LeaveGameType = {
 	type: "leave-game"
 }
 
+export type ListGame = {
+	type: "list-game"
+}
+
 export type GamePending = {
 	id:string,
 	nbPlayerReady: number,
@@ -81,7 +85,7 @@ export type JoinGameType = {
 }
 
 
-export type MessageType = InputType | DuelType | AuthType | InfoType | NavigateType | CreateGameType | LeaveGameType | JoinGameType
+export type MessageType = InputType | DuelType | AuthType | InfoType | NavigateType | CreateGameType | LeaveGameType | JoinGameType | ListGame
 
 export type FrontType = FrontInfoType | FrontErrorType | FrontSystemType | DuelResponse | ListGameType | SessionId | StartGame | FrontLogoutType;
 
