@@ -19,6 +19,9 @@ scrape_configs:
     static_configs:
       - targets: ['docker_custom_exporter:${DOCKER_CUSTOM_EXPORTER_PORT}']
   - job_name: 'server'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
     static_configs:
       - targets: ['server:${SERVER_PORT}']
 
