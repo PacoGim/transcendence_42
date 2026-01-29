@@ -36,6 +36,7 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 	let userId: number
 	let has_2fa: boolean
 	let body
+	let username: string
 
 	if (!token)
 		return {
@@ -70,6 +71,7 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 				data: [user42Info.email, user42Info.login, 1]
 			}
 		})
+		username = user42Info.login
 		userId = body.data?.lastID
 		has_2fa = body.data?.has_2fa === 1 // '=== 1' to convert from integer to boolean
 	} else {
@@ -98,12 +100,13 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 				}
 			}
 		}
+		username = body.data.username
 		userId = body.data.id
 		has_2fa = body.data.has_2fa === 1 // '=== 1' to convert from integer to boolean
 		if (body?.data?.has_2fa === 1) {
 			return {
 				email: user42Info.email,
-				username: user42Info.login,
+				username: username,
 				id: userId,
 				has_2fa: has_2fa,
 				info: {
@@ -124,7 +127,7 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 	}
 	return {
 		email: user42Info.email,
-		username: body.data.username,
+		username: username,
 		id: userId,
 		has_2fa: has_2fa,
 		info: {
