@@ -74,6 +74,10 @@ function createGameStore() {
 				{
 					return (LobbyStore.setGamePendings(message.games))
 				}
+				case 'list-user':
+				{
+					return (LobbyStore.setUserList(message.users));
+				}
 				case 'duel':
 				{
 					switch (message.action)

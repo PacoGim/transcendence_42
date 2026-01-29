@@ -22,6 +22,11 @@ export default class Lobby
 		}
 	}
 
+	get_users(): string[]
+	{
+		return Array.from(this.users.values()).map(u=>u.pseudo)
+	}
+
 	nb_active(): number
 	{
 		let nb = 0
