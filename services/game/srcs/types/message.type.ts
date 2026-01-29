@@ -51,7 +51,7 @@ export type LeaveGameType = {
 
 export type MessageType = InputType | DuelType | AuthType | FrontInfoType | NavigateType | CreateGameType | JoinGameType | ListGameType | LeaveGameType;
 
-export type FrontType = FrontInfoType | FrontErrorType | FrontSystemType | DuelResponse | ListGameType | SessionId | StartGame | FrontLogoutType;
+export type FrontType = FrontInfoType | FrontErrorType | FrontSystemType | DuelResponse | ListGameType | SessionId | StartGame | FrontLogoutType | ListUser;
 
 export type FrontLogoutType = {
 	type : 'logout'
@@ -81,6 +81,11 @@ export type DuelResponse = {
 export type ListGameType = {
 	type: 'list-game',
 	games: GamePending[]
+}
+
+export type ListUser = {
+	type: "list-user",
+	users: string[]
 }
 
 export type SessionId = {

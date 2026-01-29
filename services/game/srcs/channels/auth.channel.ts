@@ -1,5 +1,4 @@
 import Lobby from '../classes/Lobby.js'
-import { json_stringify } from '../functions/json_wrapper.js'
 import { BunSocketType } from '../types/bunSocket.type'
 import { AuthType } from '../types/message.type.js'
 
@@ -13,4 +12,5 @@ export function authChannel(ws: BunSocketType, data: AuthType, lobby : Lobby)
 		type: "list-game",
 		games: lobby.gameManager.getJoinableSessionsInfo()
 	})
+	lobby.broadcast({type:"list-user", users:lobby.get_users()})
 }

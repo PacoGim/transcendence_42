@@ -76,6 +76,7 @@ const server = Bun.serve({
 				})
 			}
 			lobby.removeUser(user)
+			lobby.broadcast({type:"list-user", users:lobby.get_users()})
 		}
 	}
 })

@@ -76,8 +76,8 @@ const state = LobbyStore.getState();
 refreshGamePendings(state.gamePendings, state.sessionId);
 refreshDuels(state.duels);
 
-const unsubscribeGamePendings = LobbyStore.subscribe(({ gamePendings, sessionId }) => { refreshGamePendings(gamePendings, sessionId)})
-const unsubcribeLobbyDuels = LobbyStore.subscribe(({ duels }) => { refreshDuels(duels)} )
+const unsubscribeGamePendings = LobbyStore.subscribe(({ gamePendings, sessionId }) => {refreshGamePendings(gamePendings, sessionId)})
+const unsubcribeLobbyDuels = LobbyStore.subscribe(({ duels }) => {refreshDuels(duels)})
 
 const cleanupLobbyPage = () =>
 {

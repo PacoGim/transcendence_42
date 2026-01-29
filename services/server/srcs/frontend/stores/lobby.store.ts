@@ -9,7 +9,8 @@ export type LobbyDuel = {
 export type LobbyState = {
 	gamePendings: GamePending[],
 	duels: LobbyDuel[],
-	sessionId : string
+	sessionId : string,
+	users: string[]
 }
 
 type Subscriber = (state: LobbyState) => void
@@ -17,8 +18,16 @@ type Subscriber = (state: LobbyState) => void
 const state: LobbyState = {
 	gamePendings: [],
 	duels: [],
-	sessionId: ""
+	sessionId: "",
+	users:[]
 }
+
+function cleanDuelsAgainstUsers()
+{
+	const userSet = new Set(state.users)
+	state.duels = state.duels.filter(d => userSet.has(d.from))
+}
+
 
 function createLobbyStore()
 {
@@ -63,6 +72,13 @@ function createLobbyStore()
 		emit()
 	}
 
+	function setUserList(users: string[])
+	{
+		state.users = users;
+		cleanDuelsAgainstUsers()
+		emit()
+	}
+
 	function refreshSessionId(sessionId: string)
 	{
 		state.sessionId = sessionId
@@ -89,7 +105,8 @@ function createLobbyStore()
 		clear,
 		addIncomingDuel,
 		removeDuel,
-		refreshSessionId
+		refreshSessionId,
+		setUserList
 	}
 }
 
