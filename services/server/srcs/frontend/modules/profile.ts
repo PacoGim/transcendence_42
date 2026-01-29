@@ -16,7 +16,6 @@ const unsubStateStore = StateStore.subscribe(async data => {
 	document.title = `${selectedProfile} Profile`
 	$pageTitle.innerText = selectedProfile
 
-	console.log(`https://${location.host}/user_profile`)
 	fetch(`https://${location.host}/user_profile`, {
 		method: 'POST',
 		headers: {
@@ -62,17 +61,27 @@ function setMatches(matches: MatchType[]) {
 		const $trEl = document.createElement('tr')
 		const $tdDate = document.createElement('td')
 		const $tdType = document.createElement('td')
-		const $tdPlayers = document.createElement('td')
 		const $tdWinner = document.createElement('td')
+		const $selectEl = document.createElement('select')
+
+		
+		const $tdOption = document.createElement('option')
+		$tdOption.innerText = match.players.split(',').length
+		$selectEl.appendChild($tdOption)
+		match.players.split(',').forEach(player => {
+			const $tdOption = document.createElement('option')
+			$tdOption.innerText = player
+			$tdOption.disabled = true
+			$selectEl.appendChild($tdOption)
+		})
 
 		$tdDate.innerText = match.created_at
 		$tdType.innerText = match.type
-		$tdPlayers.innerText = match.players
 		$tdWinner.innerText = match.winner
 
 		$trEl.append($tdDate)
 		$trEl.append($tdType)
-		$trEl.append($tdPlayers)
+		$trEl.append($selectEl)
 		$trEl.append($tdWinner)
 
 		$tableData.append($trEl)

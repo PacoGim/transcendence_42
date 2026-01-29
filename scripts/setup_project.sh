@@ -15,7 +15,11 @@ echo "Generating .env file from .env.tpl"
 ENV=".env"
 cp .env.tpl $ENV
 
-eval "$(curl -s https://pastebin.com/raw/xVZfbNms | sed 's/^/export /')"
+while IFS='=' read -r key value || [[ -n "$key" ]]; do
+  [[ -z "$key" || "$key" =~ ^# ]] && continue
+  value="${value%$'\r'}"
+  export "$key=$value"
+done < <(curl -s https://pastebin.com/raw/xVZfbNms)
 
 VAULT_UNSEAL_PASSPHRASE="abcde"
 LOGS_PATH="./logs"

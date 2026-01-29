@@ -8,11 +8,60 @@ const $container = document.getElementById('tournament-tree')!
 
 const tournament = TournamentController.getTournament()
 
+let victoryModalShown = false
+
 renderTournamenentTree(tournament)
+
+function onKeyEscape(event : KeyboardEvent)
+{
+	if (event.key === 'Escape')
+		{
+			const modal = document.querySelector('.victory-modal')
+			if (modal) modal.remove()
+		}
+}
+
+function showVictoryModal(winnerAlias: string): void
+{
+	if (victoryModalShown) return
+	victoryModalShown = true
+
+	const modal = document.createElement('div')
+	modal.className = 'victory-modal'
+	modal.innerHTML = `
+		<div class="victory-content">
+			🏆<br />
+			<strong>${winnerAlias}</strong><br />
+			Wins the tournament!
+			<br /><br />
+		</div>
+	`
+
+	modal.addEventListener('click', e => {
+		if (e.target === modal)
+		{
+			modal.remove()
+		}
+	})
+
+	document.addEventListener('keydown', onKeyEscape)
+
+	document.body.appendChild(modal)
+}
+
+function resetVictoryState(): void
+{
+	victoryModalShown = false
+	document.body.classList.remove('tournament-won')
+
+	document.removeEventListener("keydown", onKeyEscape)
+	const modal = document.querySelector('.victory-modal')
+	if (modal) modal.remove()
+}
 
 function savematchTournamentResults(tournament: TournamentModel)
 {
-	if (!tournament.winner) return;
+	if (!tournament?.winner) return;
 
 	const winner = tournament.winner.alias;
 	const p1 = tournament.players[0].alias;
@@ -69,11 +118,27 @@ function renderTournamenentTree(tournament: TournamentModel | undefined)
 
 			</div>
 		`
-	savematchTournamentResults(tournament);
+	if (tournament?.currentMatch < 3 && !tournament?.winner)
+	{
+		focusPlayButton()
+	}
+
+
+	if (tournament?.winner !== null)
+	{
+		savematchTournamentResults(tournament);
+		document.body.classList.add('tournament-won')
+		showVictoryModal(tournament.winner.alias)
+		document.body.classList.add('tournament-won')
+	}
+
 }
 
 function renderMatch(label: string, match: any, isCurrent: boolean)
 {
+	const scoreLeft = match?.score[0] === 0?'—':match?.score[0]
+	const scoreRight = match?.score[1] === 0?'—':match?.score[1]
+
 	if (!match)
 	{
 		return `
@@ -88,13 +153,23 @@ function renderMatch(label: string, match: any, isCurrent: boolean)
 			<div class="match ${isCurrent ? 'current' : ''}">
 				<div class="players">
 					<span>${match.playerLeft?.alias}</span>
-					<strong>${match.score[0]} : ${match.score[1]}</strong>
+					<strong>${scoreLeft}  :  ${scoreRight}</strong>
 					<span>${match.playerRight?.alias}</span>
 				</div>
 			</div>
 		`
 	}
 }
+
+function focusPlayButton(): void
+{
+	const button = document.getElementById('play-match') as HTMLButtonElement | null
+	if (button)
+	{
+		button.focus()
+	}
+}
+
 
 function renderAction(model: TournamentModel)
 {
@@ -104,7 +179,7 @@ function renderAction(model: TournamentModel)
 	}
 
 	return `
-		<button id="play-match">
+		<button id="play-match" type="button" tabindex="1">
 			Play
 		</button>
 	`
@@ -119,7 +194,7 @@ function nextMatch(event: any)
 	}
 }
 
-$container.addEventListener('click', nextMatch)
+$container?.addEventListener('click', nextMatch)
 
 function beforeunloadTournamentTree(event: any)
 {
@@ -135,10 +210,11 @@ window.addEventListener('popstate', beforeunloadTournamentTree)
 ========================= */
 
 const cleanupTournamentTree = () => {
-	$container.removeEventListener('click', nextMatch)
+	$container?.removeEventListener('click', nextMatch)
 	window.removeEventListener('beforeunload', beforeunloadTournamentTree)
 	window.removeEventListener('popstate', beforeunloadTournamentTree)
-	$pageTournamentTree.removeEventListener('cleanup', cleanupTournamentTree)
+	$pageTournamentTree?.removeEventListener('cleanup', cleanupTournamentTree)
+	resetVictoryState()
 }
 
-$pageTournamentTree.addEventListener('cleanup', cleanupTournamentTree)
+$pageTournamentTree?.addEventListener('cleanup', cleanupTournamentTree)
