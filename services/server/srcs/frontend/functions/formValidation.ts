@@ -23,9 +23,10 @@ export function fieldValid(el: HTMLElement) {
 	if (errorSpan) errorSpan.remove()
 }
 
-export function setupFieldValidation(input: HTMLInputElement, validator: (value: string) => boolean, errorMessage: string) {
+export function setupFieldValidation(input: HTMLInputElement, validator: (value: string) => string | null) {
 	input.addEventListener('input', () => {
-		if (validator(input.value)) fieldInvalid(input, errorMessage)
+		const error = validator(input.value)
+		if (error) fieldInvalid(input, error)
 		else fieldValid(input)
 	})
 }
@@ -44,38 +45,37 @@ export function setupConfirmFieldValidation(
 export function setupUsernameAndPwdFieldsValidation($form: HTMLElement) {
 	setupFieldValidation(
 		$form.querySelector('input[name="username"]') as HTMLInputElement,
-		(value: string) => value.trim() === '',
-		'Empty field'
+		validateUsernameFormat
 	)
 	setupFieldValidation(
 		$form.querySelector('input[name="pwd"]') as HTMLInputElement,
-		(value: string) => value.trim() === '',
-		'Empty field'
+		validatePwdFormat
 	)
 }
 
 export function setupAllFieldValidation($form: HTMLElement) {
 	setupFieldValidation(
 		$form.querySelector('input[name="username"]') as HTMLInputElement,
-		isUsernameFormatInvalid,
-		'Username must be between 4 and 20 characters long and contain only letters, numbers and underscores'
+		validateUsernameFormat
 	)
 	setupFieldValidation(
 		$form.querySelector('input[name="email"]') as HTMLInputElement,
-		isEmailFormatInvalid,
-		'Invalid email format'
+		validateEmailFormat
 	)
-	const $emailField = $form.querySelector('input[name="email"]') as HTMLInputElement
 	const $confirmEmailField = $form.querySelector('input[name="checkmail"]') as HTMLInputElement
-	setupFieldValidation($confirmEmailField, (value: string) => value !== $emailField.value, 'Emails do not match')
+	setupFieldValidation(
+		$confirmEmailField,
+		validateConfirmEmailFormat
+	)
 	setupFieldValidation(
 		$form.querySelector('input[name="pwd"]') as HTMLInputElement,
-		isPwdFormatInvalid,
-		'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character'
+		validatePwdFormat
 	)
-	const $passwordField = $form.querySelector('input[name="pwd"]') as HTMLInputElement
 	const $confirmPasswordField = $form.querySelector('input[name="checkpwd"]') as HTMLInputElement
-	setupFieldValidation($confirmPasswordField, (value: string) => value !== $passwordField.value, 'Passwords do not match')
+	setupFieldValidation(
+		$confirmPasswordField,
+		validateConfirmPwdFormat
+	)
 }
 
 export function resetAvatarButton(resetBtn: HTMLButtonElement, avatarInput: HTMLInputElement, avatarPreview: HTMLImageElement) {
@@ -108,31 +108,45 @@ export function setupAvatarPreview(avatarInput: HTMLInputElement, avatarPreview:
 	})
 }
 
-export function isUsernameFormatInvalid(username: string): boolean {
-	if (username.length < 4) return true
-	if (username.length > 20) return true
-	if (!/^[a-zA-Z0-9_-]+$/.test(username)) return true
-	return false
+export function validateUsernameFormat(username: string): string | null {
+	const trimmedUsername = username.trim()
+	if (trimmedUsername === '') return 'Username is required'
+	if (trimmedUsername.length < 4) return 'Username must be at least 4 characters'
+	if (trimmedUsername.length > 20) return 'Username must be at most 20 characters'
+	if (!/^[a-zA-Z0-9_-]+$/.test(trimmedUsername)) return 'Only letters, numers, _ and - are allowed'
+	return null
 }
 
-export function isEmailFormatInvalid(email: string): boolean {
-	if (!email.includes('@')) return true
-	if (!email.includes('.')) return true
-	if (email.lastIndexOf('.') < email.indexOf('@')) return true
-	if (email.indexOf('@') === 0) return true
-	if (email.lastIndexOf('.') === email.length - 1) return true
-	if (email.indexOf('.') - email.indexOf('@') === 1) return true
-	if (email.length > 320) return true
-	return false
+export function validateEmailFormat(email: string): string | null {
+	const trimmedEmail = email.trim()
+	if (trimmedEmail === '') return 'Email is required'
+	if (!/^(?!.*\.\.)([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/.test(email)) return 'Invalid email format'
+	if (trimmedEmail.length > 320) return 'Email is too long'
+	return null
 }
 
-export function isPwdFormatInvalid(pwd: string): boolean {
-	if (pwd.length < 8) return true
-	if (!pwd.match(/[a-z]/)) return true
-	if (!pwd.match(/[A-Z]/)) return true
-	if (!pwd.match(/[0-9]/)) return true
-	if (!pwd.match(/[\W_]/)) return true
-	return false
+export function validateConfirmEmailFormat(confirmEmail: string, email?: string): string | null {
+	const emailValue = email || (document.querySelector('input[name="email"]') as HTMLInputElement).value
+	const trimmedEmail = emailValue.trim()
+	const trimmedConfirmEmail = confirmEmail.trim()
+	if (trimmedEmail !== trimmedConfirmEmail) return 'Emails do not match'
+	return null
+}
+
+export function validatePwdFormat(pwd: string): string | null {
+	const trimmedPwd = pwd.trim()
+	if (trimmedPwd == '') return 'Password is required'
+	if (trimmedPwd.length < 8) return 'Password must be at least 8 characters'
+	if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/.test(trimmedPwd)) return 'Required: 1 uppercase, 1 lowercase, 1 number, 1 special character'
+	return null
+}
+
+export function validateConfirmPwdFormat(confirmPwd: string, pwd?: string): string | null {
+	const pwdValue = pwd || (document.querySelector('input[name="pwd"]') as HTMLInputElement).value
+	const trimmedPwd = pwdValue.trim()
+	const trimmedConfirmPwd = confirmPwd.trim()
+	if (trimmedPwd !== trimmedConfirmPwd) return 'Passwords do not match'
+	return null
 }
 
 export function isAvatarFileFormatInvalid(avatarFile: File | null): boolean {
@@ -147,11 +161,11 @@ export function isAvatarFileFormatInvalid(avatarFile: File | null): boolean {
 
 export function createFormData(form: HTMLElement, avatarInput: HTMLInputElement): FormData {
 	const formData = new FormData()
-	formData.append('username', (form.querySelector('input[name="username"]') as HTMLInputElement).value)
-	formData.append('email', (form.querySelector('input[name="email"]') as HTMLInputElement).value)
-	formData.append('checkmail', (form.querySelector('input[name="checkmail"]') as HTMLInputElement).value)
-	formData.append('pwd', (form.querySelector('input[name="pwd"]') as HTMLInputElement).value)
-	formData.append('checkpwd', (form.querySelector('input[name="checkpwd"]') as HTMLInputElement).value)
+	formData.append('username', (form.querySelector('input[name="username"]') as HTMLInputElement).value.trim())
+	formData.append('email', (form.querySelector('input[name="email"]') as HTMLInputElement).value.trim())
+	formData.append('checkmail', (form.querySelector('input[name="checkmail"]') as HTMLInputElement).value.trim())
+	formData.append('pwd', (form.querySelector('input[name="pwd"]') as HTMLInputElement).value.trim())
+	formData.append('checkpwd', (form.querySelector('input[name="checkpwd"]') as HTMLInputElement).value.trim())
 	const avatarFile: File | null = avatarInput.files?.[0] || null
 	if (avatarFile) formData.append('avatar', avatarFile)
 	else formData.append('avatar', '')
@@ -161,8 +175,8 @@ export function createFormData(form: HTMLElement, avatarInput: HTMLInputElement)
 
 export function createLoginFormData(form: HTMLElement): FormData {
 	const formData = new FormData()
-	formData.append('username', (form.querySelector('input[name="username"]') as HTMLInputElement).value)
-	formData.append('pwd', (form.querySelector('input[name="pwd"]') as HTMLInputElement).value)
+	formData.append('username', (form.querySelector('input[name="username"]') as HTMLInputElement).value.trim())
+	formData.append('pwd', (form.querySelector('input[name="pwd"]') as HTMLInputElement).value.trim())
 
 	return formData
 }

@@ -6,10 +6,11 @@ import { checkIfAlreadyLoggedIn, generateAndSendToken, userTokenCookieOptions } 
 import { dbPostQuery } from '../services/db.service.js'
 import { getVaultSecret } from '../services/vault.service.js'
 import {
-	isUsernameFormatInvalid,
-	isEmailFormatInvalid,
-	isPwdFormatInvalid,
-	isAvatarFileFormatInvalid
+	validateUsernameFormat,
+	validateEmailFormat,
+	validatePwdFormat,
+	validateConfirmEmailFormat,
+	validateConfirmPwdFormat
 } from '../../frontend/functions/formValidation.js'
 import { getMultipartFormData } from '../crud/multipartForm.js'
 import { InfoFetchType } from '../../types/infofetch.type.js'
@@ -58,19 +59,20 @@ export async function registerUser(req: FastifyRequest, reply: FastifyReply) {
 		avatar: avatar
 	})
 
-	if (isUsernameFormatInvalid(username)) return reply.status(400).send({ message: 'Invalid username format' })
+	const usernameError = validateUsernameFormat(username)
+	if (usernameError) return reply.status(400).send({ message: usernameError })
 
-	if (isEmailFormatInvalid(email)) return reply.status(400).send({ message: 'Invalid email format' })
+	const emailError = validateEmailFormat(email)
+	if (emailError) return reply.status(400).send({ message: emailError })
 
-	if (email !== checkmail) return reply.status(400).send({ message: 'Emails do not match' })
+	const emailConfirmError = validateConfirmEmailFormat(checkmail, email)
+	if (emailConfirmError) return reply.status(400).send({ message: emailConfirmError })
 
-	if (isPwdFormatInvalid(pwd))
-		return reply.status(400).send({
-			message:
-				'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character'
-		})
+	const pwdError = validatePwdFormat(pwd)
+	if (pwdError) return reply.status(400).send({ message: pwdError })
 
-	if (pwd !== checkpwd) return reply.status(400).send({ message: 'Passwords do not match' })
+	const pwdConfirmError = validateConfirmPwdFormat(checkpwd, pwd)
+	if (pwdConfirmError) return reply.status(400).send({ message: pwdConfirmError })
 
 	const salt = await getVaultSecret<string>('bcrypt_salt', value => value)
 	if (!salt) return reply.status(500).send({ message: 'Failed to retrieve bcrypt_salt from Vault' })
@@ -113,6 +115,12 @@ export async function logUser(req: FastifyRequest, reply: FastifyReply) {
 
 	const alreadyLoggedInResponse = await checkIfAlreadyLoggedIn(req)
 	if (alreadyLoggedInResponse) return reply.status(200).send({ message: 'Already logged in' })
+
+	const usernameError = validateUsernameFormat(username)
+	if (usernameError) return reply.status(400).send({ message: usernameError })
+
+	const pwdError = validatePwdFormat(pwd)
+	if (pwdError) return reply.status(400).send({ message: pwdError })
 
 	const body = await dbPostQuery({
 		endpoint: 'dbGet',

@@ -52,7 +52,7 @@ export function fetchRegister(formData: FormData, registerForm: HTMLElement) {
 		})
 		.then(res => {
 			if (res?.status >= 400) {
-				NotificationStore.notify('Email already taken', 'ERROR')
+				NotificationStore.notify('Form invalid', 'ERROR')
 				return
 			}
 			console.log('FRONTEND --- registering form response: ', res)

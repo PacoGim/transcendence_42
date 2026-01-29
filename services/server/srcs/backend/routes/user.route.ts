@@ -3,7 +3,7 @@ import { dbPostQuery } from '../services/db.service.js'
 import { generateAndSendToken, getPayload } from '../crud/auth.crud.js'
 import { UserUpdateType } from '../../types/user.type.js'
 import { getMultipartFormData } from '../crud/multipartForm.js'
-import { isUsernameFormatInvalid } from '../../frontend/functions/formValidation.js'
+import { validateUsernameFormat } from '../../frontend/functions/formValidation.js'
 
 export async function userDashboard(req: FastifyRequest, reply: FastifyReply) {
 	const token = await getPayload(req)
@@ -93,7 +93,8 @@ export async function updateUser(req: FastifyRequest, reply: FastifyReply) {
 
 	let updateQuery: UserUpdateType = {}
 	if (username) {
-		if (isUsernameFormatInvalid(username)) return reply.status(400).send({ message: 'Invalid username format' })
+		const usernameError = validateUsernameFormat(username)
+		if (usernameError) return reply.status(400).send({ message: usernameError })
 		updateQuery.username = username
 	}
 	if (avatar) updateQuery.avatar = avatar
