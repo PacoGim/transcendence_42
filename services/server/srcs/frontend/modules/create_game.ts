@@ -29,8 +29,6 @@ if ($remote && checkIfUserIsConnected())
 	$remote.classList.remove("hidden");
 }
 
-
-
 $enableRemote?.addEventListener('change', evt => {
 	const $isRemoteEl = evt.target as HTMLInputElement
 	const isRemote = $isRemoteEl?.checked

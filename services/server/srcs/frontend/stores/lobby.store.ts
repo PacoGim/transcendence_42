@@ -69,9 +69,11 @@ function createLobbyStore()
 		emit()
 	}
 
-	function clearGamePendings()
+	function clear()
 	{
 		state.gamePendings = []
+		state.duels = []
+		state.sessionId = ""
 		emit()
 	}
 
@@ -84,7 +86,7 @@ function createLobbyStore()
 		subscribe,
 		getState,
 		setGamePendings,
-		clearGamePendings,
+		clear,
 		addIncomingDuel,
 		removeDuel,
 		refreshSessionId

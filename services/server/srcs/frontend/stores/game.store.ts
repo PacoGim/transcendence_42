@@ -4,8 +4,6 @@ import { NotificationStore } from './notification.store'
 import { json_parse, json_stringify } from '../functions/json_wrapper.ts'
 import { navigate } from '../js/routing.ts'
 import { LobbyStore } from './lobby.store.ts'
-import { clearFrontEndWhenLogout } from '../modules/home.ts'
-import { ChatStore } from './chat.store.ts'
 
 type Subscriber = (message: MessageType[]) => void
 

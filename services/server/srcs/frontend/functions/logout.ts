@@ -9,7 +9,7 @@ export function clearUserState()
 	ChatStore.removeWebsocket()
 	GameStore.removeWebGameSocket()
 	UserStore.clear()
-	LobbyStore.refreshSessionId("")
+	LobbyStore.clear()
 	navigate('')
 }
 
