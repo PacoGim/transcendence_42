@@ -3,6 +3,7 @@ import { TournamentController } from './tournament/tournament.controller.js'
 import type { TournamentPlayer } from './tournament/tournament.type.js'
 import { UserStore } from '../stores/user.store'
 import { GameStore } from '../stores/game.store.js'
+import { LobbyStore } from '../stores/lobby.store.js'
 
 type ValidationResult = {
 	valid: boolean
@@ -24,6 +25,7 @@ const ENG = {
 
 const USERNAME_REGEX = /^[A-Za-z0-9_-]+$/
 
+if (LobbyStore.getState().sessionId !== "") GameStore.send({type:"leave-game"});
 GameStore.send({type:"navigate", navigate:"tournament"})
 
 function sanitize(value: string): string
