@@ -10,6 +10,8 @@ type FriendType = {
 	username_2: string
 }
 
+GameStore.send({type:"navigate", navigate:"friends"})
+
 let username
 
 UserStore.subscribe(user => {

@@ -9,6 +9,8 @@ const $canvas = document.querySelector("#canvas2D") as HTMLCanvasElement
 const createdGame : CreatedLocalGame = StateStore.getCreatedGame()
 const model = new GameModel();
 
+GameStore.send({type:"navigate", navigate:"local_game"})
+
 if (!$canvas) await navigate("lobby")
 if (LobbyStore.getState().sessionId !== "") GameStore.send({type:"leave-game"})
 if (createdGame)

@@ -7,6 +7,8 @@ const $gameList : HTMLElement | null = document.querySelector("#game-list")
 const $duelsDiv : HTMLElement | null = document.getElementById("game-duels")
 const $pageLobby : Element | null = document.querySelector("page[type=lobby]")!
 
+GameStore.send({type:"navigate", navigate:"lobby"})
+
 const unsubscribeUserStore = UserStore.subscribe(({ isValid })=>{
 	const $lobbyContainer = document.querySelector("lobby-container")
 	if ($lobbyContainer && isValid)
