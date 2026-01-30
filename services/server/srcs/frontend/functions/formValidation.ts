@@ -126,6 +126,15 @@ export function validateUsernameFormat(username: string): string | null {
 	return null
 }
 
+export function validateUsernameUpdateFormat(username: string): string | null {
+	const trimmedUsername = username.trim()
+	if (trimmedUsername.length === 0) return null
+	if (trimmedUsername.length < 4) return 'Username must be at least 4 characters'
+	if (trimmedUsername.length > 20) return 'Username must be at most 20 characters'
+	if (!/^[a-zA-Z0-9_-]+$/.test(trimmedUsername)) return 'Only letters, numers, _ and - are allowed'
+	return null
+}
+
 export function validateEmailFormat(email: string): string | null {
 	const trimmedEmail = email.trim()
 	if (trimmedEmail === '') return 'Email is required'

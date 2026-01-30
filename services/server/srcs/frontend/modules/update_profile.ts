@@ -2,7 +2,7 @@ import {
 	resetAvatarButton,
 	setupAvatarPreview,
 	setupFieldValidation,
-	validateUsernameFormat
+	validateUsernameUpdateFormat
 } from '../functions/formValidation'
 import { UserStore } from '../stores/user.store'
 import { NotificationStore } from '../stores/notification.store'
@@ -95,7 +95,7 @@ function handleUpdateProfile() {
 	setupAvatarPreview($avatarInput, $avatarPreview)
 
 	const $updateForm = document.querySelector('form') as HTMLElement
-	setupFieldValidation($updateForm.querySelector('input[name="username"]') as HTMLInputElement, validateUsernameFormat)
+	setupFieldValidation($updateForm.querySelector('input[name="username"]') as HTMLInputElement, validateUsernameUpdateFormat)
 }
 
 handleUpdateProfile()
