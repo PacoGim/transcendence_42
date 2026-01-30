@@ -44,19 +44,25 @@ fastify.addHook('onResponse', (request: FastifyRequest, reply: FastifyReply) => 
 	})
 })
 
-fastify.register(fastifyStatic, {
-	root: path.join(__dirname(), 'dist/public'),
-	prefix: '/'
-})
-
 fastify.register(multipart, {
 	limits: {
-		fileSize: 100 * 1024, // 100 Ko
-		files: 1,
-		parts: 6
+		fileSize: 10 * 1024 * 1024,
+		attachFieldsToBody: false
 	}
 })
-
+// fastify.register(multipart, {
+	// 	limits: {
+		// 		fileSize: 100 * 1024, // 100 Ko
+		// 		files: 1,
+		// 		parts: 6
+		// 	}
+		// })
+		fastify.register(fastifyStatic, {
+			root: path.join(__dirname(), 'dist/public'),
+			prefix: '/'
+		})
+		
+		
 // createAccount()
 createTransporter()
 

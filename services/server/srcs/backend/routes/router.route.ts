@@ -20,7 +20,8 @@ const validRoutes = [
 	'tournament_match',
 	'forbidden',
 	'profile',
-	'friends'
+	'friends',
+	'update_avatar'
 ]
 
 export function routerRoute(fastify: FastifyInstance) {
@@ -32,6 +33,7 @@ export function routerRoute(fastify: FastifyInstance) {
 			let route = (req.params as { route: string | undefined })['route'] || ''
 			const type = req.headers.type as string
 			if (route === '') route = 'home'
+			if (route.startsWith('images')) return reply.callNotFound()
 			if (validRoutes.includes(route)) {
 				const html = await getHTML(route, type || 'render')
 				if (html) return reply.type('text/html').send(html)
@@ -49,5 +51,30 @@ export function routerRoute(fastify: FastifyInstance) {
 			const html = await getHTML(route, 'error', 404)
 			return reply.type('text/html').send(html)
 		}
+		// handler: async (req: FastifyRequest, reply: FastifyReply) => {
+		// 	let route = (req.params as { route?: string }).route || ''
+
+		// 	// ⛔️ laisser passer les assets
+		// 	if (
+		// 		route.startsWith('images') ||
+		// 		route.startsWith('assets') ||
+		// 		route.includes('.')
+		// 	) {
+		// 		return reply.callNotFound()
+		// 	}
+
+		// 	if (route === '') route = 'home'
+
+		// 	if (validRoutes.includes(route)) {
+		// 		const html = await getHTML(route, 'render')
+		// 		return reply.type('text/html').send(html)
+		// 	}
+
+		// 	const html = await getHTML(route, 'error', 404)
+		// 	return reply.type('text/html').send(html)
+		// 	}
+
+
+
 	})
 }

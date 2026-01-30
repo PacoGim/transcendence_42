@@ -228,9 +228,19 @@ Bun.serve({
 			})
 
 		const reqBuffer = await req.arrayBuffer()
-		const bodyText = new TextDecoder().decode(reqBuffer)
+		let bodyText:string | undefined
+		if (url.pathname !== '/update_avatar')
+		{
+			bodyText = new TextDecoder().decode(reqBuffer)
+		}
+		// const bodyText = new TextDecoder().decode(reqBuffer)
 
-		if (!(await allowRequest(req, bodyText))) {
+		// if (!(await allowRequest(req, bodyText))) {
+		// 	return new Response('Forbidden', { status: 403 })
+		// }
+		// vérifier la requête (ne pas tester le body pour /update_avatar)
+		if (!(await allowRequest(req, bodyText ?? '')))
+		{
 			return new Response('Forbidden', { status: 403 })
 		}
 
@@ -241,7 +251,7 @@ Bun.serve({
 		let result = await fetch(`https://server:3000${url.pathname}${url.search}`, {
 			method: req.method,
 			headers: req.headers,
-			body: bodyText
+			body: url.pathname === '/update_avatar' ? reqBuffer : bodyText
 		})
 			.then(async res => {
 				return {

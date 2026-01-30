@@ -1,0 +1,35 @@
+<head>
+	<title>update_avatar</title>
+	<meta name="description" content="update_avatar" module />
+	<style module>
+		html,
+		body {
+			margin: 0;
+			width: 100%;
+			height: 100%;
+		}
+
+		page[type='update_avatar'] {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 100vw;
+			height: 100vh;
+			font-family: Arial, sans-serif;
+			color: white;
+			overflow: hidden;
+		}
+	</style>
+</head>
+
+<page type="update_avatar">
+	<form id="uploadForm">
+		<input type="file" name="file" />
+		<button type="submit">Upload</button>
+	</form>
+	<menu-buttons>
+		<nav-button data-route="" tabindex="1" style="margin-top: 1rem;" class="button text-4xl">Back</nav-button>
+	</menu-buttons>
+</page>
+
+<script type="module" src="modules/update_avatar.js"></script>
