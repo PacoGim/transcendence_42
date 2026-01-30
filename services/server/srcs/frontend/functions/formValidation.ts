@@ -1,5 +1,13 @@
 export function hasInvalidFields(form: HTMLElement): boolean {
-	return form.querySelectorAll('.invalid-field').length > 0
+	// either has .invalid-field class, for any input, or no input at all were given in at least one field
+	if (form.querySelectorAll('.invalid-field').length > 0)
+		return true
+	const fields = form.querySelectorAll<HTMLInputElement>('input[required]')
+	
+	for (const field of fields) {
+		if (!field.value || field.value.trim() === '') return true
+	}
+	return false
 }
 
 export function fieldInvalid(el: HTMLElement, message?: string) {
@@ -82,6 +90,7 @@ export function resetAvatarButton(resetBtn: HTMLButtonElement, avatarInput: HTML
 	resetBtn.addEventListener('click', () => {
 		avatarPreview.src = '/images/avatars/baseAvatar.jpg'
 		avatarInput.value = ''
+		fieldValid(avatarInput)
 	})
 }
 
@@ -92,9 +101,9 @@ export function setupAvatarPreview(avatarInput: HTMLInputElement, avatarPreview:
 	let avatarObjectURL: string | null = null
 	avatarInput.addEventListener('change', () => {
 		const file = avatarInput.files?.[0] || null
-		if (isAvatarFileFormatInvalid(file)) {
-			fieldInvalid(avatarInput, 'Avatar file must be an image and less than 100 KB')
-			avatarInput.value = ''
+		const avatarError = validateAvatarFormat(file)
+		if (avatarError) {
+			fieldInvalid(avatarInput, avatarError)
 			return
 		} else fieldValid(avatarInput)
 		if (avatarObjectURL) {
@@ -134,29 +143,22 @@ export function validateConfirmEmailFormat(confirmEmail: string, email?: string)
 }
 
 export function validatePwdFormat(pwd: string): string | null {
-	const trimmedPwd = pwd.trim()
-	if (trimmedPwd == '') return 'Password is required'
-	if (trimmedPwd.length < 8) return 'Password must be at least 8 characters'
-	if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/.test(trimmedPwd)) return 'Required: 1 uppercase, 1 lowercase, 1 number, 1 special character (\!\@\#\$\%\^\&\*\_)'
+	if (pwd == '') return 'Password is required'
+	if (pwd.length < 8) return 'Password must be at least 8 characters'
+	if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/.test(pwd)) return 'Required: 1 uppercase, 1 lowercase, 1 number, 1 special character (\!\@\#\$\%\^\&\*\_)'
 	return null
 }
 
 export function validateConfirmPwdFormat(confirmPwd: string, pwd?: string): string | null {
 	const pwdValue = pwd || (document.querySelector('input[name="pwd"]') as HTMLInputElement).value
-	const trimmedPwd = pwdValue.trim()
-	const trimmedConfirmPwd = confirmPwd.trim()
-	if (trimmedPwd !== trimmedConfirmPwd) return 'Passwords do not match'
+	if (pwdValue !== confirmPwd) return 'Passwords do not match'
 	return null
 }
 
-export function isAvatarFileFormatInvalid(avatarFile: File | null): boolean {
-	if (avatarFile && avatarFile.size > 100 * 1024) {
-		return true
-	}
-	if (avatarFile && !avatarFile.type.startsWith('image/')) {
-		return true
-	}
-	return false
+export function validateAvatarFormat(avatarFile: File | null): string | null {
+	if (avatarFile && avatarFile.size > 100 * 1024) return 'File must be less than 100 KB'
+	if (avatarFile && !avatarFile.type.startsWith('image/')) return 'File must be an image'
+	return null
 }
 
 export function createFormData(form: HTMLElement, avatarInput: HTMLInputElement): FormData {
@@ -164,8 +166,8 @@ export function createFormData(form: HTMLElement, avatarInput: HTMLInputElement)
 	formData.append('username', (form.querySelector('input[name="username"]') as HTMLInputElement).value.trim())
 	formData.append('email', (form.querySelector('input[name="email"]') as HTMLInputElement).value.trim())
 	formData.append('checkmail', (form.querySelector('input[name="checkmail"]') as HTMLInputElement).value.trim())
-	formData.append('pwd', (form.querySelector('input[name="pwd"]') as HTMLInputElement).value.trim())
-	formData.append('checkpwd', (form.querySelector('input[name="checkpwd"]') as HTMLInputElement).value.trim())
+	formData.append('pwd', (form.querySelector('input[name="pwd"]') as HTMLInputElement).value)
+	formData.append('checkpwd', (form.querySelector('input[name="checkpwd"]') as HTMLInputElement).value)
 	const avatarFile: File | null = avatarInput.files?.[0] || null
 	if (avatarFile) formData.append('avatar', avatarFile)
 	else formData.append('avatar', '')
