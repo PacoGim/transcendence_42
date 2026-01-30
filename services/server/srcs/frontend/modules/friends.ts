@@ -3,6 +3,7 @@ import { StateStore } from '../stores/state.store'
 import { UserStore } from '../stores/user.store'
 import { ChatStore } from '../stores/chat.store'
 import { json_parse } from '../functions/json_wrapper'
+import { GameStore } from '../stores/game.store'
 
 const $page: HTMLElement = document.querySelector('page[type=friends]')!
 const $tableData: HTMLElement = document.querySelector('friends table tbody')!
@@ -13,7 +14,7 @@ type FriendType = {
 	username_2: string
 }
 
-GameStore.send({type:"navigate", navigate:"friends"})
+GameStore.send({ type: 'navigate', navigate: 'friends' })
 
 let username
 
@@ -52,9 +53,11 @@ function setFriends(friends: FriendType[], onlineList: string[] | null) {
 			const $tdName = document.createElement('td')
 			const $tdProfile = document.createElement('td')
 			const $tdStatus = document.createElement('td')
-
+			const $profileViewButton = document.createElement('button')
 			$tdName.innerText = friend
-			$tdProfile.innerHTML = 'View'
+
+			// $tdProfile.innerHTML = 'View'
+			$profileViewButton.innerText = 'View'
 
 			if (onlineList?.findIndex(item => item === friend) == -1) {
 				$tdStatus.innerText = 'Offline'
@@ -62,10 +65,12 @@ function setFriends(friends: FriendType[], onlineList: string[] | null) {
 				$tdStatus.innerText = 'Online'
 			}
 
-			$tdProfile.addEventListener('click', () => {
+			$profileViewButton.addEventListener('click', () => {
 				StateStore.update({ selectedProfile: friend })
 				navigate('profile')
 			})
+			
+			$tdProfile.appendChild($profileViewButton)
 
 			$trEl.append($tdName)
 			$trEl.append($tdProfile)
