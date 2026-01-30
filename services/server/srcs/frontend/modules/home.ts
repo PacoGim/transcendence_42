@@ -33,6 +33,7 @@ const loginButtonValues: LoginButtonValues = {
 GameStore.send({type:"navigate", navigate:"home"})
 
 const $page: HTMLElement = document.querySelector('page[type=index]')!
+const $avatar: HTMLImageElement = $page.querySelector('avatar img')!
 const $loginButton: HTMLElement = document.querySelector('nav-button[data-route="login"]')!
 const $logoutButton: HTMLElement = document.getElementById('logout_btn')!
 const $loginButtonParent: HTMLElement = $loginButton?.parentElement!
@@ -76,6 +77,9 @@ const unsubUserStore = UserStore.subscribe((user: UserType) => {
 		if ($elementBackup) $logoutButtonParent.appendChild($elementBackup)
 		$elementBackup = $loginButton
 		$loginButton.remove()
+
+		console.log(user)
+		$avatar.setAttribute('src', user.avatar)
 
 		StateStore.update({ username: user.username })
 		PageUpdateStore.emit('user valid')

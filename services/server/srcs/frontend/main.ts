@@ -46,6 +46,7 @@ fetch('/get_payload', {
 		username: payload.userInfo.username,
 		id: payload.userInfo.id,
 		has_2fa: payload.userInfo.has_2fa,
+		avatar: payload.userInfo.avatar,
 		isValid: true
 	})
 })

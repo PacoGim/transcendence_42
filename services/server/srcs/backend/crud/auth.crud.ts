@@ -37,6 +37,7 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 	let has_2fa: boolean
 	let body
 	let username: string
+	let userAvatar: string
 
 	if (!token)
 		return {
@@ -67,12 +68,13 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 			endpoint: 'dbRun',
 			query: {
 				verb: 'create',
-				sql: 'INSERT INTO users (email, username, is_oauth) VALUES (?, ?, ?)',
-				data: [user42Info.email, user42Info.login, 1]
+				sql: 'INSERT INTO users (email, username, avatar, is_oauth) VALUES (?, ?, ?, ?)',
+				data: [user42Info.email, user42Info.login, user42Info.image.versions.small, 1]
 			}
 		})
 		username = user42Info.login
 		userId = body.data?.lastID
+		userAvatar = user42Info.image.versions.small
 		has_2fa = body.data?.has_2fa === 1 // '=== 1' to convert from integer to boolean
 	} else {
 		body = await dbPostQuery({
@@ -102,6 +104,7 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 		}
 		username = body.data.username
 		userId = body.data.id
+		userAvatar = body.data.avatar
 		has_2fa = body.data.has_2fa === 1 // '=== 1' to convert from integer to boolean
 		if (body?.data?.has_2fa === 1) {
 			return {
@@ -109,6 +112,7 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 				username: username,
 				id: userId,
 				has_2fa: has_2fa,
+				avatar: userAvatar,
 				info: {
 					status: 200,
 					message: '2FA_REQUIRED'
@@ -130,6 +134,7 @@ export async function fetch42User(url: string, { saveToDb }: { saveToDb: boolean
 		username: username,
 		id: userId,
 		has_2fa: has_2fa,
+		avatar: userAvatar,
 		info: {
 			status: 200,
 			message: 'AUTHENTICATED'
@@ -144,7 +149,8 @@ export async function generateAndSendToken(infoFetch: InfoFetchType, reply: any)
 		email: infoFetch.email!,
 		username: infoFetch.username!,
 		id: infoFetch.id!,
-		has_2fa: infoFetch.has_2fa!
+		has_2fa: infoFetch.has_2fa!,
+		avatar: infoFetch.avatar!
 	}
 	const token = await createToken(userInfo)
 	if (!token) return reply.status(500).send({ message: 'Token generation failed' })

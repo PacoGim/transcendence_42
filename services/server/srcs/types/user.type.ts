@@ -22,4 +22,5 @@ export type UserInfoType = {
 	username: string
 	id: number
 	has_2fa: boolean
+	avatar: string
 }

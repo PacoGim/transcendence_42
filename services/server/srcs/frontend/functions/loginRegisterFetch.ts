@@ -29,6 +29,7 @@ export function fetchLogin(formData: FormData) {
 				}, res)
 				return
 			}
+			console.log('log: ', res)
 			UserStore.emit(res)
 			navigate('')
 		})

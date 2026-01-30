@@ -44,7 +44,7 @@ import { create2FAChallenge } from './2fa.route.js'
 export async function registerUser(req: FastifyRequest, reply: FastifyReply) {
 	const data = await getMultipartFormData(req)
 	let avatar = data['avatar']
-	if (avatar === '') avatar = '/app/srcs/frontend/images/avatars/baseAvatar.jpg'
+	if (avatar === '') avatar = '/images/avatars/baseAvatar.jpg'
 
 	console.log('--BACK-- avatar:', avatar)
 
@@ -99,6 +99,7 @@ export async function registerUser(req: FastifyRequest, reply: FastifyReply) {
 		username,
 		id: body.data.lastID,
 		has_2fa: body.data.has_2fa === 1,
+		avatar: avatar,
 		info: {
 			status: 200
 		}
@@ -132,6 +133,7 @@ export async function logUser(req: FastifyRequest, reply: FastifyReply) {
 		username: body.data.username,
 		id: body.data.id,
 		has_2fa: body.data.has_2fa === 1,
+		avatar: body.data.avatar,
 		info: {
 			status: 200
 		}

@@ -3,6 +3,7 @@ export type InfoFetchType = {
 	email?: string
 	username?: string
 	has_2fa?: boolean
+	avatar?: string
 	info: {
 		status: number
 		message?: string
