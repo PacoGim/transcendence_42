@@ -48,7 +48,7 @@ $enableRemote?.addEventListener('change', evt => {
 	}
 })
 
-$createGame?.addEventListener('click', () => {
+$createGame?.addEventListener('click', async () => {
 	const isRemote = $enableRemote.checked
 	const playersCount = Number($playerCountInput.value)
 	const comCount = Number($comCountInput.value)
@@ -72,7 +72,7 @@ $createGame?.addEventListener('click', () => {
 		else
 		{
 			GameStore.send({type: 'create-game', game : { humanCount: playersCount, botCount: comCount}})
-			navigate("lobby");
+			if (playersCount>1) await navigate("lobby");
 		}
 	}
 	else
@@ -88,9 +88,8 @@ $createGame?.addEventListener('click', () => {
 		else
 		{
 			StateStore.update({createdGame: { ai:comCount === 1, pseudo1: UserStore.getUserName() || "Anonymous", pseudo2: comCount === 1?"Marvin":"Guest"}})
-			if (LobbyStore.getState().sessionId !== "")
-				GameStore.send({type:"leave-game"})
-			navigate("local_game");
+			if (LobbyStore.getState().sessionId !== "") GameStore.send({type:"leave-game"});
+			await navigate("local_game");
 		}
 	}
 
