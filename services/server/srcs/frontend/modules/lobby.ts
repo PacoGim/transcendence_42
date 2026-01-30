@@ -143,6 +143,7 @@ const refreshDuels = (duels: LobbyDuel[]) =>
 		accept.textContent = "Accept"
 		accept.className = "accept"
 		accept.onclick = () => {
+			GameStore.send({ type: "leave-game" })
 			GameStore.send({ type: 'duel', to: duel.from, action: 'accept' });
 		}
 
