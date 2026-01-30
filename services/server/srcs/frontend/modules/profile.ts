@@ -10,7 +10,7 @@ const $winStat: HTMLElement = $profileStats.querySelector('user-wins stat-value'
 const $ratioStat: HTMLElement = $profileStats.querySelector('user-ratio stat-value')!
 const $lossesStat: HTMLElement = $profileStats.querySelector('user-losses stat-value')!
 
-GameStore.send({type:"navigate", navigate:"profile"})
+GameStore.send({ type: 'navigate', navigate: 'profile' })
 
 const unsubStateStore = StateStore.subscribe(async data => {
 	let selectedProfile = data.selectedProfile
@@ -52,7 +52,8 @@ function setWinLoss(matches: MatchType[], username: string) {
 	}, 0)
 
 	const loss = matches.length - win
-	const ratio = Math.round((100 / (win + loss)) * win)
+	let ratio = Math.round((100 / (win + loss)) * win)
+	if (isNaN(ratio)) ratio = 0
 	$winStat.innerText = '' + win
 	$lossesStat.innerText = '' + loss
 	$ratioStat.innerText = ratio + '%'
