@@ -64,7 +64,6 @@ function createLobbyStore()
 		return false
 	}
 
-
 	// ---- GAME PENDING ----
 	function setGamePendings(games: GamePending[])
 	{
@@ -93,11 +92,6 @@ function createLobbyStore()
 		emit()
 	}
 
-	function getUsersOnline() : string[]
-	{
-		return state.users
-	}
-
 	function getState()
 	{
 		return state
@@ -111,8 +105,7 @@ function createLobbyStore()
 		addIncomingDuel,
 		removeDuel,
 		refreshSessionId,
-		setUserList,
-		getUsersOnline
+		setUserList
 	}
 }
 

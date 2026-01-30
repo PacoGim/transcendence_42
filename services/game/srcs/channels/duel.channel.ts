@@ -38,6 +38,12 @@ export function duelChannel(ws: BunSocketType, data: DuelType, lobby : Lobby)
 			console.log(`${sender.pseudo} accept a duel from ${destinataire.pseudo}`)
 			sender.send({type: 'duel', from: destinataire.pseudo, action: 'accept'})
 			destinataire.send({type: 'duel', from: sender.pseudo, action: 'accept'})
+			lobby.gameManager.leaveSession(sender)
+			lobby.gameManager.leaveSession(destinataire)
+				lobby.broadcast({
+					type: "list-game",
+					games: lobby.gameManager.getJoinableSessionsInfo()
+				})
 			lobby.gameManager.createGame([destinataire, sender])
 			break
 		}

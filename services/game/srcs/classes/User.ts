@@ -36,7 +36,7 @@ export default class User
 
 	isOutGame()
 	{
-		return (!this.isConnected() || this.status != "game" || this.navigate === "quit_game")
+		return (!this.isConnected() || this.status != "game")
 	}
 
 	toJSON()

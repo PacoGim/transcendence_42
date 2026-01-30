@@ -12,16 +12,7 @@ export function leaveGameChannel(
 {
 	const user: User = ws.data.user
 
-	const success = lobby.gameManager.leaveSession(user)
-
-	// if (!success)
-	// {
-	// 	return ws.send(json_stringify({
-	// 		type: "error",
-	// 		text: "You are not waiting in a game"
-	// 	}))
-	// }
-
+	lobby.gameManager.leaveSession(user)
 	ws.send(json_stringify({type: "session-id", sessionId: ""}));
 
 	lobby.broadcast({

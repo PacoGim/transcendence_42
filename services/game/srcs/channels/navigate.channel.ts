@@ -11,6 +11,8 @@ export function navigateChannel(ws: BunSocketType, data: NavigateType)
 	if (currentUser.status === "game")
 	{
 		console.log(`${ws.data.user.pseudo} navigate to '${data.navigate}'`)
+		if (currentUser.navigate !== "remote_game")
+			currentUser.status = "chat"
 	}
 	else
 	{
