@@ -50,7 +50,6 @@ function createChatStore() {
 				}
 				NotificationStore.notify(`${msg.user} mp: ${msgContent}`, 'INFO')
 			}
-
 			if (msg.type === 'system') return
 			if (msg.type === 'req-friend') {
 				return
@@ -62,7 +61,9 @@ function createChatStore() {
 			chats.push(msg)
 			ChatStore.emit(chats)
 		}
-		ws.onclose = event => {clearUserState()}
+		ws.onclose = event => {
+			clearUserState()
+		}
 	}
 
 	function removeWebsocket() {

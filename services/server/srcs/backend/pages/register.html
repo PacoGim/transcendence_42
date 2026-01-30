@@ -37,6 +37,11 @@
 		form-section.center-section img {
 			margin-right: 10px;
 		}
+		
+		form-section input-container {
+			display: grid;
+			row-gap: 0.4rem;
+		}
 
 		form-section input {
 			justify-self: center;
@@ -66,6 +71,7 @@
 			form-section span {
 				text-align: center;
 				justify-self: start;
+				/* margin-left: 1.8rem; */
 			}
 
 			form-section input {
@@ -99,33 +105,43 @@
 	<form>
 		<form-section>
 			<span class="label">Username:</span>
-			<input type="text" name="username" required tabindex="2" inert="true" />
+			<input-container>
+				<input type="text" name="username" autocomplete="username" required tabindex="2" inert="true" />
+			</input-container>
 		</form-section>
 		<form-section>
 			<span class="label">Email:</span>
-			<input type="email" name="email" autocomplete="email" required tabindex="3" inert="true" />
+			<input-container>
+				<input type="email" name="email" autocomplete="email" required tabindex="3" inert="true" />
+			</input-container>
 		</form-section>
 		<form-section>
 			<span class="label">Confirm email:</span>
-			<input type="email" name="checkmail" autocomplete="email" required tabindex="4" inert="true" />
+			<input-container>
+				<input type="email" name="checkmail" autocomplete="email" required tabindex="4" inert="true" />
+			</input-container>
 		</form-section>
 		<form-section>
 			<span class="label">Password:</span>
-			<input type="password" name="pwd" autocomplete="new-password" tabindex="5" inert="true" />
+			<input-container>
+				<input type="password" name="pwd" autocomplete="new-password" tabindex="5" inert="true" />
+			</input-container>
 		</form-section>
 		<form-section>
 			<span class="label">Confirm Password:</span>
-			<input
-				type="password"
-				name="checkpwd"
-				autocomplete="new-password"
-				required
-				tabindex="6"
-				inert="true"
-			/>
+			<input-container>
+				<input
+					type="password"
+					name="checkpwd"
+					autocomplete="new-password"
+					required
+					tabindex="6"
+					inert="true"
+				/>
+			</input-container>
 		</form-section>
 		<form-section class="center-section">
-			<span style="margin-right: 10px">Avatar:</span>
+			<span >Avatar:</span>
 			<img
 				id="avatarPreview"
 				src="/images/avatars/baseAvatar.jpg"
@@ -133,8 +149,10 @@
 				height="70px"
 				style="object-fit: cover; border-radius: 10%"
 			/>
-			<input id="avatarInput" type="file" accept="image/*" name="avatar" tabindex="7" inert="true" />
-			<button type="button" id="resetAvatarButton" class="button text-2xl" style="margin-left: 10px" tabindex="8" inert="true">
+			<input-container>
+				<input id="avatarInput" type="file" accept="image/*" name="avatar" tabindex="7" inert="true" />
+			</input-container>
+			<button type="button" id="resetAvatarButton" class="button text-2xl" tabindex="8" inert="true">
 				Reset Avatar
 			</button>
 		</form-section>

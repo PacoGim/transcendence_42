@@ -10,7 +10,7 @@ const $winStat: HTMLElement = $profileStats.querySelector('user-wins stat-value'
 const $ratioStat: HTMLElement = $profileStats.querySelector('user-ratio stat-value')!
 const $lossesStat: HTMLElement = $profileStats.querySelector('user-losses stat-value')!
 
-GameStore.send({type:"navigate", navigate:"profile"})
+GameStore.send({ type: 'navigate', navigate: 'profile' })
 
 const unsubStateStore = StateStore.subscribe(async data => {
 	let selectedProfile = data.selectedProfile
@@ -27,7 +27,7 @@ const unsubStateStore = StateStore.subscribe(async data => {
 		body: JSON.stringify({ name: selectedProfile })
 	})
 		.then(res => {
-			if (res.status >= 400) return ; //console.log('ERROR updating profile', res.status)
+			if (res.status >= 400) return
 			return res.json()
 		})
 		.then(res => {
@@ -52,7 +52,8 @@ function setWinLoss(matches: MatchType[], username: string) {
 	}, 0)
 
 	const loss = matches.length - win
-	const ratio = Math.round((100 / (win + loss)) * win)
+	let ratio = Math.round((100 / (win + loss)) * win)
+	if (isNaN(ratio)) ratio = 0
 	$winStat.innerText = '' + win
 	$lossesStat.innerText = '' + loss
 	$ratioStat.innerText = ratio + '%'
@@ -67,9 +68,8 @@ function setMatches(matches: MatchType[]) {
 		const $tdWinner = document.createElement('td')
 		const $selectEl = document.createElement('select')
 
-		
 		const $tdOption = document.createElement('option')
-		$tdOption.innerText = match.players.split(',').length
+		$tdOption.innerText = String(match.players.split(',').length)
 		$selectEl.appendChild($tdOption)
 		match.players.split(',').forEach(player => {
 			const $tdOption = document.createElement('option')

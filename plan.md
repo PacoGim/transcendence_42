@@ -1,10 +1,6 @@
 150 POINTS!!!!! 🥳🥳🥳🥳
 
-friends btn view -> visiblement btn
-
 show avatar
-
-chat : wrap long messages
 
 leave_pending_game when accept duel or local_game
 
