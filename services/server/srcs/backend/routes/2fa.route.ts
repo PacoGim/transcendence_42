@@ -141,7 +141,8 @@ export async function validate2FACode(req: FastifyRequest, reply: FastifyReply):
 	if (purpose === 'enable') userInfo.has_2fa = true
 	else if (purpose === 'disable') userInfo.has_2fa = false
 	console.log('Updated userInfo for token:', userInfo)
-	await generateAndSendToken(userInfo, reply)
+	const tokenResult = await generateAndSendToken(userInfo, reply)
+	if (tokenResult.status >= 400) return reply.status(tokenResult.status).send({ message: tokenResult.message })
 
 	reply.status(200).send({ message: '2FA code validated successfully' })
 }

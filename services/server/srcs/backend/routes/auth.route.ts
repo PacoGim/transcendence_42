@@ -105,7 +105,8 @@ export async function registerUser(req: FastifyRequest, reply: FastifyReply) {
 		}
 	}
 	console.log('REGISTER FORM --- infoFetch:', infoFetch)
-	await generateAndSendToken(infoFetch, reply)
+	const tokenResult = await generateAndSendToken(infoFetch, reply)
+	if (tokenResult.status >= 400) return reply.status(tokenResult.status).send({ message: tokenResult.message })
 }
 
 export async function logUser(req: FastifyRequest, reply: FastifyReply) {
@@ -146,7 +147,8 @@ export async function logUser(req: FastifyRequest, reply: FastifyReply) {
 		return reply.status(200).send({ ...infoFetch })
 	}
 	console.log('LOGIN FORM --- infoFetch:', infoFetch)
-	await generateAndSendToken(infoFetch, reply)
+	const tokenResult = await generateAndSendToken(infoFetch, reply)
+	if (tokenResult.status >= 400) return reply.status(tokenResult.status).send({ message: tokenResult.message })
 }
 
 export async function logoutUser(req: FastifyRequest, reply: FastifyReply) {
