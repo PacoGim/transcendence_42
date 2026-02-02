@@ -30,7 +30,7 @@ const loginButtonValues: LoginButtonValues = {
 	}
 }
 
-GameStore.send({type:"navigate", navigate:"home"})
+GameStore.send({ type: 'navigate', navigate: 'home' })
 
 const $page: HTMLElement = document.querySelector('page[type=index]')!
 const $avatar: HTMLImageElement = $page?.querySelector('avatar img')!
@@ -79,7 +79,9 @@ const unsubUserStore = UserStore.subscribe((user: UserType) => {
 		$loginButton?.remove()
 
 		// console.log(user)
-		$avatar?.setAttribute('src', user.avatar)
+		if (user.avatar.startsWith('/images'))
+			$avatar?.setAttribute('src', user.avatar + `?t=${Math.random()}`)
+		else $avatar?.setAttribute('src', user.avatar)
 
 		StateStore.update({ username: user.username })
 		PageUpdateStore.emit('user valid')

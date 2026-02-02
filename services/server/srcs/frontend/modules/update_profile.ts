@@ -215,7 +215,10 @@ const unsubUserStore = UserStore.subscribe(value => {
 	// console.log(($usernameInput.placeholder = value.username))
 	const $toggle2FABtn = $page?.querySelector('#toggle-2fa-btn') as HTMLButtonElement | null
 	if ($toggle2FABtn) render2FAState($toggle2FABtn, value.has_2fa)
-	$avatarPreview?.setAttribute('src', value.avatar + `?t=${Math.random()}`)
+	//
+	if (value.avatar.startsWith('/images'))
+		$avatarPreview?.setAttribute('src', value.avatar + `?t=${Math.random()}`)
+	else $avatarPreview?.setAttribute('src', value.avatar)
 })
 
 const cleanPage = () => {
