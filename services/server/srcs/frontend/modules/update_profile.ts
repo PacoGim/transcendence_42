@@ -142,9 +142,9 @@ function updateUsername(usernameValidateBtn: HTMLButtonElement) {
 						timestamp: 0,
 						user: UserStore.getUserName()
 					})
-					GameStore.send({type:'udpate-username', username:res.username})
-					// GameStore.removeWebGameSocket();
-					// GameStore.addWebGamesocket(res.username);
+					// GameStore.send({type:'udpate-username', username:res.username})
+					GameStore.removeWebGameSocket();
+					GameStore.addWebGamesocket(res.username);
 					StateStore.update({ username: res.username })
 					UserStore.emit(res)
 				}
