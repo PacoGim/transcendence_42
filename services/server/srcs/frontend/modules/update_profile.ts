@@ -16,23 +16,25 @@ GameStore.send({ type: 'navigate', navigate: 'update_profile' })
 
 const $page: HTMLElement = document.querySelector('page[type=update_profile]')!
 const $usernameInput: HTMLInputElement = document.querySelector('input[name="username"]')!
-const $toggle2FABtn = $page.querySelector('#toggle-2fa-btn') as HTMLButtonElement
-const $avatarPreview = $page.querySelector('#avatarPreview') as HTMLImageElement
+const $toggle2FABtn = $page?.querySelector('#toggle-2fa-btn') as HTMLButtonElement | null
+const $avatarPreview = $page?.querySelector('#avatarPreview') as HTMLImageElement | null
 
 function onSuccess() {
-	$toggle2FABtn.removeAttribute('disabled')
+	$toggle2FABtn?.removeAttribute('disabled')
 	NotificationStore.notify(`2FA ${UserStore.getUser2FAStatus() ? 'enabled' : 'disabled'}`, 'SUCCESS')
 }
 
 function onExit() {
-	$toggle2FABtn.removeAttribute('disabled')
+	$toggle2FABtn?.removeAttribute('disabled')
 }
 
 function handleUpdateProfile() {
-	const $avatarInput = $page.querySelector('input[name="avatar"]') as HTMLInputElement
-	const $resetAvatarBtn = $page.querySelector('#resetAvatarButton') as HTMLButtonElement
-	const $usernameValidateBtn = $page.querySelector('#usernameValidateBtn') as HTMLButtonElement
+	if (!$page) return;
+	const $avatarInput = $page.querySelector('input[name="avatar"]') as HTMLInputElement | null
+	const $resetAvatarBtn = $page.querySelector('#resetAvatarButton') as HTMLButtonElement | null
+	const $usernameValidateBtn = $page.querySelector('#usernameValidateBtn') as HTMLButtonElement | null
 
+	if (!$avatarInput || !$resetAvatarBtn || !$usernameValidateBtn || !$avatarPreview || !$toggle2FABtn) return;
 	resetAvatarButton($resetAvatarBtn, $avatarInput, $avatarPreview)
 
 	render2FAState($toggle2FABtn, UserStore.getUser2FAStatus())
@@ -56,7 +58,9 @@ function handleUpdateProfile() {
 }
 
 function updateUsername(usernameValidateBtn: HTMLButtonElement) {
+	if (!usernameValidateBtn) return;
 	usernameValidateBtn.onclick = e => {
+		if (!$usernameInput) return;
 		e.preventDefault()
 		if ($usernameInput.classList.contains('field-invalid')) {
 			NotificationStore.notify('Username is invalid.', 'ERROR')
@@ -110,10 +114,12 @@ function updateUsername(usernameValidateBtn: HTMLButtonElement) {
 let timeout: NodeJS.Timeout
 
 function updateAvatar() {
-	const $avatarLabel = $page.querySelector('.avatar-label') as HTMLLabelElement
-	const $avatarValidateBtn = $page.querySelector('#avatarValidateBtn') as HTMLButtonElement
-	const $avatarInput = $page.querySelector('input[name="avatar"]') as HTMLInputElement
+	if (!$page) return;
+	const $avatarLabel = $page.querySelector('.avatar-label') as HTMLLabelElement | null
+	const $avatarValidateBtn = $page.querySelector('#avatarValidateBtn') as HTMLButtonElement | null
+	const $avatarInput = $page.querySelector('input[name="avatar"]') as HTMLInputElement | null
 
+	if (!$avatarLabel || !$avatarValidateBtn || !$avatarInput) return;
 	$avatarValidateBtn.onclick = e => {
 		e.preventDefault()
 		clearTimeout(timeout)
@@ -152,7 +158,7 @@ function updateAvatar() {
 }
 
 function setupUsernameFieldValidation(usernameValidateBtn: HTMLButtonElement) {
-	$usernameInput.addEventListener('input', () => {
+	$usernameInput?.addEventListener('input', () => {
 		const error = validateUsernameUpdateFormat($usernameInput.value)
 		usernameValidateBtn.classList.add('hidden')
 		if (error) fieldInvalid($usernameInput, error)
@@ -168,14 +174,14 @@ handleUpdateProfile()
 const unsubUserStore = UserStore.subscribe(value => {
 	// console.log('User Store Value: ', value)
 	// console.log(($usernameInput.placeholder = value.username))
-	const $toggle2FABtn = $page.querySelector('#toggle-2fa-btn') as HTMLButtonElement
-	render2FAState($toggle2FABtn, value.has_2fa)
-	$avatarPreview.setAttribute('src', value.avatar + `?t=${Math.random()}`)
+	const $toggle2FABtn = $page?.querySelector('#toggle-2fa-btn') as HTMLButtonElement | null
+	if ($toggle2FABtn) render2FAState($toggle2FABtn, value.has_2fa)
+	$avatarPreview?.setAttribute('src', value.avatar + `?t=${Math.random()}`)
 })
 
 const cleanPage = () => {
-	$page.removeEventListener('cleanup', cleanPage)
+	$page?.removeEventListener('cleanup', cleanPage)
 	unsubUserStore()
 }
 
-$page.addEventListener('cleanup', cleanPage)
+$page?.addEventListener('cleanup', cleanPage)
