@@ -11,10 +11,8 @@ const $winStat: HTMLElement = $profileStats?.querySelector('user-wins stat-value
 const $ratioStat: HTMLElement = $profileStats?.querySelector('user-ratio stat-value')!
 const $lossesStat: HTMLElement = $profileStats?.querySelector('user-losses stat-value')!
 
-
 const unsubStateStore = StateStore.subscribe(async data => {
-
-	if (!$pageTitle) return;
+	if (!$pageTitle) return
 	let selectedProfile = data.selectedProfile
 	if (selectedProfile === undefined) selectedProfile = UserStore.getUserName()
 
@@ -49,7 +47,7 @@ type MatchType = {
 }
 
 function setWinLoss(matches: MatchType[], username: string) {
-	if (!$winStat || !$lossesStat || !$ratioStat) return;
+	if (!$winStat || !$lossesStat || !$ratioStat) return
 	let win: number = matches.reduce((total: number, current: MatchType) => {
 		return total + (current.winner === username ? 1 : 0)
 	}, 0)
@@ -63,7 +61,7 @@ function setWinLoss(matches: MatchType[], username: string) {
 }
 
 function setMatches(matches: MatchType[]) {
-	if (!$tableData) return;
+	if (!$tableData) return
 	$tableData.innerHTML = ''
 	matches.forEach(match => {
 		const $trEl = document.createElement('tr')
@@ -96,6 +94,7 @@ function setMatches(matches: MatchType[]) {
 }
 
 const cleanPage = () => {
+	StateStore.update({ selectedProfile: undefined })
 	unsubStateStore()
 	$page?.removeEventListener('cleanup', cleanPage)
 }
