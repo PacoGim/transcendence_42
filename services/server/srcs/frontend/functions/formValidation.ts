@@ -1,10 +1,9 @@
-import { UserLoginType, UserRegisterType } from "../../types/user.type.js"
+import { UserLoginType, UserRegisterType } from '../../types/user.type.js'
 
 export function hasInvalidFields(form: HTMLElement): boolean {
-	if (form.querySelectorAll('.invalid-field').length > 0)
-		return true
+	if (form.querySelectorAll('.invalid-field').length > 0) return true
 	const fields = form.querySelectorAll<HTMLInputElement>('input[required]')
-	
+
 	for (const field of fields) {
 		if (!field.value || field.value.trim() === '') return true
 	}
@@ -52,39 +51,18 @@ export function setupConfirmFieldValidation(
 }
 
 export function setupUsernameAndPwdFieldsValidation($form: HTMLElement) {
-	setupFieldValidation(
-		$form.querySelector('input[name="username"]') as HTMLInputElement,
-		validateUsernameFormat
-	)
-	setupFieldValidation(
-		$form.querySelector('input[name="pwd"]') as HTMLInputElement,
-		validatePwdFormat
-	)
+	setupFieldValidation($form.querySelector('input[name="username"]') as HTMLInputElement, validateUsernameFormat)
+	setupFieldValidation($form.querySelector('input[name="pwd"]') as HTMLInputElement, validatePwdFormat)
 }
 
 export function setupAllFieldValidation($form: HTMLElement) {
-	setupFieldValidation(
-		$form.querySelector('input[name="username"]') as HTMLInputElement,
-		validateUsernameFormat
-	)
-	setupFieldValidation(
-		$form.querySelector('input[name="email"]') as HTMLInputElement,
-		validateEmailFormat
-	)
+	setupFieldValidation($form.querySelector('input[name="username"]') as HTMLInputElement, validateUsernameFormat)
+	setupFieldValidation($form.querySelector('input[name="email"]') as HTMLInputElement, validateEmailFormat)
 	const $confirmEmailField = $form.querySelector('input[name="checkmail"]') as HTMLInputElement
-	setupFieldValidation(
-		$confirmEmailField,
-		validateConfirmEmailFormat
-	)
-	setupFieldValidation(
-		$form.querySelector('input[name="pwd"]') as HTMLInputElement,
-		validatePwdFormat
-	)
+	setupFieldValidation($confirmEmailField, validateConfirmEmailFormat)
+	setupFieldValidation($form.querySelector('input[name="pwd"]') as HTMLInputElement, validatePwdFormat)
 	const $confirmPasswordField = $form.querySelector('input[name="checkpwd"]') as HTMLInputElement
-	setupFieldValidation(
-		$confirmPasswordField,
-		validateConfirmPwdFormat
-	)
+	setupFieldValidation($confirmPasswordField, validateConfirmPwdFormat)
 }
 
 export function resetAvatarButton(resetBtn: HTMLButtonElement, avatarInput: HTMLInputElement, avatarPreview: HTMLImageElement) {
@@ -94,9 +72,7 @@ export function resetAvatarButton(resetBtn: HTMLButtonElement, avatarInput: HTML
 	resetBtn.addEventListener('click', () => {
 		avatarPreview.src = '/images/avatars/baseAvatar.jpg'
 		fieldValid(avatarPreview.parentElement as HTMLElement)
-		if ($page.getAttribute('type') === 'update_profile')
-			$validateBtn.classList.add('hidden')
-
+		if ($page.getAttribute('type') === 'update_profile') $validateBtn.classList.add('hidden')
 	})
 }
 
@@ -108,22 +84,25 @@ export function setupAvatarPreview(avatarInput: HTMLInputElement, avatarPreview:
 	avatarInput.addEventListener('change', () => {
 		const file = avatarInput.files?.[0] || null
 		const avatarError = validateAvatarFormat(file)
+
+		if ($page.getAttribute('type') === 'update_profile') $validateBtn.classList.add('hidden')
+
 		if (avatarError) {
 			fieldInvalid(avatarPreview.parentElement as HTMLElement, avatarError)
 			return
 		}
 		fieldValid(avatarPreview.parentElement as HTMLElement)
-		if (avatarObjectURL) { // clean up previous image preview
+
+		if (avatarObjectURL) {
+			// clean up previous image preview
 			URL.revokeObjectURL(avatarObjectURL)
 			avatarObjectURL = null
-			if ($page.getAttribute('type') === 'update_profile')
-				$validateBtn.classList.add('hidden')
 		}
-		if (file) { // create new image preview
+		if (file) {
+			// create new image preview
 			avatarObjectURL = URL.createObjectURL(file)
 			avatarPreview.src = avatarObjectURL
-			if ($page.getAttribute('type') === 'update_profile')
-				$validateBtn.classList.remove('hidden')
+			if ($page.getAttribute('type') === 'update_profile') $validateBtn.classList.remove('hidden')
 		}
 	})
 }
@@ -149,7 +128,8 @@ export function validateUsernameUpdateFormat(username: string): string | null {
 export function validateEmailFormat(email: string): string | null {
 	const trimmedEmail = email.trim()
 	if (trimmedEmail === '') return 'Email is required'
-	if (!/^(?!.*\.\.)([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/.test(email)) return 'Invalid email format'
+	if (!/^(?!.*\.\.)([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/.test(email))
+		return 'Invalid email format'
 	if (trimmedEmail.length > 320) return 'Email is too long'
 	return null
 }
@@ -165,7 +145,8 @@ export function validateConfirmEmailFormat(confirmEmail: string, email?: string)
 export function validatePwdFormat(pwd: string): string | null {
 	if (pwd == '') return 'Password is required'
 	if (pwd.length < 8) return 'Password must be at least 8 characters'
-	if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/.test(pwd)) return 'Required: 1 uppercase, 1 lowercase, 1 number, 1 special character (\!\@\#\$\%\^\&\*\_)'
+	if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/.test(pwd))
+		return 'Required: 1 uppercase, 1 lowercase, 1 number, 1 special character (\!\@\#\$\%\^\&\*\_)'
 	return null
 }
 
@@ -188,7 +169,7 @@ export function createData(form: HTMLElement): UserRegisterType {
 	const pwd = (form.querySelector('input[name="pwd"]') as HTMLInputElement).value
 	const checkpwd = (form.querySelector('input[name="checkpwd"]') as HTMLInputElement).value
 
-	const data: UserRegisterType = {username, email, checkmail, pwd, checkpwd}
+	const data: UserRegisterType = { username, email, checkmail, pwd, checkpwd }
 	return data
 }
 
@@ -196,6 +177,6 @@ export function createLoginData(form: HTMLElement): UserLoginType {
 	const username = (form.querySelector('input[name="username"]') as HTMLInputElement).value.trim()
 	const pwd = (form.querySelector('input[name="pwd"]') as HTMLInputElement).value.trim()
 
-	const data: UserLoginType = {username, pwd}
+	const data: UserLoginType = { username, pwd }
 	return data
 }
