@@ -11,6 +11,7 @@ import { StateStore } from '../stores/state.store'
 import { ChatStore } from '../stores/chat.store'
 import { render2FAState, start2FAFlow } from '../functions/twofa_auth'
 import { GameStore } from '../stores/game.store'
+import { LobbyStore } from '../stores/lobby.store'
 
 GameStore.send({ type: 'navigate', navigate: 'update_profile' })
 
@@ -144,6 +145,7 @@ function updateUsername(usernameValidateBtn: HTMLButtonElement) {
 					})
 					// GameStore.send({type:'udpate-username', username:res.username})
 					GameStore.removeWebGameSocket();
+					LobbyStore.refreshSessionId("")
 					GameStore.addWebGamesocket(res.username);
 					StateStore.update({ username: res.username })
 					UserStore.emit(res)
