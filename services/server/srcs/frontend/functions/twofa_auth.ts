@@ -79,6 +79,15 @@ export function render2FAState(toggle2FABtn: HTMLButtonElement, enabled: boolean
 	toggle2FABtn.innerText = enabled ? 'Disable' : 'Enable'
 }
 
+let sendCodeDebounce: NodeJS.Timeout
+
+async function sendCode(purpose: twoFAPurpose, userData: any, $codeInput: HTMLInputElement) {
+	const resendSuccess = await send2FACode(purpose, userData)
+	if (!resendSuccess) return
+	$codeInput.value = ''
+	$codeInput.focus()
+}
+
 export async function start2FAFlow(
 	page: HTMLElement,
 	purpose: twoFAPurpose,
@@ -105,10 +114,8 @@ export async function start2FAFlow(
 	validate2FACode(page, $toggle2FABtn, $modal, $overlay, $codeInput, purpose, onSuccess, userData)
 
 	$resend2FABtn.onclick = async () => {
-		const resendSuccess = await send2FACode(purpose, userData)
-		if (!resendSuccess) return
-		$codeInput.value = ''
-		$codeInput.focus()
+		clearTimeout(sendCodeDebounce)
+		sendCodeDebounce = setTimeout(()=>sendCode(purpose, userData, $codeInput), 500)
 	}
 
 	$closeModalBtn.onclick = () => {

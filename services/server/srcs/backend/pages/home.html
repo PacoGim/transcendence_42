@@ -60,13 +60,13 @@
 		state::after {
 			content: '!';
 		}
-		
+
 		avatar {
 			display: flex;
 			justify-content: center;
 			margin-top: 1rem;
 		}
-		
+
 		avatar img {
 			width: 100px;
 			height: auto;
@@ -93,6 +93,15 @@
 			}
 		}
 
+		@media (max-width: 1000px) {
+			state {
+				max-width: 600px;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
+			}
+		}
+
 		@media (max-width: 700px) {
 			.wave {
 				font-size: 3.3rem;
@@ -105,15 +114,6 @@
 			state {
 				font-size: 2.2rem;
 				max-width: 310px;
-				text-overflow: ellipsis;
-				overflow: hidden;
-				white-space: nowrap;
-			}
-		}
-		
-		@media (max-width: 1000px) {
-			state {
-				max-width: 600px;
 				text-overflow: ellipsis;
 				overflow: hidden;
 				white-space: nowrap;
@@ -134,7 +134,7 @@
 		<span>g</span>
 		<state key="username"></state>
 		<avatar>
-			<img src="">
+			<img src="" />
 		</avatar>
 	</page-title>
 
