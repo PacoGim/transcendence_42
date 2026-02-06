@@ -5,10 +5,13 @@ set -e
 echo "Starting project setup..."
 
 if ! [ -f ".env" ]; then
-    if ! grep -q "<CHANGE-ME>" .env; then
-        echo ".env file do not exist. Create it before retrying."
-        exit 1
-    fi
+    echo ".env file do not exist. Create it before retrying."
+    exit 1
+fi
+
+if grep -q "<CHANGE-ME>" .env; then
+    echo ".env file still contains placeholders. Change them before retrying."
+    exit 1
 fi
 
 echo "Setting up Ethereal email account"
