@@ -14,6 +14,11 @@ if grep -q "<CHANGE-ME>" .env; then
     exit 1
 fi
 
+if [ -f "./services/vault/.env.vault" ]; then
+    echo ".env.vault file already exists. Please remove it before retrying."
+    exit 1
+fi
+
 echo "Setting up Ethereal email account"
 bash ./scripts/setup_ethereal.sh
 
@@ -22,6 +27,8 @@ bash ./scripts/generate_yml_conf_files.sh
 
 echo "Setting up Thanos Store volume"
 bash ./services/metrics/thanosStore/init_volume.sh
+
+ENV=".env"
 
 echo "Taking some .env values to send to .env.vault"
 CLIENT_ID_VALUE=$(grep '^CLIENT_ID=' "$ENV" | cut -d '=' -f2-)
@@ -63,6 +70,12 @@ ELASTICSEARCH_PWD)
 
 echo "Creating or empty $ENV_VAULT if already exists"
 > $ENV_VAULT
+
+if [ "$(uname)" = "Darwin" ]; then
+    SED="gsed -i"
+else
+    SED="sed -i"
+fi
 
 echo "Extracting sensitive keys to $ENV_VAULT and removing them from $ENV"
 for key in "${KEYS[@]}"; do
